@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101c35">
+<title>Bastos | Calculadora de Viagens</title>
+<style>
+:root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+header{background:var(--navy);color:white;padding:24px 18px 22px;border-bottom:4px solid var(--gold)}
+header .wrap,main{max-width:850px;margin:auto}h1{font-size:23px;margin:0 0 5px}header p{margin:0;color:#d6dbea;font-size:13px}
+main{padding:16px 12px 40px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #101c3508}
+h2{font-size:16px;margin:0 0 14px;color:var(--navy)}label{display:block;font-size:12px;font-weight:650;color:#475467;margin:0 0 5px}
+input,select{width:100%;padding:11px 10px;border:1px solid #d0d5dd;border-radius:9px;background:white;font:inherit;color:var(--ink);min-width:0}
+.field{margin-bottom:11px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+small,.hint{color:var(--muted);font-size:12px;line-height:1.4}.pill{display:inline-block;border-radius:20px;background:#f7f0df;color:#71551c;padding:5px 9px;font-size:11px;font-weight:700}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{background:#f7f8fb;border-radius:10px;padding:12px}.metric span{display:block;color:var(--muted);font-size:11px}.metric strong{display:block;font-size:20px;margin-top:4px;color:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:11px}
+button{border:0;border-radius:9px;padding:11px 14px;background:var(--navy);color:white;font-weight:700;font-size:13px}
+button.secondary{background:#edf0f5;color:var(--navy)}button.gold{background:var(--gold);color:#1b2435}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.notice{background:#fff8e8;border:1px solid #f0dfb7;border-radius:10px;padding:11px;font-size:12px;line-height:1.45;color:#604b20}
+#history{padding-left:18px;margin-bottom:0}#history li{margin:8px 0;font-size:13px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}.metric strong{font-size:18px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>BASTOS | CALCULADORA DE VIAGENS</h1><p>Custos, combustível e preço por passageiro — Chevrolet Spin</p></div></header>
+<main>
+<section class="card">
+<h2>1. Dados da viagem</h2>
+<div class="grid">
+<div class="field"><label>Origem</label><input id="origin" value="Duque de Caxias"></div>
+<div class="field"><label>Destino</label><input id="destination" placeholder="Ex.: Arraial do Cabo"></div>
+<div class="field"><label>Distância total (ida + volta), km</label><input id="km" type="number" min="0" step="0.1" value="368"></div>
+<div class="field"><label>Tipo de percurso</label><select id="road"><option value="road">Estrada</option><option value="city">Cidade</option><option value="mixed">Misto (consumo informado)</option></select></div>
+</div>
+<p class="hint">A distância é editável nesta primeira versão. Informe o total de ida e volta, incluindo deslocamentos extras.</p>
+</section>
+
+<section class="card">
+<h2>2. Combustível e consumo</h2>
+<div class="grid">
+<div class="field"><label>Combustível</label><select id="fuel"><option value="Etanol">Etanol</option><option value="Gasolina">Gasolina</option></select></div>
+<div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.01" value="4.39"></div>
+<div class="field"><label>Consumo médio (km/l)</label><select id="preset"><option value="10">Conservador para orçamento — 10 km/l</option><option value="9">Mais conservador — 9 km/l</option><option value="10.5">Normal — 10,5 km/l</option><option value="11.5">Econômico — 11,5 km/l</option><option value="custom">Personalizar consumo</option></select></div>
+<div class="field"><label>Consumo personalizado (km/l)</label><input id="custom" type="number" min="0.1" step="0.1" value="10" disabled></div>
+<div class="field"><label>Ar-condicionado</label><select id="ac"><option value="10">Ligado — margem extra de 10%</option><option value="5">Ligado — margem extra de 5%</option><option value="0">Sem ajuste adicional</option></select></div>
+<div class="field"><label>Reserva de segurança (%)</label><input id="reserve" type="number" min="0" max="100" value="15"></div>
+</div>
+<div class="notice">Referências iniciais para a Spin 1.8 automática: etanol, 6,9 km/l na cidade e 8,6 km/l na estrada (referência oficial informada anteriormente). Seu consumo real relatado em estrada livre com etanol é de 10 a 11,5 km/l. O cálculo usa o consumo selecionado por você, não mistura automaticamente essas referências.</div>
+</section>
+
+<section class="card"><h2>3. Capacidade do tanque</h2><div class="field"><label>Capacidade da Spin</label><input value="53 litros" disabled></div><p class="hint">O cálculo mostra o total de litros necessários para ida e volta, incluindo a reserva, sem descontar o combustível que já existe no tanque.</p></section>
+
+<section class="card">
+<h2>4. Meta de ganho e pedágios</h2>
+<div class="grid">
+<div class="field"><label>Quanto deseja sobrar (R$)</label><input id="profit" type="number" min="0" step="1" value="600"></div>
+<div class="field"><label>Pedágios ida e volta (R$)</label><input id="tolls" type="number" min="0" step="0.01" value="0"></div>
+
+
+</div>
+</section>
+
+<section class="card"><button class="gold" id="calculate" style="width:100%;padding:15px;font-size:16px">CALCULAR VIAGEM</button>
+<p id="calcError" role="alert" style="color:#a33;font-weight:600"></p><p class="hint" style="margin-bottom:0">Preencha os dados acima e toque no botão para atualizar os resultados.</p></section>
+<section class="card">
+<h2>5. Resultado do planejamento</h2>
+<div class="results">
+<div class="metric"><span>Consumo ajustado</span><strong id="adjusted">—</strong></div>
+<div class="metric"><span>Combustível da viagem</span><strong id="tripFuel">—</strong></div>
+<div class="metric"><span>Com reserva de segurança</span><strong id="needed">—</strong></div>
+<div class="metric"><span>Litros necessários para ida e volta (com reserva)</span><strong id="toAdd">—</strong></div>
+<div class="metric"><span>Custo do combustível consumido</span><strong id="fuelCost">—</strong></div>
+<div class="metric"><span>Faturamento necessário</span><strong id="revenue">—</strong></div>
+</div>
+<p id="tankWarning" class="hint"></p>
+<h2 style="margin-top:18px">Preço sugerido por passageiro</h2>
+<table><thead><tr><th>Grupo</th><th>Por pessoa</th><th>Total cobrado</th><th>Sobra estimada*</th></tr></thead><tbody id="fareRows"></tbody></table>
+<p class="hint">*Sobra estimada após combustível e pedágios informados. Valores por pessoa arredondados para cima ao real inteiro. O total pode ficar um pouco acima da meta.</p>
+<div class="actions" style="margin-top:14px"><button class="gold" id="save">Salvar orçamento</button><button class="secondary" id="reset">Restaurar exemplo</button></div>
+</section>
+
+<section class="card"><h2>6. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
+<p class="hint">Versão inicial de cálculo. A busca automática de rotas/distâncias e sincronização entre aparelhos ainda não estão ativadas. Confira a rota e os custos reais antes de fechar um orçamento.</p>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const fmt = v => Number(v).toLocaleString('pt-BR',{maximumFractionDigits:1});
+  const val = id => Number(String($(id).value).replace(',','.'));
+  const consumption = () => $('preset').value === 'custom' ? val('custom') : Number($('preset').value);
+
+  function calculate() {
+    const km=val('km'), base=consumption(), ac=Number($('ac').value);
+    const reserve=val('reserve'), price=val('price'), tolls=val('tolls'), profit=val('profit');
+    if (!$('destination').value.trim()) throw new Error('Informe o destino da viagem.');
+    if (![km,base,reserve,price,tolls,profit,ac].every(Number.isFinite) ||
+        km<=0 || base<=0 || reserve<0 || reserve>100 || price<=0 || tolls<0 || profit<0)
+      throw new Error('Confira a distância, consumo, reserva, preço do combustível, pedágio e meta de ganho.');
+
+    // O ajuste do ar reduz o rendimento efetivo; a reserva é acrescentada ao combustível necessário.
+    const effective=base/(1+ac/100);
+    const trip=km/effective;
+    const reserveLitres=trip*reserve/100;
+    const required=trip+reserveLitres;
+    const fuelCost=trip*price;
+    const revenue=fuelCost+tolls+profit;
+
+    $('adjusted').textContent=fmt(effective)+' km/l';
+    $('tripFuel').textContent=fmt(trip)+' L';
+    $('needed').textContent=fmt(required)+' L';
+    $('toAdd').textContent=fmt(required)+' L';
+    $('fuelCost').textContent=money(fuelCost);
+    $('revenue').textContent=money(revenue);
+    $('tankWarning').textContent=required>53
+      ? 'Atenção: a necessidade calculada é de '+fmt(required)+' L, acima dos 53 L do tanque. Será necessário abastecer durante o percurso.'
+      : 'Você precisa ter '+fmt(required)+' L disponíveis para ida e volta, incluindo a reserva. O cálculo não desconta o combustível que já está no tanque.';
+    $('fareRows').innerHTML=[4,5,6].map(n=>{
+      const per=Math.ceil((revenue/n)*100)/100, total=per*n;
+      return `<tr><td>${n} pessoas</td><td>${money(per)}</td><td>${money(total)}</td><td>${money(total-fuelCost-tolls)}</td></tr>`;
+    }).join('');
+
+    const resultSection=$('fareRows').closest('section') || $('fareRows').parentElement;
+    if (resultSection) resultSection.hidden=false;
+    $('adjusted').scrollIntoView({behavior:'smooth',block:'center'});
+    return {km,revenue};
+  }
+
+  $('calculate').addEventListener('click', () => {
+    const error=$('calcError');
+    if(error) error.textContent='';
+    try { calculate(); }
+    catch(e) { if(error) error.textContent=e.message; else alert(e.message); }
+  });
+
+  $('preset').addEventListener('change',()=>{
+    $('custom').disabled=$('preset').value!=='custom';
+  });
+
+  $('save').addEventListener('click',()=>{
+    try {
+      const c=calculate();
+      const arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');
+      arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});
+      localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));
+      renderHistory();
+      alert('Orçamento salvo neste aparelho.');
+    } catch(e) { alert(e.message); }
+  });
+
+  function renderHistory(){
+    const arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');
+    $('history').innerHTML=arr.length
+      ? arr.map(x=>`<li><b>${x.dest||'Destino não informado'}</b> — ${x.km} km — ${x.date} — faturamento mínimo ${money(x.revenue)}</li>`).join('')
+      : '<li>Nenhum orçamento salvo ainda.</li>';
+  }
+  $('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?')) location.reload();});
+  renderHistory();
+})();
+</script>
+</body></html>
