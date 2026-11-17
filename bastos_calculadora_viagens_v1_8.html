@@ -184,7 +184,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 2.4 — orçamento azul com contraste reforçado, Spin branca, PDF e mensagem de WhatsApp organizada por seções; importação de respostas, modalidades, taxas separadas e histórico. Distância informada manualmente conforme Waze.</p>
+<p class="hint">Versão 2.5 — correção da geração do orçamento; orçamento azul com contraste reforçado, Spin branca, PDF e mensagem de WhatsApp organizada por seções; importação de respostas, modalidades, taxas separadas e histórico. Distância informada manualmente conforme Waze.</p>
 </main>
 <script>
 (() => {
@@ -311,7 +311,9 @@ function calculate(){
  const mode=$('serviceMode').value==='available'?'Bate e volta — motorista à disposição':'Bate e volta — somente levar e buscar';
  const total=round2(fare.total+waitFee+driverFee);
  const people=`${adultCount} adulto(s) + ${childCount} criança(s) + ${babyCount} bebê(s)`;
- const childInfo=$('childrenAges').value.trim()?`Idades das crianças: ${$('childrenAges').value.trim()}`:'';
+ // A idade das crianças é lida dentro de calculate(); não pode depender da variável local da importação.
+ const childAges=$('childrenAges').value.trim();
+ const childInfo=childAges?`Idades das crianças: ${childAges}`:'';
  const babyInfo=babyCount>0?`Bebês: ${babyCount} — idades: ${$('babyAges').value.trim()||'não informadas'}`:'';
  const bags=`Bagagens: ${num('largeBags')} mala(s) grande(s) e ${num('smallBags')} bolsa(s)/mala(s) pequena(s)`;
  const extras=[childInfo,babyInfo,bags,$('stroller').value!=='Não informado'?'Carrinho de bebê: '+$('stroller').value:'',$('childSeat').value!=='Não informado'?'Cadeirinha/assento infantil: '+$('childSeat').value:'',$('observations').value.trim()?'Observações: '+$('observations').value.trim(): ''].filter(Boolean);
