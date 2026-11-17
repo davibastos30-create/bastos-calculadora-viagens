@@ -181,7 +181,7 @@ function importReply(){
  const large=digits(first(find('Quantidade de malas grandes','Malas grandes')));
  const small=digits(first(find('Quantidade de bolsas/malas pequenas','Quantidade de bolsas ou malas pequenas','Bolsas/malas pequenas','Bolsas ou malas pequenas','Malas pequenas','Bolsas pequenas')));
  const stroller=first(find('Carrinho de bebê','Carrinho de bebe','Vai levar carrinho de bebê','Vai levar carrinho de bebe','Carrinho'));
- const seat=first(find('Precisa de cadeirinha/assento infantil','Precisa de cadeirinha ou assento infantil','Cadeirinha/assento infantil','Cadeirinha','Assento infantil'));
+ const seat=first(find('Precisa de cadeirinha/assento infantil','Precisa de cadeirinha ou assento infantil','Cadeirinha/assento infantil','Cadeirinha ou assento infantil','Cadeirinha','Assento infantil'));
  const observations=first(find('Observações e necessidades especiais','Observacoes e necessidades especiais','Observações','Observacoes'));
  set('client',name);set('phone',phone);set('origin',origin);set('destination',destination);
  if(adults!=='')set('adults',adults);if(children!=='')set('children',children);if(childAges)set('childrenAges',childAges);
