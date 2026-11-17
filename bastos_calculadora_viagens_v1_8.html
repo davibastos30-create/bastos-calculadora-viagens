@@ -62,7 +62,6 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="field"><label>Quantidade total de passageiros</label><input id="passengers" type="number" min="1" max="6" step="1" value="" placeholder="Preenchido pela soma dos passageiros"></div>
 <div class="field"><label>Tipo de serviço</label><select id="serviceMode"><option value="transport">Bate e volta — somente levar e buscar</option><option value="available">Bate e volta — motorista à disposição</option></select></div>
 </div>
-<div class="field"><label>Paradas / outros locais que deseja visitar</label><textarea id="stops" placeholder="Informe se haverá paradas ou outros locais durante o passeio"></textarea></div>
 <div class="field"><label>Observações e necessidades especiais</label><textarea id="observations" placeholder="Outras informações importantes para organizar a viagem"></textarea></div>
 <p class="hint">A modalidade motorista à disposição significa permanecer com o cliente e realizar deslocamentos entre os locais do passeio. O adicional será informado separadamente no orçamento.</p>
 </section>
@@ -142,135 +141,68 @@ const consumption = () => $('preset').value === 'custom' ? num('custom') : Numbe
 const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function importReply(){
  const raw=$('clientReply').value.trim();
- if(!raw){
-   $('importStatus').textContent='Cole primeiro a resposta preenchida que veio do formulário/WhatsApp.';
-   return;
- }
- const lines=raw.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
- const norm=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- const strip=value=>String(value||'').replace(/^[\s\-•:*📍👤🏠📅⏰👨‍👩‍👧‍👦👶🧳🛒🪑📝☝️]+/u,'').trim();
+ if(!raw){$('importStatus').textContent='Cole primeiro a resposta preenchida do formulário/WhatsApp.';return;}
+ const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&nbsp;|&#x20;|&#32;/g,' ').replace(/[?¿]/g,'').replace(/[*_`]/g,'').replace(/\s+/g,' ').trim();
+ const strip=v=>String(v||'').replace(/^\s*[*_`•\-–—:]+\s*/,'').replace(/\s*[*_`]+\s*$/,'').replace(/^resposta\s*:\s*/i,'').trim();
  const entries=[];
- for(const line of lines){
-   const cleaned=strip(line);
-   const match=cleaned.match(/^([^:：]{2,55})\s*[:：]\s*(.*)$/);
-   if(match) entries.push({key:norm(match[1]).replace(/[?¿]/g,'').trim(),value:strip(match[2])});
+ for(const original of raw.split(/\r?\n/)){
+   const line=strip(original);
+   if(!line)continue;
+   const m=line.match(/^([^:：]{2,90})\s*[:：]\s*(.*)$/);
+   if(m)entries.push({key:norm(strip(m[1])),value:strip(m[2])});
  }
- const find=(...labels)=>{
-   const wanted=labels.map(label=>norm(label));
-   const item=entries.find(entry=>wanted.includes(entry.key));
-   return item ? item.value : '';
- };
- const set=(id,value)=>{
-   if(value!=='' && $(id)) $(id).value=value;
- };
- const digits=value=>{
-   const match=String(value||'').match(/\d+/);
-   return match ? match[0] : '';
- };
- const firstNonEmpty=(...values)=>values.find(value=>String(value||'').trim()!=='')||'';
-
- // Dados pessoais e endereço: aceita tanto o formato antigo quanto os campos separados do novo formulário.
- const name=firstNonEmpty(find('Nome','Nome do responsável','Responsável'));
- const phone=firstNonEmpty(find('Telefone','WhatsApp','Celular'));
- const fullAddress=firstNonEmpty(find('Endereço','Endereço de embarque','Endereço completo'));
+ const find=(...labels)=>{const wanted=labels.map(norm);const e=entries.find(x=>wanted.includes(x.key));return e?e.value:'';};
+ const first=(...v)=>v.find(x=>String(x||'').trim()!=='')||'';
+ const set=(id,v)=>{if(v!==''&&$(id))$(id).value=v;};
+ const digits=v=>{const m=String(v||'').match(/\d+/);return m?m[0]:'';};
+ const name=first(find('Nome do responsável','Nome do responsavel','Nome','Responsável','Responsavel'));
+ const phone=first(find('Telefone','WhatsApp','Celular','Telefone com DDD'));
  const street=find('Rua','Logradouro');
- const number=find('Número','Nº','Numero');
+ const number=find('Número','Numero','Nº','Número da residência','Numero da residencia');
  const neighborhood=find('Bairro');
- const municipality=firstNonEmpty(find('Município','Municipio','Cidade'));
- const state=firstNonEmpty(find('Estado','UF'));
+ const city=first(find('Município','Municipio','Cidade'));
+ const state=first(find('Estado','UF'));
  const complement=find('Complemento');
- const reference=firstNonEmpty(find('Ponto de referência','Referência','Referencia'));
- let origin=fullAddress;
- if(!origin){
-   const parts=[];
-   if(street) parts.push(street);
-   if(number) parts.push('nº '+number);
-   if(neighborhood) parts.push(neighborhood);
-   if(municipality) parts.push(municipality);
-   if(state) parts.push(state);
-   if(complement) parts.push('Complemento: '+complement);
-   if(reference) parts.push('Referência: '+reference);
-   origin=parts.join(', ');
- }
- const destination=firstNonEmpty(find('Destino','Destino da viagem','Local de destino'));
- const date=firstNonEmpty(find('Data','Data da viagem'));
- const time=firstNonEmpty(find('Horário','Horario','Horário de saída','Hora'));
- set('client',name);
- set('phone',phone);
- set('origin',origin);
- set('destination',destination);
-
- // Passageiros e idades.
- const adults=digits(find('Adultos','Quantidade de adultos'));
- const children=digits(find('Crianças','Criancas','Quantidade de crianças','Quantidade de criancas'));
- const childAges=firstNonEmpty(find('Idades das crianças','Idades das criancas'));
- const babyRaw=firstNonEmpty(find('Bebês','Bebes','Quantidade de bebês','Quantidade de bebes','Bebês (quantidade)','Bebes (quantidade)'));
+ const reference=first(find('Ponto de referência','Ponto de referencia','Referência','Referencia'));
+ const fullAddress=first(find('Endereço de embarque','Endereco de embarque','Endereço completo','Endereco completo','Endereço','Endereco'));
+ const address=[street,number?`nº ${number}`:'',neighborhood,city,state].filter(Boolean).join(', ');
+ let origin=fullAddress||address;
+ if(complement)origin+=(origin?' — ':'')+'Complemento: '+complement;
+ if(reference)origin+=(origin?' — ':'')+'Referência: '+reference;
+ const destination=first(find('Destino principal','Local de destino','Destino da viagem','Destino'));
+ const date=first(find('Data da viagem','Data'));
+ const time=first(find('Horário de saída','Horario de saida','Horário','Horario','Hora de saída','Hora de saida','Hora'));
+ const adults=digits(first(find('Adultos','Quantidade de adultos')));
+ const children=digits(first(find('Crianças','Criancas','Quantidade de crianças','Quantidade de criancas')));
+ const childAges=first(find('Idades das crianças','Idades das criancas'));
+ const babyRaw=first(find('Quantidade de bebês','Quantidade de bebes','Bebês','Bebes','Quantos bebês','Quantos bebes'));
  const babyCount=digits(babyRaw);
- const babyAges=firstNonEmpty(find('Idades dos bebês','Idades dos bebes','Idades dos bebês (se houver)','Idades dos bebes (se houver)'));
- set('childrenAges',childAges);
- set('babyAges',babyAges);
- if(adults!=='') set('adults',adults);
- if(children!=='') set('children',children);
- if(babyCount!=='') set('babyCount',babyCount);
-
- // Bagagens: aceita quantidades separadas ou uma descrição combinada.
- const largeRaw=firstNonEmpty(find('Malas grandes','Quantidade de malas grandes'));
- const smallRaw=firstNonEmpty(find('Malas pequenas','Bolsas pequenas','Quantidade de malas pequenas','Quantidade de bolsas pequenas'));
- const baggage=firstNonEmpty(find('Bagagens','Malas e bolsas','Quantidade de bagagens'));
- if(largeRaw!=='') set('largeBags',digits(largeRaw));
- if(smallRaw!=='') set('smallBags',digits(smallRaw));
- if(baggage){
-   const normalized=norm(baggage);
-   const largeMatch=normalized.match(/(\d+)\s*(?:malas?\s*)?grandes?/);
-   const smallMatch=normalized.match(/(\d+)\s*(?:bolsas?\s*(?:\/|ou)?\s*)?(?:malas?\s*)?pequenas?/);
-   if(largeMatch && largeRaw==='') set('largeBags',largeMatch[1]);
-   if(smallMatch && smallRaw==='') set('smallBags',smallMatch[1]);
- }
-
- // Itens e observações.
- const stroller=firstNonEmpty(find('Carrinho','Carrinho de bebê','Carrinho de bebe','Vai levar carrinho de bebê?','Vai levar carrinho de bebe?'));
- if(stroller){
-   const value=norm(stroller);
-   set('stroller',/^(sim|s|1|yes)/.test(value)?'Sim':/^(nao|n|0|no)/.test(value)?'Não':'Não informado');
- }
- const seat=firstNonEmpty(find('Cadeirinha','Assento infantil','Precisa de cadeirinha/assento infantil?','Cadeirinha/assento infantil'));
- if(seat){
-   const value=norm(seat);
-   set('childSeat',/ja possui|levar[ae] (?:o )?proprio|meu proprio/.test(value)?'Já possui e levará':/^(sim|s|yes)/.test(value)?'Sim':/^(nao|n|no|nao precisa)/.test(value)?'Não':'Não informado');
- }
- const stops=firstNonEmpty(find('Paradas','Paradas / outros locais','Outros locais','Locais adicionais'));
- const observations=firstNonEmpty(find('Observações','Observacoes','Observações e necessidades especiais','Observacoes e necessidades especiais'));
- set('stops',stops);
- set('observations',observations);
-
- // Data e horário em formatos brasileiros ou ISO.
- if(time){
-   const timeMatch=time.match(/(\d{1,2}):(\d{2})/);
-   if(timeMatch) set('travelTime',timeMatch[1].padStart(2,'0')+':'+timeMatch[2]);
- }
- if(date){
-   let dateMatch=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
-   if(dateMatch) set('travelDate',`${dateMatch[3]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[1].padStart(2,'0')}`);
-   else if(/^\d{4}-\d{2}-\d{2}$/.test(date)) set('travelDate',date);
- }
-
- // Modalidade do formulário novo: A = levar e buscar; B = motorista à disposição.
- const option=firstNonEmpty(find('Opção escolhida','Opcao escolhida','Modalidade','Tipo de serviço','Tipo de servico'));
- const optionMatch=option.match(/\b([AB])\b/i);
- if(optionMatch){
-   $('serviceMode').value=optionMatch[1].toUpperCase()==='B'?'available':'transport';
- }else{
-   const oldOption=lines.find(line=>/escolha sua op[cç][aã]o/i.test(line));
-   if(oldOption){
-     const oldMatch=oldOption.match(/\b([AB])\b/i);
-     if(oldMatch) $('serviceMode').value=oldMatch[1].toUpperCase()==='B'?'available':'transport';
-   }
- }
-
+ const babyAges=first(find('Idades dos bebês','Idades dos bebes','Quais as idades dos bebês','Quais as idades dos bebes'));
+ const large=digits(first(find('Quantidade de malas grandes','Malas grandes')));
+ const small=digits(first(find('Quantidade de bolsas/malas pequenas','Quantidade de bolsas ou malas pequenas','Bolsas/malas pequenas','Bolsas ou malas pequenas','Malas pequenas','Bolsas pequenas')));
+ const stroller=first(find('Carrinho de bebê','Carrinho de bebe','Vai levar carrinho de bebê','Vai levar carrinho de bebe','Carrinho'));
+ const seat=first(find('Precisa de cadeirinha/assento infantil','Precisa de cadeirinha ou assento infantil','Cadeirinha/assento infantil','Cadeirinha','Assento infantil'));
+ const observations=first(find('Observações e necessidades especiais','Observacoes e necessidades especiais','Observações','Observacoes'));
+ set('client',name);set('phone',phone);set('origin',origin);set('destination',destination);
+ if(adults!=='')set('adults',adults);if(children!=='')set('children',children);if(childAges)set('childrenAges',childAges);
+ if(babyRaw!=='')set('babyCount',babyCount);if(babyAges)set('babyAges',babyAges);
+ if(large!=='')set('largeBags',large);if(small!=='')set('smallBags',small);
+ if(stroller){const v=norm(stroller);set('stroller',/^(sim|s|1|yes)/.test(v)?'Sim':/^(nao|n|0|no)/.test(v)?'Não':'Não informado');}
+ if(seat){const v=norm(seat);set('childSeat',/ja possui|levara o proprio|levara seu proprio/.test(v)?'Já possui e levará':/^(sim|s|yes)/.test(v)?'Sim':/^(nao|n|no|nao precisa)/.test(v)?'Não':'Não informado');}
+ if(observations)set('observations',observations);
+ if(time){const tm=time.match(/(\d{1,2}):(\d{2})/);if(tm)set('travelTime',tm[1].padStart(2,'0')+':'+tm[2]);}
+ if(date){let dm=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(dm)set('travelDate',`${dm[3]}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`);else if(/^\d{4}-\d{2}-\d{2}$/.test(date))set('travelDate',date);}
+ const option=first(find('Opção escolhida','Opcao escolhida','Tipo de serviço','Tipo de servico','Modalidade'));
+ const om=option.match(/\b([AB])\b/i);
+ if(om)$('serviceMode').value=om[1].toUpperCase()==='B'?'available':'transport';
+ else if(/motorista.{0,30}disposi[cç][aã]o/i.test(raw))$('serviceMode').value='available';
+ else if(/somente levar e buscar/i.test(raw))$('serviceMode').value='transport';
  const total=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);
- if(total>0 && total<=6) $('passengers').value=String(total);
+ if(total>0&&total<=6)$('passengers').value=String(total);
  updateMode();
- $('importStatus').textContent='Importação concluída. Confira os dados, principalmente endereço, idades, bagagens e modalidade. Total identificado: '+total+' passageiro(s). A importação não altera os dados de combustível, distância, taxas ou cálculos.';
+ const missing=[];
+ if(!name)missing.push('nome');if(!date)missing.push('data');if(!time)missing.push('horário');if(!origin)missing.push('endereço de embarque');if(!destination)missing.push('destino');if(small==='')missing.push('bolsas/malas pequenas');if(!seat)missing.push('cadeirinha/assento infantil');
+ $('importStatus').textContent='Importação processada. Total identificado: '+total+' passageiro(s). '+(missing.length?'Não encontrei no texto: '+missing.join(', ')+'. Confira se esses campos foram preenchidos e enviados pelo formulário.':'Os campos principais foram reconhecidos. Confira os dados antes de calcular.');
 }
 $('importReply').addEventListener('click',importReply);
 function updateMode(){
@@ -322,7 +254,7 @@ function calculate(){
  const childInfo=$('childrenAges').value.trim()?`Idades das crianças: ${$('childrenAges').value.trim()}`:'';
  const babyInfo=babyCount>0?`Bebês: ${babyCount} — idades: ${$('babyAges').value.trim()||'não informadas'}`:'';
  const bags=`Bagagens: ${num('largeBags')} mala(s) grande(s) e ${num('smallBags')} bolsa(s)/mala(s) pequena(s)`;
- const extras=[childInfo,babyInfo,bags,$('stroller').value!=='Não informado'?'Carrinho de bebê: '+$('stroller').value:'',$('childSeat').value!=='Não informado'?'Cadeirinha/assento infantil: '+$('childSeat').value:'',$('stops').value.trim()?'Paradas: '+$('stops').value.trim():'',$('observations').value.trim()?'Observações: '+$('observations').value.trim(): ''].filter(Boolean);
+ const extras=[childInfo,babyInfo,bags,$('stroller').value!=='Não informado'?'Carrinho de bebê: '+$('stroller').value:'',$('childSeat').value!=='Não informado'?'Cadeirinha/assento infantil: '+$('childSeat').value:'',$('observations').value.trim()?'Observações: '+$('observations').value.trim(): ''].filter(Boolean);
  const quoteLines=['BASTOS | MOTORISTA PARTICULAR RJ','ORÇAMENTO DE TRANSPORTE PRIVATIVO',client?'Cliente: '+client:'', $('phone').value.trim()?'Telefone: '+$('phone').value.trim():'','Origem: '+origin,'Destino: '+destination,'Data: '+date,'Horário: '+time,'Passageiros: '+pax+' ('+people+')',...extras,'Serviço: '+mode,'Transporte: '+money(fare.total),'Valor por passageiro (transporte): '+money(fare.per),waitFee>0?'Taxa de disponibilidade/espera: '+money(waitFee):'',driverFee>0?'Adicional fixo — motorista à disposição: '+money(driverFee):'','VALOR TOTAL: '+money(total),'','Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.','Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'].filter(Boolean);
  $('clientBudget').dataset.quote=quoteLines.join('\n');
  let budget=`<p><b>Cliente:</b> ${escapeHtml(client||'Não informado')}</p><p><b>Origem:</b> ${escapeHtml(origin)}</p><p><b>Destino:</b> ${escapeHtml(destination)}</p><p><b>Data:</b> ${date} &nbsp; <b>Horário:</b> ${time}</p><p><b>Passageiros:</b> ${pax} (${escapeHtml(people)})</p>`;
