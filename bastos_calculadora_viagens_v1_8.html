@@ -127,7 +127,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 1.8 — importação de respostas do WhatsApp, modalidade de serviço, taxas separadas, orçamento e mensagem de valorização. Distância informada manualmente conforme Waze.</p>
+<p class="hint">Versão 1.9 — importação de respostas do WhatsApp, modalidade de serviço, taxas separadas, orçamento e mensagem de valorização. Distância informada manualmente conforme Waze.</p>
 </main>
 <script>
 (() => {
@@ -143,7 +143,7 @@ function importReply(){
  const raw=$('clientReply').value.trim();
  if(!raw){$('importStatus').textContent='Cole primeiro a resposta preenchida do formulário/WhatsApp.';return;}
  const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&nbsp;|&#x20;|&#32;/g,' ').replace(/[?¿]/g,'').replace(/[*_`]/g,'').replace(/\s+/g,' ').trim();
- const strip=v=>String(v||'').replace(/^\s*[*_`•\-–—:]+\s*/,'').replace(/\s*[*_`]+\s*$/,'').replace(/^resposta\s*:\s*/i,'').trim();
+ const strip=v=>String(v||'').replace(/^\s*(?:[*_`•\-–—:�\uFFFD]|[^\p{L}\p{N}])+/gu,'').replace(/\s*[*_`]+\s*$/g,'').replace(/^resposta\s*:\s*/i,'').trim();
  const entries=[];
  for(const original of raw.split(/\r?\n/)){
    const line=strip(original);
@@ -188,7 +188,7 @@ function importReply(){
  if(babyRaw!=='')set('babyCount',babyCount);if(babyAges)set('babyAges',babyAges);
  if(large!=='')set('largeBags',large);if(small!=='')set('smallBags',small);
  if(stroller){const v=norm(stroller);set('stroller',/^(sim|s|1|yes)/.test(v)?'Sim':/^(nao|n|0|no)/.test(v)?'Não':'Não informado');}
- if(seat){const v=norm(seat);set('childSeat',/ja possui|levara o proprio|levara seu proprio/.test(v)?'Já possui e levará':/^(sim|s|yes)/.test(v)?'Sim':/^(nao|n|no|nao precisa)/.test(v)?'Não':'Não informado');}
+ if(seat){const v=norm(seat);set('childSeat',/ja possui|levarei|levaremos|levara|levar meu|levar seu|proprio equipamento/.test(v)?'Já possui e levará':/^(sim|s|yes)/.test(v)?'Sim':/^(nao|n|no|nao precisa)/.test(v)?'Não':'Não informado');}
  if(observations)set('observations',observations);
  if(time){const tm=time.match(/(\d{1,2}):(\d{2})/);if(tm)set('travelTime',tm[1].padStart(2,'0')+':'+tm[2]);}
  if(date){let dm=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(dm)set('travelDate',`${dm[3]}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`);else if(/^\d{4}-\d{2}-\d{2}$/.test(date))set('travelDate',date);}
