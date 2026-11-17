@@ -33,13 +33,12 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <header><div class="wrap"><h1>BASTOS | CALCULADORA DE VIAGENS</h1><p>Planejamento, combustível e orçamento — Chevrolet Spin</p></div></header>
 <main>
 <section class="card">
-<h2>1. Questionário para o cliente</h2>
-<p class="hint">Copie e envie pelo WhatsApp. Quando o cliente responder, cole a resposta abaixo. A leitura automática é uma ajuda: confira os dados antes de calcular.</p>
-<div class="actions"><button class="gold" id="copyQuestionnaire">Copiar questionário para WhatsApp</button></div>
-<div class="field" style="margin-top:13px"><label>Resposta recebida do cliente</label><textarea id="clientReply" placeholder="Cole aqui a resposta do cliente..."></textarea></div>
+<h2>1. Importar resposta do WhatsApp Business</h2>
+<p class="hint">Use as respostas rápidas cadastradas no WhatsApp Business. Quando o cliente devolver o questionário preenchido, copie a mensagem inteira e cole aqui. A calculadora tentará identificar os campos e preencher os dados da viagem.</p>
+<div class="field" style="margin-top:13px"><label>Resposta preenchida pelo cliente (copiada do WhatsApp)</label><textarea id="clientReply" placeholder="Cole aqui a mensagem completa que o cliente devolveu..."></textarea></div>
 <div class="actions"><button id="importReply">Interpretar resposta e preencher os dados</button></div>
 <p id="importStatus" class="hint" aria-live="polite"></p>
-<div class="notice">A capacidade do veículo é de até 7 ocupantes incluindo o motorista, portanto até 6 passageiros. Esta calculadora aplica sua política comercial de grupos de 4 a 6 passageiros. A quantidade e a idade das crianças devem ser conferidas para avaliar cadeirinhas, assentos e capacidade adequada.</div>
+<div class="notice">A capacidade do veículo é de até 7 ocupantes incluindo o motorista, portanto até 6 passageiros. Esta calculadora aplica sua política comercial de grupos de 4 a 6 passageiros. Adultos, crianças e bebês entram na contagem total de passageiros. Confira as idades e os dispositivos de retenção infantil antes de confirmar o serviço.</div>
 </section>
 
 <section class="card">
@@ -51,15 +50,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="field"><label>Horário de saída</label><input id="travelTime" type="time"></div>
 <div class="field"><label>Endereço de embarque</label><input id="origin" placeholder="Rua, número, bairro e cidade"></div>
 <div class="field"><label>Destino principal</label><input id="destination" placeholder="Local de destino"></div>
-<div class="field"><label>Adultos</label><input id="adults" type="number" min="0" max="6" step="1" value="4"></div>
+<div class="field"><label>Adultos</label><input id="adults" type="number" min="0" max="6" step="1" value="" placeholder="Ex.: 4"></div>
 <div class="field"><label>Crianças</label><input id="children" type="number" min="0" max="6" step="1" value="0"></div>
 <div class="field"><label>Idades das crianças</label><input id="childrenAges" placeholder="Ex.: 3 e 8 anos"></div>
-<div class="field"><label>Bebês (quantidade e idade)</label><input id="babies" placeholder="Ex.: 1 bebê de 10 meses"></div>
+<div class="field"><label>Quantidade de bebês</label><input id="babyCount" type="number" min="0" max="6" step="1" value="0"></div>
+<div class="field"><label>Idades dos bebês</label><input id="babyAges" placeholder="Ex.: 10 meses e 1 ano"></div>
 <div class="field"><label>Quantidade de malas grandes</label><input id="largeBags" type="number" min="0" step="1" value="0"></div>
 <div class="field"><label>Quantidade de bolsas/malas pequenas</label><input id="smallBags" type="number" min="0" step="1" value="0"></div>
 <div class="field"><label>Carrinho de bebê?</label><select id="stroller"><option value="Não informado">Não informado</option><option>Não</option><option>Sim</option></select></div>
 <div class="field"><label>Precisa de cadeirinha/assento infantil?</label><select id="childSeat"><option value="Não informado">Não informado</option><option>Não</option><option>Sim</option><option>Já possui e levará</option></select></div>
-<div class="field"><label>Quantidade total de passageiros</label><input id="passengers" type="number" min="1" max="6" step="1" value="4"></div>
+<div class="field"><label>Quantidade total de passageiros</label><input id="passengers" type="number" min="1" max="6" step="1" value="" placeholder="Preenchido pela soma dos passageiros"></div>
 <div class="field"><label>Tipo de serviço</label><select id="serviceMode"><option value="transport">Bate e volta — somente levar e buscar</option><option value="available">Bate e volta — motorista à disposição</option></select></div>
 </div>
 <div class="field"><label>Paradas / outros locais que deseja visitar</label><textarea id="stops" placeholder="Informe se haverá paradas ou outros locais durante o passeio"></textarea></div>
@@ -128,7 +128,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 1.8 — atualização integrada: questionário, modalidade de serviço, taxas separadas, orçamento e mensagem de valorização. Distância informada manualmente conforme Waze.</p>
+<p class="hint">Versão 1.8 — importação de respostas do WhatsApp, modalidade de serviço, taxas separadas, orçamento e mensagem de valorização. Distância informada manualmente conforme Waze.</p>
 </main>
 <script>
 (() => {
@@ -140,56 +140,53 @@ const num = id => Number(String($(id).value).replace(',','.'));
 const round2 = value => Math.round((value + Number.EPSILON) * 100) / 100;
 const consumption = () => $('preset').value === 'custom' ? num('custom') : Number($('preset').value);
 const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const questionnaire = `🚘 *BASTOS | MOTORISTA PARTICULAR RJ*
-Para preparar seu orçamento, me informe:
-
-1. Nome do responsável:
-2. Endereço de embarque (rua, número, bairro e cidade):
-3. Destino principal:
-4. Data e horário de saída:
-5. Quantos adultos?
-6. Quantas crianças? Quais as idades?
-7. Há bebês? Quantos e quais as idades?
-8. Quantas malas grandes e bolsas/malas pequenas?
-9. Vai levar carrinho de bebê?
-10. Precisa de cadeirinha ou assento infantil?
-11. Haverá paradas ou outros locais durante o passeio?
-12. *Como deseja o serviço?*
-A) Somente levar e buscar: deixo vocês no destino e retorno no horário combinado para buscar. Nesse formato pode haver taxa de disponibilidade/espera, informada no orçamento.
-B) Motorista à disposição: permaneço com vocês e faço os deslocamentos entre os locais. Essa opção tem um adicional fixo, informado separadamente no orçamento.
-13. Alguma observação ou necessidade especial?
-
-Obrigado! Com essas informações preparo seu orçamento.`;
-$('copyQuestionnaire').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(questionnaire);alert('Questionário copiado. Agora cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. O questionário está no código da calculadora; tente novamente em uma página segura (HTTPS).')}});
-function setIfBlank(id,value){if(value && !$(id).value.trim())$(id).value=value;}
 function importReply(){
- const raw=$('clientReply').value.trim();if(!raw){$('importStatus').textContent='Cole primeiro a resposta do cliente.';return;}
- const lines=raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- const find=regexes=>{for(const line of lines){for(const re of regexes){const m=line.match(re);if(m&&m[1])return m[1].trim();}}return '';};
- const name=find([/(?:nome(?: do respons[aá]vel)?|respons[aá]vel)\s*[:\-]\s*(.+)/i]);
- const origin=find([/(?:origem|embarque|endere[cç]o de embarque)\s*[:\-]\s*(.+)/i]);
- const dest=find([/(?:destino|local do passeio)\s*[:\-]\s*(.+)/i]);
- const adults=find([/(?:adultos?)\s*[:\-]\s*(\d+)/i]);
- const children=find([/(?:crian[cç]as?)\s*[:\-]\s*(\d+)/i]);
- const ages=find([/(?:idades? das crian[cç]as|idades?)\s*[:\-]\s*(.+)/i]);
- const babies=find([/(?:beb[eê]s?)\s*[:\-]\s*(.+)/i]);
- const large=find([/(?:malas grandes)\s*[:\-]\s*(\d+)/i]);
- const small=find([/(?:bolsas|malas pequenas)\s*[:\-]\s*(\d+)/i]);
- const date=find([/(?:data)\s*[:\-]\s*(.+)/i]);
- const time=find([/(?:hor[aá]rio|sa[ií]da)\s*[:\-]\s*(\d{1,2}:\d{2})/i]);
- const stops=find([/(?:paradas?|outros locais)\s*[:\-]\s*(.+)/i]);
- const observations=find([/(?:observa[cç][õo]es?|necessidades especiais)\s*[:\-]\s*(.+)/i]);
- const assign=(id,v)=>{if(v!=='' && !$(id).value.trim())$(id).value=v;};
- assign('client',name);assign('origin',origin);assign('destination',dest);assign('childrenAges',ages);assign('babies',babies);assign('stops',stops);assign('observations',observations);
- if(adults)assign('adults',adults);if(children)assign('children',children);if(large)assign('largeBags',large);if(small)assign('smallBags',small);
- if(time&&!$('travelTime').value)$('travelTime').value=time.padStart(5,'0');
- if(date&&!$('travelDate').value){let m=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(m)$('travelDate').value=`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;else if(/^\d{4}-\d{2}-\d{2}$/.test(date))$('travelDate').value=date;}
- const total=Number($('adults').value||0)+Number($('children').value||0)+(/nenhum|zero|0 beb[eê]/i.test(babies)?0:(babies?1:0));
- if(total>=1&&total<=6)$('passengers').value=String(total);
- if(/motorista.{0,20}disposi[cç][aã]o|op[cç][aã]o\s*b|letra\s*b/i.test(raw))$('serviceMode').value='available';
- else if(/somente levar e buscar|somente transporte|op[cç][aã]o\s*a|letra\s*a/i.test(raw))$('serviceMode').value='transport';
+ const raw=$('clientReply').value.trim();
+ if(!raw){$('importStatus').textContent='Cole primeiro a resposta preenchida que veio do WhatsApp.';return;}
+ const lines=raw.split(/\r?\n/).map(x=>x.trim());
+ const clean=v=>String(v||'').replace(/^[-•✍️📍👤🏖️📅⏰👨‍👩‍👧‍👦👶🧳🛒🪑🗺️📝☝️]+\s*/u,'').replace(/^Resposta:\s*/i,'').trim();
+ const valueFor=(patterns)=>{
+   for(const line of lines){
+     for(const pattern of patterns){
+       const m=line.match(pattern);
+       if(m){const v=clean(m[1]||'');if(v)return v;}
+     }
+   }
+   return '';
+ };
+ const set=(id,v)=>{if(v!=='' && $(id))$(id).value=v;};
+ const digits=v=>{const m=String(v||'').match(/\d+/);return m?m[0]:'';};
+ const name=valueFor([/(?:nome do respons[aá]vel)\s*:?\s*(.*)/i]);
+ const origin=valueFor([/(?:endere[cç]o de embarque)\s*:?\s*(.*)/i]);
+ const destination=valueFor([/(?:destino da viagem|destino)\s*:?\s*(.*)/i]);
+ const date=valueFor([/(?:data da viagem|data)\s*:?\s*(.*)/i]);
+ const time=valueFor([/(?:hor[aá]rio de sa[ií]da|hor[aá]rio)\s*:?\s*(.*)/i]);
+ const adults=digits(valueFor([/(?:adultos)\s*:?\s*(.*)/i]));
+ const children=digits(valueFor([/(?:crian[cç]as)\s*:?\s*(.*)/i]));
+ const childAges=valueFor([/(?:idades das crian[cç]as)\s*:?\s*(.*)/i]);
+ const babyCount=digits(valueFor([/(?:quantos(?: beb[eê]s)?\??|quantidade de beb[eê]s)\s*:?\s*(.*)/i]));
+ const babyAges=valueFor([/(?:quais as idades|idades dos beb[eê]s|idades)\s*:?\s*(.*)/i]);
+ const large=digits(valueFor([/(?:malas grandes)\s*:?\s*(.*)/i]));
+ const small=digits(valueFor([/(?:bolsas ou malas pequenas|bolsas|malas pequenas)\s*:?\s*(.*)/i]));
+ const stroller=valueFor([/(?:vai levar carrinho de beb[eê]\??)\s*:?\s*(.*)/i]);
+ const seat=valueFor([/(?:precisa de cadeirinha ou assento infantil\??)\s*:?\s*(.*)/i]);
+ const stops=valueFor([/(?:pretende fazer paradas ou visitar outros locais\??|haver[aá] paradas)\s*:?\s*(.*)/i]);
+ const observations=valueFor([/(?:alguma observa[cç][aã]o importante\??|observa[cç][oõ]es)\s*:?\s*(.*)/i]);
+ set('client',name);set('origin',origin);set('destination',destination);set('childrenAges',childAges);set('babyAges',babyAges);set('stops',stops);set('observations',observations);
+ if(adults!=='')set('adults',adults);if(children!=='')set('children',children);if(babyCount!=='')set('babyCount',babyCount);if(large!=='')set('largeBags',large);if(small!=='')set('smallBags',small);
+ if(stroller){const v=/^s/i.test(stroller)?'Sim':/^n/i.test(stroller)?'Não':'Não informado';set('stroller',v);}
+ if(seat){const v=/já possui/i.test(seat)?'Já possui e levará':/^s/i.test(seat)?'Sim':/^n/i.test(seat)?'Não':'Não informado';set('childSeat',v);}
+ if(time){const m=time.match(/(\d{1,2}):(\d{2})/);if(m)set('travelTime',m[1].padStart(2,'0')+':'+m[2]);}
+ if(date){let m=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(m)set('travelDate',`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);else if(/^\d{4}-\d{2}-\d{2}$/.test(date))set('travelDate',date);}
+ const choiceLine=lines.findIndex(line=>/escolha sua op[cç][aã]o/i.test(line));
+ let choice=choiceLine>=0?(lines[choiceLine].match(/\b([AB])\b\s*$/i)||[])[1]||'':'';
+ if(!choice && choiceLine>=0 && lines[choiceLine+1]) choice=(clean(lines[choiceLine+1]).match(/^([AB])\b/i)||[])[1]||'';
+ if(choice.toUpperCase()==='B')$('serviceMode').value='available';
+ else if(choice.toUpperCase()==='A')$('serviceMode').value='transport';
+ const total=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);
+ if(total>0&&total<=6)$('passengers').value=String(total);
  updateMode();
- $('importStatus').textContent='Preenchimento assistido concluído onde foi possível identificar os dados. Confira todos os campos, principalmente total de passageiros, bebês, idades, bagagens e endereços. Respostas em texto livre podem não ser reconhecidas.';
+ $('importStatus').textContent='Importação concluída. Confira os campos preenchidos e corrija qualquer dado que não tenha sido reconhecido. Total identificado: '+total+' passageiro(s). Se algum campo ficou vazio, confira a resposta original do cliente.';
 }
 $('importReply').addEventListener('click',importReply);
 function updateMode(){
@@ -203,10 +200,11 @@ function calculate(){
  const waitFee=$('serviceMode').value==='transport'?num('waitFee'):0;
  const driverFee=$('serviceMode').value==='available'?num('driverFee'):0;
  const pax=Number($('passengers').value);
- const adultCount=num('adults'),childCount=num('children');
- if(![km,base,ac,reserve,price,tolls,profit,waitFee,driverFee,adultCount,childCount].every(Number.isFinite)||km<=0||base<=0||reserve<0||reserve>100||price<=0||tolls<0||profit<0||waitFee<0||driverFee<0)throw new Error('Confira distância, consumo, reserva, preço do combustível, pedágio, meta e adicionais.');
+ const adultCount=num('adults'),childCount=num('children'),babyCount=num('babyCount');
+ if(![km,base,ac,reserve,price,tolls,profit,waitFee,driverFee,adultCount,childCount,babyCount].every(Number.isFinite)||km<=0||base<=0||reserve<0||reserve>100||price<=0||tolls<0||profit<0||waitFee<0||driverFee<0)throw new Error('Confira distância, consumo, reserva, preço do combustível, pedágio, meta e adicionais.');
  if(pax<4||pax>6)throw new Error('A política comercial desta calculadora permite orçamentos de 4 a 6 passageiros.');
- if(adultCount+childCount>6)throw new Error('Adultos + crianças não podem ultrapassar 6. Confira também bebês e a configuração dos assentos.');
+ if(adultCount+childCount+babyCount>6)throw new Error('Adultos + crianças + bebês não podem ultrapassar 6 passageiros. Confira a configuração dos assentos.');
+ if(adultCount+childCount+babyCount!==pax)throw new Error('A quantidade total precisa ser igual à soma de adultos, crianças e bebês.');
  const effective=base/(1+ac/100);
  const tripLitres=km/effective;
  const reserveLitres=tripLitres*reserve/100;
@@ -236,9 +234,9 @@ function calculate(){
  const time=$('travelTime').value||'A combinar';
  const mode=$('serviceMode').value==='available'?'Bate e volta — motorista à disposição':'Bate e volta — somente levar e buscar';
  const total=round2(fare.total+waitFee+driverFee);
- const people=`${adultCount} adulto(s) + ${childCount} criança(s)`;
+ const people=`${adultCount} adulto(s) + ${childCount} criança(s) + ${babyCount} bebê(s)`;
  const childInfo=$('childrenAges').value.trim()?`Idades das crianças: ${$('childrenAges').value.trim()}`:'';
- const babyInfo=$('babies').value.trim()?`Bebês: ${$('babies').value.trim()}`:'';
+ const babyInfo=babyCount>0?`Bebês: ${babyCount} — idades: ${$('babyAges').value.trim()||'não informadas'}`:'';
  const bags=`Bagagens: ${num('largeBags')} mala(s) grande(s) e ${num('smallBags')} bolsa(s)/mala(s) pequena(s)`;
  const extras=[childInfo,babyInfo,bags,$('stroller').value!=='Não informado'?'Carrinho de bebê: '+$('stroller').value:'',$('childSeat').value!=='Não informado'?'Cadeirinha/assento infantil: '+$('childSeat').value:'',$('stops').value.trim()?'Paradas: '+$('stops').value.trim():'',$('observations').value.trim()?'Observações: '+$('observations').value.trim(): ''].filter(Boolean);
  const quoteLines=['BASTOS | MOTORISTA PARTICULAR RJ','ORÇAMENTO DE TRANSPORTE PRIVATIVO',client?'Cliente: '+client:'', $('phone').value.trim()?'Telefone: '+$('phone').value.trim():'','Origem: '+origin,'Destino: '+destination,'Data: '+date,'Horário: '+time,'Passageiros: '+pax+' ('+people+')',...extras,'Serviço: '+mode,'Transporte: '+money(fare.total),'Valor por passageiro (transporte): '+money(fare.per),waitFee>0?'Taxa de disponibilidade/espera: '+money(waitFee):'',driverFee>0?'Adicional fixo — motorista à disposição: '+money(driverFee):'','VALOR TOTAL: '+money(total),'','Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.','Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'].filter(Boolean);
@@ -286,13 +284,12 @@ $('copyValueMessage').addEventListener('click',async()=>{const text=$('valueMess
 $('printBudget').addEventListener('click',()=>{const win=window.open('','_blank');if(!win){alert('Permita a abertura de pop-ups para imprimir.');return;}win.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Orçamento Bastos</title><style>body{font:15px Arial;color:#172033;padding:28px;max-width:720px;margin:auto}p{line-height:1.5}</style></head><body>'+ $('budgetPaper').innerHTML+'</body></html>');win.document.close();win.focus();win.print();});
 $('preset').addEventListener('change',()=>$('custom').disabled=$('preset').value!=='custom');
 $('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);});
-$('adults').addEventListener('input',syncPax);$('children').addEventListener('input',syncPax);
-function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);}
+$('adults').addEventListener('input',syncPax);$('children').addEventListener('input',syncPax);$('babyCount').addEventListener('input',syncPax);
+function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);}
 $('save').addEventListener('click',()=>{try{const c=calculate(),arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));renderHistory();alert('Orçamento salvo neste aparelho.');}catch(e){alert(e.message);}});
 function renderHistory(){let arr=[];try{arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');}catch(e){}$('history').innerHTML=arr.length?arr.map(x=>`<li><b>${escapeHtml(x.dest||'Destino não informado')}</b> — ${fmt(x.km)} km — ${escapeHtml(x.date)} — faturamento ${money(x.revenue)}</li>`).join(''):'<li>Nenhum orçamento salvo ainda.</li>';}
 $('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?'))location.reload();});
 updateMode();renderHistory();
 })();
 </script>
-</body>
-</html>
+</body></html>
