@@ -184,7 +184,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 2.5 — correção da geração do orçamento; orçamento azul com contraste reforçado, Spin branca, PDF e mensagem de WhatsApp organizada por seções; importação de respostas, modalidades, taxas separadas e histórico. Distância informada manualmente conforme Waze.</p>
+<p class="hint">Versão 2.6 — espaçamento reforçado entre categorias da mensagem de WhatsApp; orçamento azul com contraste reforçado, Spin branca, PDF e mensagem de WhatsApp organizada por seções com divisores e espaços entre categorias; importação de respostas, modalidades, taxas separadas e histórico. Distância informada manualmente conforme Waze.</p>
 </main>
 <script>
 (() => {
@@ -326,28 +326,30 @@ function calculate(){
  const referencePart=originParts.find(part=>/^refer[eê]ncia\s*:/i.test(part));
  const otherOriginParts=originParts.filter(part=>part!==complementPart&&part!==referencePart);
  // Cabeçalho limpo, sem repetir o emoji de veículo ao longo da mensagem.
+ // Cada categoria ganha espaço e um divisor para facilitar a leitura no WhatsApp.
+ const pushSectionBreak=()=>{pushLine('');pushLine('────────────────────');pushLine('');};
  pushLine('*BASTOS | MOTORISTA PARTICULAR RJ*');
  pushLine('🚘 Transporte privativo • Chevrolet Spin');
  pushLine('━━━━━━━━━━━━━━━━━━━━');
  pushLine('*📋 ORÇAMENTO DA VIAGEM*');
- pushLine('');
+ pushSectionBreak();
  pushLine('*👤 DADOS DO CLIENTE*');
  pushLine(client?`Cliente: ${client}`:'Cliente: Não informado');
  if($('phone').value.trim())pushLine(`📱 Telefone: ${$('phone').value.trim()}`);
- pushLine('');
+ pushSectionBreak();
  pushLine('*📍 LOCAL DE EMBARQUE*');
  pushLine(`🏠 Endereço: ${originMain}`);
  if(complementPart)pushLine(complementPart);
  if(referencePart)pushLine(referencePart);
  otherOriginParts.forEach(pushLine);
- pushLine('');
+ pushSectionBreak();
  pushLine('*🏖️ DESTINO*');
  pushLine(destination);
- pushLine('');
+ pushSectionBreak();
  pushLine('*📅 DATA E HORÁRIO*');
  pushLine(`📅 Data: ${date}`);
  pushLine(`🕒 Saída: ${time}`);
- pushLine('');
+ pushSectionBreak();
  pushLine('*👥 PASSAGEIROS*');
  pushLine(`${pax} passageiros no total`);
  pushLine(`• 🧑 Adultos: ${adultCount}`);
@@ -359,32 +361,32 @@ function calculate(){
    pushLine(`• 👶 Bebês: ${babyCount}`);
    if($('babyAges').value.trim())pushLine(`  Idade(s): ${$('babyAges').value.trim()}`);
  }
- pushLine('');
+ pushSectionBreak();
  pushLine('*🧳 BAGAGENS E ITENS INFANTIS*');
  pushLine(`🧳 Malas grandes: ${num('largeBags')}`);
  pushLine(`👜 Bolsas/malas pequenas: ${num('smallBags')}`);
  if($('stroller').value!=='Não informado')pushLine(`🛒 Carrinho de bebê: ${$('stroller').value}`);
  if($('childSeat').value!=='Não informado')pushLine(`🪑 Cadeirinha/assento infantil: ${$('childSeat').value}`);
  if($('observations').value.trim()){
-   pushLine('');
+   pushSectionBreak();
    pushLine('*📝 OBSERVAÇÕES*');
    pushLine($('observations').value.trim());
  }
- pushLine('');
+ pushSectionBreak();
  pushLine('*🛣️ MODALIDADE DO SERVIÇO*');
  pushLine(mode);
- pushLine('');
+ pushSectionBreak();
  pushLine('*💰 VALORES*');
  pushLine(`💵 Transporte: ${money(fare.total)}`);
  pushLine(`👤 Valor por passageiro: ${money(fare.per)}`);
  if(waitFee>0)pushLine(`⏳ Taxa de disponibilidade/espera: ${money(waitFee)}`);
  if(driverFee>0)pushLine(`➕ Adicional de motorista à disposição: ${money(driverFee)}`);
- pushLine('');
+ pushSectionBreak();
  pushLine(`*⭐ VALOR TOTAL: ${money(total)}*`);
  pushLine('━━━━━━━━━━━━━━━━━━━━');
  pushLine('Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.');
  pushLine('Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.');
- pushLine('');
+ pushSectionBreak();
  pushLine('*BASTOS | MOTORISTA PARTICULAR RJ*');
  $('clientBudget').dataset.quote=quoteLines.join('\n');
  let budget=`<div class="budget-hero"><svg class="budget-vehicle-mark" viewBox="0 0 116 76" role="img" aria-label="Spin branca" xmlns="http://www.w3.org/2000/svg"><path d="M12 46 L17 34 Q19 29 27 27 L39 14 Q42 11 48 11 L76 11 Q82 11 86 17 L96 30 L104 33 Q109 35 109 41 L109 50 Q109 55 104 55 L101 55 A11 11 0 0 0 79 55 L41 55 A11 11 0 0 0 19 55 L13 55 Q8 55 8 50 L8 45 Q8 42 12 46Z" fill="#FFFFFF"/><path d="M43 16 Q45 14 49 14 L59 14 L59 29 L31 29 Z" fill="#073763"/><path d="M64 14 L75 14 Q79 14 82 19 L90 29 L64 29 Z" fill="#073763"/><path d="M15 37 L25 33 L91 33 L101 37" fill="none" stroke="#DCEEFF" stroke-width="2" stroke-linecap="round"/><circle cx="30" cy="54" r="8" fill="#082F55"/><circle cx="30" cy="54" r="3.5" fill="#EAF4FF"/><circle cx="90" cy="54" r="8" fill="#082F55"/><circle cx="90" cy="54" r="3.5" fill="#EAF4FF"/><path d="M10 43 L17 43 M101 42 L108 42" stroke="#DCEEFF" stroke-width="2.5" stroke-linecap="round"/></svg><div class="budget-kicker">Sua viagem começa com tranquilidade</div><div class="budget-brand">🚘 BASTOS | MOTORISTA PARTICULAR RJ</div><p>Orçamento de transporte privativo</p></div><div class="budget-content"><div class="budget-section-title">👤 Dados da reserva</div><div class="budget-info-grid"><div class="budget-info"><span>Cliente</span><strong>${escapeHtml(client||'Não informado')}</strong></div><div class="budget-info"><span>Passageiros</span><strong>${pax} — ${escapeHtml(people)}</strong></div><div class="budget-info"><span>Data</span><strong>📅 ${date}</strong></div><div class="budget-info"><span>Horário de saída</span><strong>🕒 ${time}</strong></div></div><div class="budget-route"><div class="budget-section-title">🧭 Seu trajeto</div><p>📍 <b>Embarque:</b> ${escapeHtml(origin)}</p><p>🏖️ <b>Destino:</b> ${escapeHtml(destination)}</p></div>`;
