@@ -79,6 +79,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .budget-vehicle-mark { position:absolute; right:22px; top:18px; width:58px; height:38px; display:block; }
 .budget-hero:after { content:none !important; display:none !important; }
 @media(max-width:560px){ .budget-vehicle-mark { right:18px; top:18px; width:58px; height:38px; } }
+@media(max-width:560px){ .budget-send-actions{grid-template-columns:1fr!important} .budget-send-actions button{width:100%;min-height:44px} }
 </style>
 </head>
 <body>
@@ -167,7 +168,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <section class="card" id="clientBudget" hidden>
 <h2>6. Orçamento para o cliente</h2>
 <div id="budgetPaper" class="budget-box"><div style="border-bottom:3px solid var(--gold);padding-bottom:12px;margin-bottom:14px"><div style="font-weight:800;color:var(--navy);font-size:18px">BASTOS | MOTORISTA PARTICULAR RJ</div><div class="hint">Orçamento de transporte privativo</div></div><div id="budgetText"></div></div>
-<div class="actions" style="margin-top:14px"><button class="gold" id="copyBudget">Copiar orçamento</button><button class="secondary" id="printBudget">Imprimir / Salvar PDF</button></div>
+<div class="budget-send-actions" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<button class="gold" id="printBudget" type="button">📄 Gerar PDF do orçamento</button>
+<button class="secondary" id="copyBudget" type="button">💬 Copiar versão para WhatsApp</button>
+</div>
+<p class="hint" style="margin-top:9px"><b>PDF:</b> abre a janela de impressão; escolha “Salvar como PDF” para guardar e enviar o orçamento com o visual completo. <b>WhatsApp:</b> copia o texto simples pronto para colar na conversa, como você já usa hoje.</p>
 <p class="hint">Seus custos, meta de ganho e sobra estimada não aparecem para o cliente.</p>
 </section>
 
@@ -179,7 +184,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 2.2 — orçamento azul com contraste reforçado e identificação visual da Spin; importação de respostas do WhatsApp, modalidade de serviço, taxas separadas, orçamento e mensagem de valorização. Distância informada manualmente conforme Waze.</p>
+<p class="hint">Versão 2.3 — orçamento azul com contraste reforçado, Spin branca, exportação em PDF e versão em texto para WhatsApp; importação de respostas, modalidades, taxas separadas e histórico. Distância informada manualmente conforme Waze.</p>
 </main>
 <script>
 (() => {
@@ -350,9 +355,58 @@ A ideia é deixar o transporte organizado para que você aproveite o passeio sem
  return {km,revenue:total,transport:fare.total,per:fare.per,total,fuelCost,totalLitres};
 }
 $('calculate').addEventListener('click',()=>{ $('calcError').textContent='';try{calculate();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;}});
-$('copyBudget').addEventListener('click',async()=>{const text=$('clientBudget').dataset.quote||'';try{await navigator.clipboard.writeText(text);alert('Orçamento copiado. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente neste navegador. Selecione e copie o texto do orçamento.')}});
+$('copyBudget').addEventListener('click',async()=>{
+ const text=$('clientBudget').dataset.quote||'';
+ if(!text){alert('Gere o orçamento primeiro, clicando em Calcular / Gerar orçamento.');return;}
+ try{await navigator.clipboard.writeText(text);alert('Texto do orçamento copiado. Agora é só colar na conversa do WhatsApp.');}
+ catch(e){alert('Não foi possível copiar automaticamente neste navegador. Selecione e copie o texto do orçamento.');}
+});
 $('copyValueMessage').addEventListener('click',async()=>{const text=$('valueMessageText').textContent;try{await navigator.clipboard.writeText(text);alert('Mensagem de valorização copiada. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione a mensagem e copie.')}});
-$('printBudget').addEventListener('click',()=>{const win=window.open('','_blank');if(!win){alert('Permita a abertura de pop-ups para imprimir.');return;}win.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Orçamento Bastos</title><style>body{font:15px Arial;color:#172033;padding:28px;max-width:720px;margin:auto}p{line-height:1.5}</style></head><body>'+ $('budgetPaper').innerHTML+'</body></html>');win.document.close();win.focus();win.print();});
+$('printBudget').addEventListener('click',()=>{
+ const paper=$('budgetPaper');
+ if(!paper || !$('clientBudget').dataset.quote){alert('Gere o orçamento primeiro, clicando em Calcular / Gerar orçamento.');return;}
+ const cleanName=value=>String(value||'').trim().replace(/[^\p{L}\p{N} -]/gu,'').replace(/\s+/g,'_')||'Viagem';
+ const clientName=cleanName($('client').value||'Cliente');
+ const destination=cleanName($('destination').value||'Destino');
+ const win=window.open('','_blank');
+ if(!win){alert('O navegador bloqueou a nova janela. Permita pop-ups para este site e tente novamente.');return;}
+ const printStyles=`
+ @page{size:A4;margin:12mm}
+ *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+ html,body{margin:0;padding:0;background:#fff;color:#172b3d;font-family:Arial,Helvetica,sans-serif;font-size:13px}
+ body{padding:0}
+ .budget-box{width:100%;max-width:186mm;margin:0 auto;border:1px solid #c9dceb;border-radius:14px;background:#fff;overflow:hidden;box-shadow:none;color:#172b3d;break-inside:auto}
+ .budget-hero{background:linear-gradient(125deg,#062b50 0%,#07518a 62%,#0879b5 100%)!important;color:#fff!important;padding:20px 20px 18px;position:relative;min-height:92px;break-inside:avoid}
+ .budget-vehicle-mark{position:absolute;right:20px;top:16px;width:58px;height:38px;display:block}
+ .budget-kicker{color:#fff;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;margin:0 68px 6px 0}
+ .budget-brand{color:#fff;font-size:17px;font-weight:850;letter-spacing:.2px;margin:0 68px 4px 0}
+ .budget-hero p{margin:6px 68px 0 0;color:#fff;font-size:12px;font-weight:600}
+ .budget-content{padding:16px 17px 15px;color:#14283b}
+ .budget-section-title{font-size:11px;font-weight:850;color:#063b68;letter-spacing:.4px;text-transform:uppercase;margin:5px 0 9px;break-after:avoid}
+ .budget-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 13px}
+ .budget-info{background:#f3f8fc!important;border:1px solid #c9dceb;border-radius:10px;padding:9px 10px;min-width:0;break-inside:avoid}
+ .budget-info span{display:block;color:#263c50;font-size:9px;font-weight:850;text-transform:uppercase;margin-bottom:4px}
+ .budget-info strong{display:block;color:#10283e;font-size:12px;font-weight:800;overflow-wrap:anywhere;line-height:1.35}
+ .budget-route{background:#f5faff!important;border:1px solid #c5dced;border-radius:11px;padding:11px;margin:9px 0 12px;break-inside:avoid}
+ .budget-route p{margin:5px 0;font-size:12px;line-height:1.45;color:#1b3044}
+ .budget-route p b{color:#071f36;font-weight:850}
+ .budget-extra{font-size:12px;line-height:1.55;color:#1b3044;margin:8px 0 10px}
+ .budget-service{display:inline-block;background:#dceeff!important;color:#062f52!important;border:1px solid #a9cce8;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:850;margin:5px 0 12px;break-inside:avoid}
+ .budget-price{background:linear-gradient(145deg,#eaf5ff,#f8fbff)!important;border:1px solid #b8d6ed;border-radius:13px;padding:13px;margin-top:7px;break-inside:avoid}
+ .budget-price-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;color:#1c3044;font-size:12px}
+ .budget-price-row span{color:#1c3044}.budget-price-row b{color:#0b2339;font-weight:850}
+ .budget-total{border-top:2px solid #76add5;margin-top:7px;padding-top:10px;display:flex;justify-content:space-between;gap:10px;align-items:center;color:#062d50;font-weight:850;font-size:13px}
+ .budget-total strong{font-size:22px;color:#034b82;white-space:nowrap}
+ .budget-foot{font-size:10px;line-height:1.5;color:#26394c;margin:12px 2px 2px}
+ .budget-highlight{color:#033f70;font-weight:850}
+ @media print{body{padding:0}.budget-box{box-shadow:none}.budget-price,.budget-info,.budget-route,.budget-service,.budget-hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+ @media screen{body{padding:18px;background:#eef2f7}.budget-box{max-width:780px;margin:0 auto;box-shadow:0 5px 20px rgba(8,47,85,.12)}}
+ `;
+ win.document.open();
+ win.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Orcamento_Bastos_${clientName}_${destination}</title><style>${printStyles}</style></head><body>${paper.outerHTML}</body></html>`);
+ win.document.close();
+ setTimeout(()=>{try{win.focus();win.print();}catch(e){alert('A prévia abriu, mas não foi possível iniciar a impressão automaticamente. Use Ctrl + P e escolha “Salvar como PDF”.');}},450);
+});
 $('preset').addEventListener('change',()=>$('custom').disabled=$('preset').value!=='custom');
 $('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);});
 $('adults').addEventListener('input',syncPax);$('children').addEventListener('input',syncPax);$('babyCount').addEventListener('input',syncPax);
