@@ -1,232 +1,298 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
 <title>Bastos | Calculadora de Viagens</title>
 <style>
-:root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa}
+:root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
 header{background:var(--navy);color:white;padding:24px 18px 22px;border-bottom:4px solid var(--gold)}
-header .wrap,main{max-width:850px;margin:auto}h1{font-size:23px;margin:0 0 5px}header p{margin:0;color:#d6dbea;font-size:13px}
+header .wrap,main{max-width:900px;margin:auto}h1{font-size:23px;margin:0 0 5px}header p{margin:0;color:#d6dbea;font-size:13px}
 main{padding:16px 12px 40px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .card{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #101c3508}
-h2{font-size:16px;margin:0 0 14px;color:var(--navy)}label{display:block;font-size:12px;font-weight:650;color:#475467;margin:0 0 5px}
-input,select{width:100%;padding:11px 10px;border:1px solid #d0d5dd;border-radius:9px;background:white;font:inherit;color:var(--ink);min-width:0}
-.field{margin-bottom:11px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-small,.hint{color:var(--muted);font-size:12px;line-height:1.4}.pill{display:inline-block;border-radius:20px;background:#f7f0df;color:#71551c;padding:5px 9px;font-size:11px;font-weight:700}
+h2{font-size:16px;margin:0 0 14px;color:var(--navy)}h3{font-size:14px;color:var(--navy);margin:17px 0 9px}
+label{display:block;font-size:12px;font-weight:650;color:#475467;margin:0 0 5px}
+input,select,textarea{width:100%;padding:11px 10px;border:1px solid #d0d5dd;border-radius:9px;background:white;font:inherit;color:var(--ink);min-width:0}
+textarea{min-height:84px;resize:vertical}.field{margin-bottom:11px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+small,.hint{color:var(--muted);font-size:12px;line-height:1.45}.metric{background:#f7f8fb;border-radius:10px;padding:12px}
+.metric span{display:block;color:var(--muted);font-size:11px}.metric strong{display:block;font-size:19px;margin-top:4px;color:var(--navy)}
 .results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.metric{background:#f7f8fb;border-radius:10px;padding:12px}.metric span{display:block;color:var(--muted);font-size:11px}.metric strong{display:block;font-size:20px;margin-top:4px;color:var(--navy)}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:11px}
-button{border:0;border-radius:9px;padding:11px 14px;background:var(--navy);color:white;font-weight:700;font-size:13px}
+button{border:0;border-radius:9px;padding:11px 14px;background:var(--navy);color:white;font-weight:700;font-size:13px;cursor:pointer}
 button.secondary{background:#edf0f5;color:var(--navy)}button.gold{background:var(--gold);color:#1b2435}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.notice{background:#fff8e8;border:1px solid #f0dfb7;border-radius:10px;padding:11px;font-size:12px;line-height:1.45;color:#604b20}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:11px}
 #history{padding-left:18px;margin-bottom:0}#history li{margin:8px 0;font-size:13px}
-@media(max-width:560px){.grid{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}.metric strong{font-size:18px}}
+.hidden,[hidden]{display:none!important}.error{color:var(--red);font-weight:650}.good{color:var(--green);font-weight:650}
+.budget-box{border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}.metric strong{font-size:17px}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>BASTOS | CALCULADORA DE VIAGENS</h1><p>Custos, combustível e preço por passageiro — Chevrolet Spin</p></div></header>
+<header><div class="wrap"><h1>BASTOS | CALCULADORA DE VIAGENS</h1><p>Planejamento, combustível e orçamento — Chevrolet Spin</p></div></header>
 <main>
 <section class="card">
-<h2>1. Dados da viagem</h2>
-<div class="grid">
-<div class="field"><label>Local de embarque</label><input id="origin" placeholder="Endereço completo de embarque"></div>
-<div class="field"><label>Local de destino</label><input id="destination" placeholder="Endereço completo de destino"></div>
-<div class="field"><label>Nome do cliente (opcional)</label><input id="client" placeholder="Nome do cliente"></div>
-<div class="field"><label>Data da viagem (opcional)</label><input id="travelDate" type="date"></div>
-<div class="field"><label>Passageiros</label><select id="passengers"><option value="4">4 passageiros</option><option value="5">5 passageiros</option><option value="6">6 passageiros</option></select></div>
-<div class="field"><label>Distância total (ida + volta), km</label><input id="km" type="number" min="0" step="0.1" value="368"></div>
-<div class="field"><label>Tipo de percurso</label><select id="road"><option value="road">Estrada</option><option value="city">Cidade</option><option value="mixed">Misto (consumo informado)</option></select></div>
-</div>
-<p class="hint">A distância é editável nesta primeira versão. Informe o total de ida e volta, incluindo deslocamentos extras.</p>
+<h2>1. Questionário para o cliente</h2>
+<p class="hint">Copie e envie pelo WhatsApp. Quando o cliente responder, cole a resposta abaixo. A leitura automática é uma ajuda: confira os dados antes de calcular.</p>
+<div class="actions"><button class="gold" id="copyQuestionnaire">Copiar questionário para WhatsApp</button></div>
+<div class="field" style="margin-top:13px"><label>Resposta recebida do cliente</label><textarea id="clientReply" placeholder="Cole aqui a resposta do cliente..."></textarea></div>
+<div class="actions"><button id="importReply">Interpretar resposta e preencher os dados</button></div>
+<p id="importStatus" class="hint" aria-live="polite"></p>
+<div class="notice">A capacidade do veículo é de até 7 ocupantes incluindo o motorista, portanto até 6 passageiros. Esta calculadora aplica sua política comercial de grupos de 4 a 6 passageiros. A quantidade e a idade das crianças devem ser conferidas para avaliar cadeirinhas, assentos e capacidade adequada.</div>
 </section>
 
 <section class="card">
-<h2>2. Combustível e consumo</h2>
+<h2>2. Dados da viagem e dos passageiros</h2>
 <div class="grid">
+<div class="field"><label>Nome do responsável</label><input id="client" placeholder="Nome do cliente"></div>
+<div class="field"><label>Telefone com DDD (opcional)</label><input id="phone" placeholder="(21) 99999-9999"></div>
+<div class="field"><label>Data da viagem</label><input id="travelDate" type="date"></div>
+<div class="field"><label>Horário de saída</label><input id="travelTime" type="time"></div>
+<div class="field"><label>Endereço de embarque</label><input id="origin" placeholder="Rua, número, bairro e cidade"></div>
+<div class="field"><label>Destino principal</label><input id="destination" placeholder="Local de destino"></div>
+<div class="field"><label>Adultos</label><input id="adults" type="number" min="0" max="6" step="1" value="4"></div>
+<div class="field"><label>Crianças</label><input id="children" type="number" min="0" max="6" step="1" value="0"></div>
+<div class="field"><label>Idades das crianças</label><input id="childrenAges" placeholder="Ex.: 3 e 8 anos"></div>
+<div class="field"><label>Bebês (quantidade e idade)</label><input id="babies" placeholder="Ex.: 1 bebê de 10 meses"></div>
+<div class="field"><label>Quantidade de malas grandes</label><input id="largeBags" type="number" min="0" step="1" value="0"></div>
+<div class="field"><label>Quantidade de bolsas/malas pequenas</label><input id="smallBags" type="number" min="0" step="1" value="0"></div>
+<div class="field"><label>Carrinho de bebê?</label><select id="stroller"><option value="Não informado">Não informado</option><option>Não</option><option>Sim</option></select></div>
+<div class="field"><label>Precisa de cadeirinha/assento infantil?</label><select id="childSeat"><option value="Não informado">Não informado</option><option>Não</option><option>Sim</option><option>Já possui e levará</option></select></div>
+<div class="field"><label>Quantidade total de passageiros</label><input id="passengers" type="number" min="1" max="6" step="1" value="4"></div>
+<div class="field"><label>Tipo de serviço</label><select id="serviceMode"><option value="transport">Bate e volta — somente levar e buscar</option><option value="available">Bate e volta — motorista à disposição</option></select></div>
+</div>
+<div class="field"><label>Paradas / outros locais que deseja visitar</label><textarea id="stops" placeholder="Informe se haverá paradas ou outros locais durante o passeio"></textarea></div>
+<div class="field"><label>Observações e necessidades especiais</label><textarea id="observations" placeholder="Outras informações importantes para organizar a viagem"></textarea></div>
+<p class="hint">A modalidade motorista à disposição significa permanecer com o cliente e realizar deslocamentos entre os locais do passeio. O adicional será informado separadamente no orçamento.</p>
+</section>
+
+<section class="card">
+<h2>3. Combustível e distância</h2>
+<p class="hint">Consulte no Waze a distância total de ida e volta, incluindo deslocamentos extras previstos, e informe o total de quilômetros. Não é necessário informar quanto combustível já existe no tanque.</p>
+<div class="grid">
+<div class="field"><label>Distância total (ida + volta), km — Waze</label><input id="km" type="number" min="0" step="0.1" value="368"></div>
 <div class="field"><label>Combustível</label><select id="fuel"><option value="Etanol">Etanol</option><option value="Gasolina">Gasolina</option></select></div>
-<div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.01" value="4.39"></div>
-<div class="field"><label>Consumo médio com etanol (km/l)</label><select id="preset"><option value="10">Conservador para orçamento — 10 km/l</option><option value="9">Mais conservador — 9 km/l</option><option value="10.5">Normal — 10,5 km/l</option><option value="11.5">Econômico — 11,5 km/l</option><option value="custom">Personalizar consumo</option></select></div>
+<div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.001" value="4.59"></div>
+<div class="field"><label>Consumo base (km/l)</label><select id="preset"><option value="10">Conservador — 10 km/l</option><option value="9">Mais conservador — 9 km/l</option><option value="10.5">Normal — 10,5 km/l</option><option value="11.5">Econômico — 11,5 km/l</option><option value="custom">Personalizar consumo</option></select></div>
 <div class="field"><label>Consumo personalizado (km/l)</label><input id="custom" type="number" min="0.1" step="0.1" value="10" disabled></div>
-<div class="field"><label>Ar-condicionado</label><select id="ac"><option value="10">Ligado — considera 10% a mais de combustível</option><option value="5">Ligado — considera 5% a mais de combustível</option><option value="0">Desligado — sem ajuste adicional</option></select></div>
-<div class="field"><label>Reserva de segurança (%)</label><input id="reserve" type="number" min="0" max="100" value="15"></div>
+<div class="field"><label>Ajuste estimado do ar-condicionado</label><select id="ac"><option value="10">Considerar 10% a mais de combustível</option><option value="5">Considerar 5% a mais de combustível</option><option value="0">Sem ajuste adicional</option></select></div>
+<div class="field"><label>Reserva de segurança (%)</label><input id="reserve" type="number" min="0" max="100" step="1" value="15"></div>
 </div>
-<div class="notice">Referências iniciais para a Spin 1.8 automática: etanol, 6,9 km/l na cidade e 8,6 km/l na estrada (referência oficial informada anteriormente). Seu consumo real relatado em estrada livre com etanol é de 10 a 11,5 km/l. Para etanol, usamos 10 km/l como base conservadora de estrada. O ar-condicionado acrescenta 10% ao combustível calculado e a reserva de segurança acrescenta mais 15%. São margens estimadas; o consumo real varia com trânsito, carga, velocidade e relevo.</div>
+<div class="notice">O ajuste do ar-condicionado é uma estimativa de planejamento, não uma medição exata. O consumo real varia com trânsito, carga, velocidade, relevo e uso do ar.</div>
 </section>
-
-<section class="card"><h2>3. Capacidade do tanque</h2><div class="field"><label>Capacidade da Spin</label><input value="53 litros" disabled></div><p class="hint">O cálculo mostra o total de litros necessários para ida e volta, incluindo a reserva, sem descontar o combustível que já existe no tanque.</p></section>
 
 <section class="card">
-<h2>4. Meta de ganho e pedágios</h2>
+<h2>4. Meta, pedágios e taxas do serviço</h2>
 <div class="grid">
-<div class="field"><label>Sobra desejada com 4 passageiros (R$)</label><input id="profit" type="number" min="0" step="1" value="600"></div>
+<div class="field"><label>Sobra desejada com 4 passageiros (R$)</label><input id="profit" type="number" min="0" step="0.01" value="600"></div>
 <div class="field"><label>Pedágios ida e volta (R$)</label><input id="tolls" type="number" min="0" step="0.01" value="0"></div>
-
-
+<div class="field" id="waitFeeField"><label>Taxa de disponibilidade / espera — somente levar e buscar (R$)</label><input id="waitFee" type="number" min="0" step="0.01" value="0"></div>
+<div class="field hidden" id="driverFeeField"><label>Adicional fixo — motorista à disposição (R$)</label><input id="driverFee" type="number" min="0" step="0.01" value="0"></div>
 </div>
+<p class="hint">As cobranças são exclusivas: somente levar e buscar pode ter taxa de disponibilidade/espera; motorista à disposição recebe o adicional fixo próprio. Nunca somar as duas taxas. Os adicionais são exibidos separadamente e não são divididos entre passageiros.</p>
 </section>
 
-<section class="card"><button class="gold" id="calculate" style="width:100%;padding:15px;font-size:16px">CALCULAR VIAGEM</button>
-<p id="calcError" role="alert" style="color:#a33;font-weight:600"></p><p class="hint" style="margin-bottom:0">Preencha os dados acima e toque no botão para atualizar os resultados.</p></section>
+<section class="card"><button class="gold" id="calculate" style="width:100%;padding:15px;font-size:16px">CALCULAR E GERAR ORÇAMENTO</button><p id="calcError" class="error" role="alert"></p></section>
+
 <section class="card">
 <h2>5. Resultado do planejamento</h2>
 <div class="results">
-<div class="metric"><span>Consumo ajustado</span><strong id="adjusted">—</strong></div>
-<div class="metric"><span>Combustível da viagem</span><strong id="tripFuel">—</strong></div>
-<div class="metric"><span>Litros da reserva de segurança</span><strong id="needed">—</strong></div>
-<div class="metric"><span>Litros necessários para ida e volta (com reserva)</span><strong id="toAdd">—</strong></div>
-<div class="metric"><span>Custo estimado do combustível (com reserva)</span><strong id="fuelCost">—</strong></div>
-<div class="metric"><span>Faturamento necessário</span><strong id="revenue">—</strong></div>
+<div class="metric"><span>Consumo ajustado com ar</span><strong id="adjusted">—</strong></div>
+<div class="metric"><span>Combustível consumido na ida e volta</span><strong id="tripFuel">—</strong></div>
+<div class="metric"><span>Reserva de segurança</span><strong id="reserveFuel">—</strong></div>
+<div class="metric"><span>Total previsto (percurso + reserva)</span><strong id="totalFuel">—</strong></div>
+<div class="metric"><span>Autonomia correspondente à reserva</span><strong id="reserveRange">—</strong></div>
+<div class="metric"><span>Custo do combustível do percurso + reserva</span><strong id="fuelCost">—</strong></div>
+<div class="metric"><span>Faturamento base do transporte</span><strong id="revenue">—</strong></div>
 </div>
-<p id="tankWarning" class="hint"></p>
-<h2 style="margin-top:18px">Preço sugerido por passageiro</h2>
-<table><thead><tr><th>Grupo</th><th>Por pessoa</th><th>Total cobrado</th><th>Sobra estimada*</th></tr></thead><tbody id="fareRows"></tbody></table>
-<p class="hint">*Sobra estimada após combustível e pedágios. A meta informada vale para 4 passageiros; com 5 a meta aumenta R$ 100 e com 6 aumenta R$ 200. Valores por pessoa arredondados para cima ao real.</p>
+<p id="fuelWarning" class="hint"></p>
+<h3>Preço sugerido do transporte por passageiro</h3>
+<table><thead><tr><th>Grupo</th><th>Por pessoa</th><th>Total do transporte</th><th>Sobra estimada*</th></tr></thead><tbody id="fareRows"></tbody></table>
+<p class="hint">*Sobra estimada após combustível e pedágios. A meta informada vale para 4 passageiros; com 5 a meta aumenta R$ 100 e com 6 aumenta R$ 200. Taxas de serviço são adicionais e aparecem separadamente no orçamento.</p>
 <div class="actions" style="margin-top:14px"><button class="gold" id="save">Salvar orçamento</button><button class="secondary" id="reset">Restaurar exemplo</button></div>
 </section>
 
 <section class="card" id="clientBudget" hidden>
 <h2>6. Orçamento para o cliente</h2>
-<div id="budgetPaper" style="border:1px solid #e5e7eb;border-radius:12px;padding:18px;background:#fff">
-  <div style="border-bottom:3px solid var(--gold);padding-bottom:12px;margin-bottom:14px">
-    <div style="font-weight:800;color:var(--navy);font-size:18px">BASTOS | MOTORISTA PARTICULAR RJ</div>
-    <div class="hint">Orçamento de transporte privativo</div>
-  </div>
-  <div id="budgetText"></div>
-</div>
-<div class="actions" style="margin-top:14px">
-<button class="gold" id="copyBudget">Copiar orçamento</button>
-<button class="secondary" id="printBudget">Imprimir / Salvar PDF</button>
-</div>
-<p class="hint">Este orçamento mostra somente os valores comerciais. Seus custos, margem e sobra estimada não aparecem para o cliente.</p>
+<div id="budgetPaper" class="budget-box"><div style="border-bottom:3px solid var(--gold);padding-bottom:12px;margin-bottom:14px"><div style="font-weight:800;color:var(--navy);font-size:18px">BASTOS | MOTORISTA PARTICULAR RJ</div><div class="hint">Orçamento de transporte privativo</div></div><div id="budgetText"></div></div>
+<div class="actions" style="margin-top:14px"><button class="gold" id="copyBudget">Copiar orçamento</button><button class="secondary" id="printBudget">Imprimir / Salvar PDF</button></div>
+<p class="hint">Seus custos, meta de ganho e sobra estimada não aparecem para o cliente.</p>
 </section>
 
-<section class="card"><h2>7. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 1.8 — cálculo e orçamento com locais de embarque e destino. A busca automática de rotas/distâncias e sincronização entre aparelhos ainda não estão ativadas. Confira a rota e os custos reais antes de fechar um orçamento.</p>
+<section class="card" id="valueMessage" hidden>
+<h2>7. Por que vale a pena contratar o Bastos?</h2>
+<p class="hint">Mensagem de valorização adaptada ao serviço escolhido. Copie e envie depois do orçamento, se fizer sentido para a conversa.</p>
+<div id="valueMessageText" class="notice" style="white-space:pre-line"></div>
+<div class="actions" style="margin-top:12px"><button class="gold" id="copyValueMessage">Copiar mensagem de valorização</button></div>
+</section>
+
+<section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
+<p class="hint">Versão 1.8 — atualização integrada: questionário, modalidade de serviço, taxas separadas, orçamento e mensagem de valorização. Distância informada manualmente conforme Waze.</p>
 </main>
 <script>
 (() => {
-  const $ = id => document.getElementById(id);
-  const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  const fmt = v => Number(v).toLocaleString('pt-BR',{maximumFractionDigits:1});
-  const val = id => Number(String($(id).value).replace(',','.'));
-  const consumption = () => $('preset').value === 'custom' ? val('custom') : Number($('preset').value);
+'use strict';
+const $ = id => document.getElementById(id);
+const money = value => (Math.round((Number(value) + Number.EPSILON) * 100) / 100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const fmt = value => Number(value).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:2});
+const num = id => Number(String($(id).value).replace(',','.'));
+const round2 = value => Math.round((value + Number.EPSILON) * 100) / 100;
+const consumption = () => $('preset').value === 'custom' ? num('custom') : Number($('preset').value);
+const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const questionnaire = `🚘 *BASTOS | MOTORISTA PARTICULAR RJ*
+Para preparar seu orçamento, me informe:
 
-  function calculate() {
-    const km=val('km'), base=consumption(), ac=Number($('ac').value);
-    const reserve=val('reserve'), price=val('price'), tolls=val('tolls'), profit=val('profit');
-    if (![km,base,reserve,price,tolls,profit,ac].every(Number.isFinite) ||
-        km<=0 || base<=0 || reserve<0 || reserve>100 || price<=0 || tolls<0 || profit<0)
-      throw new Error('Confira a distância, consumo, reserva, preço do combustível, pedágio e meta de ganho.');
+1. Nome do responsável:
+2. Endereço de embarque (rua, número, bairro e cidade):
+3. Destino principal:
+4. Data e horário de saída:
+5. Quantos adultos?
+6. Quantas crianças? Quais as idades?
+7. Há bebês? Quantos e quais as idades?
+8. Quantas malas grandes e bolsas/malas pequenas?
+9. Vai levar carrinho de bebê?
+10. Precisa de cadeirinha ou assento infantil?
+11. Haverá paradas ou outros locais durante o passeio?
+12. *Como deseja o serviço?*
+A) Somente levar e buscar: deixo vocês no destino e retorno no horário combinado para buscar. Nesse formato pode haver taxa de disponibilidade/espera, informada no orçamento.
+B) Motorista à disposição: permaneço com vocês e faço os deslocamentos entre os locais. Essa opção tem um adicional fixo, informado separadamente no orçamento.
+13. Alguma observação ou necessidade especial?
 
-    // O ajuste do ar reduz o rendimento efetivo; a reserva é acrescentada ao combustível necessário.
-    const effective=base/(1+ac/100);
-    const trip=km/effective;
-    const reserveLitres=trip*reserve/100;
-    const required=trip+reserveLitres;
-    // Orçamento conservador: considera o custo de todo o combustível planejado, inclusive a reserva.
-    const fuelCost=required*price;
-    const baseCost=fuelCost+tolls;
-    const revenue=baseCost+profit;
+Obrigado! Com essas informações preparo seu orçamento.`;
+$('copyQuestionnaire').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(questionnaire);alert('Questionário copiado. Agora cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. O questionário está no código da calculadora; tente novamente em uma página segura (HTTPS).')}});
+function setIfBlank(id,value){if(value && !$(id).value.trim())$(id).value=value;}
+function importReply(){
+ const raw=$('clientReply').value.trim();if(!raw){$('importStatus').textContent='Cole primeiro a resposta do cliente.';return;}
+ const lines=raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const find=regexes=>{for(const line of lines){for(const re of regexes){const m=line.match(re);if(m&&m[1])return m[1].trim();}}return '';};
+ const name=find([/(?:nome(?: do respons[aá]vel)?|respons[aá]vel)\s*[:\-]\s*(.+)/i]);
+ const origin=find([/(?:origem|embarque|endere[cç]o de embarque)\s*[:\-]\s*(.+)/i]);
+ const dest=find([/(?:destino|local do passeio)\s*[:\-]\s*(.+)/i]);
+ const adults=find([/(?:adultos?)\s*[:\-]\s*(\d+)/i]);
+ const children=find([/(?:crian[cç]as?)\s*[:\-]\s*(\d+)/i]);
+ const ages=find([/(?:idades? das crian[cç]as|idades?)\s*[:\-]\s*(.+)/i]);
+ const babies=find([/(?:beb[eê]s?)\s*[:\-]\s*(.+)/i]);
+ const large=find([/(?:malas grandes)\s*[:\-]\s*(\d+)/i]);
+ const small=find([/(?:bolsas|malas pequenas)\s*[:\-]\s*(\d+)/i]);
+ const date=find([/(?:data)\s*[:\-]\s*(.+)/i]);
+ const time=find([/(?:hor[aá]rio|sa[ií]da)\s*[:\-]\s*(\d{1,2}:\d{2})/i]);
+ const stops=find([/(?:paradas?|outros locais)\s*[:\-]\s*(.+)/i]);
+ const observations=find([/(?:observa[cç][õo]es?|necessidades especiais)\s*[:\-]\s*(.+)/i]);
+ const assign=(id,v)=>{if(v!=='' && !$(id).value.trim())$(id).value=v;};
+ assign('client',name);assign('origin',origin);assign('destination',dest);assign('childrenAges',ages);assign('babies',babies);assign('stops',stops);assign('observations',observations);
+ if(adults)assign('adults',adults);if(children)assign('children',children);if(large)assign('largeBags',large);if(small)assign('smallBags',small);
+ if(time&&!$('travelTime').value)$('travelTime').value=time.padStart(5,'0');
+ if(date&&!$('travelDate').value){let m=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(m)$('travelDate').value=`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;else if(/^\d{4}-\d{2}-\d{2}$/.test(date))$('travelDate').value=date;}
+ const total=Number($('adults').value||0)+Number($('children').value||0)+(/nenhum|zero|0 beb[eê]/i.test(babies)?0:(babies?1:0));
+ if(total>=1&&total<=6)$('passengers').value=String(total);
+ if(/motorista.{0,20}disposi[cç][aã]o|op[cç][aã]o\s*b|letra\s*b/i.test(raw))$('serviceMode').value='available';
+ else if(/somente levar e buscar|somente transporte|op[cç][aã]o\s*a|letra\s*a/i.test(raw))$('serviceMode').value='transport';
+ updateMode();
+ $('importStatus').textContent='Preenchimento assistido concluído onde foi possível identificar os dados. Confira todos os campos, principalmente total de passageiros, bebês, idades, bagagens e endereços. Respostas em texto livre podem não ser reconhecidas.';
+}
+$('importReply').addEventListener('click',importReply);
+function updateMode(){
+ const available=$('serviceMode').value==='available';
+ $('waitFeeField').classList.toggle('hidden',available);
+ $('driverFeeField').classList.toggle('hidden',!available);
+}
+$('serviceMode').addEventListener('change',updateMode);
+function calculate(){
+ const km=num('km'),base=consumption(),ac=Number($('ac').value),reserve=num('reserve'),price=num('price'),tolls=num('tolls'),profit=num('profit');
+ const waitFee=$('serviceMode').value==='transport'?num('waitFee'):0;
+ const driverFee=$('serviceMode').value==='available'?num('driverFee'):0;
+ const pax=Number($('passengers').value);
+ const adultCount=num('adults'),childCount=num('children');
+ if(![km,base,ac,reserve,price,tolls,profit,waitFee,driverFee,adultCount,childCount].every(Number.isFinite)||km<=0||base<=0||reserve<0||reserve>100||price<=0||tolls<0||profit<0||waitFee<0||driverFee<0)throw new Error('Confira distância, consumo, reserva, preço do combustível, pedágio, meta e adicionais.');
+ if(pax<4||pax>6)throw new Error('A política comercial desta calculadora permite orçamentos de 4 a 6 passageiros.');
+ if(adultCount+childCount>6)throw new Error('Adultos + crianças não podem ultrapassar 6. Confira também bebês e a configuração dos assentos.');
+ const effective=base/(1+ac/100);
+ const tripLitres=km/effective;
+ const reserveLitres=tripLitres*reserve/100;
+ const totalLitres=tripLitres+reserveLitres;
+ const fuelCost=round2(totalLitres*price);
+ const baseCost=round2(fuelCost+tolls);
+ const revenue=round2(baseCost+profit);
+ $('adjusted').textContent=fmt(effective)+' km/l';
+ $('tripFuel').textContent=fmt(tripLitres)+' L';
+ $('reserveFuel').textContent=fmt(reserveLitres)+' L';
+ $('totalFuel').textContent=fmt(totalLitres)+' L';
+ $('reserveRange').textContent=fmt(reserveLitres*effective)+' km';
+ $('fuelCost').textContent=money(fuelCost);
+ $('revenue').textContent=money(revenue);
+ $('fuelWarning').textContent=totalLitres>53?'Atenção: o planejamento prevê '+fmt(totalLitres)+' L, acima da capacidade nominal de 53 L do tanque. Será necessário planejar abastecimento durante o percurso.':'Planejamento estimado: '+fmt(tripLitres)+' L para o percurso + '+fmt(reserveLitres)+' L de reserva. A reserva corresponde a cerca de '+fmt(reserveLitres*effective)+' km na média configurada. Consumo real pode variar; não trate essa estimativa como garantia.';
+ const fares={};
+ $('fareRows').innerHTML=[4,5,6].map(n=>{
+   const targetProfit=profit+(n-4)*100;
+   const targetRevenue=round2(baseCost+targetProfit);
+   const per=Math.ceil((targetRevenue/n)*100-1e-9)/100;
+   const total=round2(per*n);
+   fares[n]={per,total};
+   return `<tr><td>${n} passageiros</td><td>${money(per)}</td><td>${money(total)}</td><td>${money(round2(total-baseCost))}</td></tr>`;
+ }).join('');
+ const fare=fares[pax],client=$('client').value.trim(),origin=$('origin').value.trim()||'A combinar',destination=$('destination').value.trim()||'A combinar';
+ const date=$('travelDate').value?new Date($('travelDate').value+'T12:00:00').toLocaleDateString('pt-BR'):'A combinar';
+ const time=$('travelTime').value||'A combinar';
+ const mode=$('serviceMode').value==='available'?'Bate e volta — motorista à disposição':'Bate e volta — somente levar e buscar';
+ const total=round2(fare.total+waitFee+driverFee);
+ const people=`${adultCount} adulto(s) + ${childCount} criança(s)`;
+ const childInfo=$('childrenAges').value.trim()?`Idades das crianças: ${$('childrenAges').value.trim()}`:'';
+ const babyInfo=$('babies').value.trim()?`Bebês: ${$('babies').value.trim()}`:'';
+ const bags=`Bagagens: ${num('largeBags')} mala(s) grande(s) e ${num('smallBags')} bolsa(s)/mala(s) pequena(s)`;
+ const extras=[childInfo,babyInfo,bags,$('stroller').value!=='Não informado'?'Carrinho de bebê: '+$('stroller').value:'',$('childSeat').value!=='Não informado'?'Cadeirinha/assento infantil: '+$('childSeat').value:'',$('stops').value.trim()?'Paradas: '+$('stops').value.trim():'',$('observations').value.trim()?'Observações: '+$('observations').value.trim(): ''].filter(Boolean);
+ const quoteLines=['BASTOS | MOTORISTA PARTICULAR RJ','ORÇAMENTO DE TRANSPORTE PRIVATIVO',client?'Cliente: '+client:'', $('phone').value.trim()?'Telefone: '+$('phone').value.trim():'','Origem: '+origin,'Destino: '+destination,'Data: '+date,'Horário: '+time,'Passageiros: '+pax+' ('+people+')',...extras,'Serviço: '+mode,'Transporte: '+money(fare.total),'Valor por passageiro (transporte): '+money(fare.per),waitFee>0?'Taxa de disponibilidade/espera: '+money(waitFee):'',driverFee>0?'Adicional fixo — motorista à disposição: '+money(driverFee):'','VALOR TOTAL: '+money(total),'','Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.','Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'].filter(Boolean);
+ $('clientBudget').dataset.quote=quoteLines.join('\n');
+ let budget=`<p><b>Cliente:</b> ${escapeHtml(client||'Não informado')}</p><p><b>Origem:</b> ${escapeHtml(origin)}</p><p><b>Destino:</b> ${escapeHtml(destination)}</p><p><b>Data:</b> ${date} &nbsp; <b>Horário:</b> ${time}</p><p><b>Passageiros:</b> ${pax} (${escapeHtml(people)})</p>`;
+ if(extras.length)budget+=`<p>${extras.map(escapeHtml).join('<br>')}</p>`;
+ budget+=`<p><b>Serviço:</b> ${escapeHtml(mode)}</p><div style="background:#f7f8fb;border-radius:10px;padding:14px;margin-top:12px"><p>Transporte: <b>${money(fare.total)}</b></p><p>Valor por passageiro (transporte): <b>${money(fare.per)}</b></p>`;
+ if(waitFee>0)budget+=`<p>Taxa de disponibilidade/espera: <b>${money(waitFee)}</b></p>`;
+ if(driverFee>0)budget+=`<p>Adicional fixo — motorista à disposição: <b>${money(driverFee)}</b></p>`;
+ budget+=`<div style="font-size:21px;font-weight:800;color:#101c35;border-top:2px solid #d6ad55;padding-top:10px;margin-top:10px">VALOR TOTAL: ${money(total)}</div></div><p style="font-size:12px;color:#667085;margin-top:14px">Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.<br>Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.</p>`;
+ $('budgetText').innerHTML=budget;
+ const valueMessage=$('serviceMode').value==='available'
+ ? `🚘 *Por que vale a pena contratar o Bastos — motorista à disposição?*
 
-    $('adjusted').textContent=fmt(effective)+' km/l';
-    $('tripFuel').textContent=fmt(trip)+' L';
-    $('needed').textContent=fmt(required)+' L';
-    $('toAdd').textContent=fmt(required)+' L';
-    $('fuelCost').textContent=money(fuelCost);
-    $('revenue').textContent=money(revenue)+' (4 passageiros)';
-    $('tankWarning').textContent=required>53
-      ? 'Atenção: a necessidade calculada é de '+fmt(required)+' L, acima dos 53 L do tanque. Será necessário abastecer durante o percurso.'
-      : 'Você precisa ter '+fmt(required)+' L disponíveis para ida e volta, incluindo a reserva. O cálculo não desconta o combustível que já está no tanque.';
-    const fares={};
-    $('fareRows').innerHTML=[4,5,6].map(n=>{
-      const targetProfit=profit+(n-4)*100;
-      const targetRevenue=baseCost+targetProfit;
-      const per=Math.ceil((targetRevenue/n)*100)/100, total=per*n;
-      fares[n]={per,total};
-      return `<tr><td>${n} pessoas</td><td>${money(per)}</td><td>${money(total)}</td><td>${money(total-baseCost)}</td></tr>`;
-    }).join('');
+Além do transporte até o destino, você conta com o motorista durante o passeio para realizar os deslocamentos entre os locais combinados.
 
-    const count=Number($('passengers').value);
-    const fare=fares[count];
-    const dateValue=$('travelDate').value;
-    const dateLabel=dateValue ? new Date(dateValue+'T12:00:00').toLocaleDateString('pt-BR') : 'A combinar';
-    const client=$('client').value.trim();
-    const origin=$('origin').value.trim() || 'A combinar';
-    const destination=$('destination').value.trim();
-    const quoteText=[
-      'BASTOS | MOTORISTA PARTICULAR RJ',
-      'ORÇAMENTO DE TRANSPORTE PRIVATIVO',
-      client ? 'Cliente: '+client : '',
-      'Origem: '+origin,
-      'Destino: '+destination,
-      'Data: '+dateLabel,
-      'Passageiros: '+count,
-      'Valor por passageiro: '+money(fare.per),
-      'VALOR TOTAL: '+money(fare.total),
-      '',
-      'Serviço de transporte privativo em Chevrolet Spin, conforme dados e condições combinados.',
-      'Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'
-    ].filter(Boolean).join('\n');
-    $('budgetText').innerHTML=`<p><b>Cliente:</b> ${escapeHtml(client || 'Não informado')}</p><p><b>Origem:</b> ${escapeHtml(origin)}</p><p><b>Destino:</b> ${escapeHtml(destination)}</p><p><b>Data:</b> ${dateLabel}</p><p><b>Passageiros:</b> ${count}</p><div style="background:#f7f8fb;border-radius:10px;padding:14px;margin-top:12px"><p style="margin:0 0 7px">Valor por passageiro: <b>${money(fare.per)}</b></p><div style="font-size:21px;font-weight:800;color:var(--navy)">Valor total: ${money(fare.total)}</div></div><p style="font-size:12px;color:#667085;margin-top:14px">Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.<br>Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.</p>`;
-    $('clientBudget').hidden=false;
-    $('clientBudget').dataset.quote=quoteText;
-    $('adjusted').scrollIntoView({behavior:'smooth',block:'center'});
-    return {km,revenue,fares};
-  }
+✅ Mais praticidade para visitar diferentes pontos sem precisar procurar outro transporte a cada deslocamento.
+✅ Atendimento direto e horários organizados conforme o combinado.
+✅ Privacidade para aproveitar o passeio com sua família ou grupo.
+✅ Conforto da Chevrolet Spin, com capacidade para até 6 passageiros além do motorista, respeitando a configuração adequada dos assentos e bagagens.
 
-  $('calculate').addEventListener('click', () => {
-    const error=$('calcError');
-    if(error) error.textContent='';
-    try { calculate(); }
-    catch(e) { if(error) error.textContent=e.message; else alert(e.message); }
-  });
+O adicional de motorista à disposição aparece separado no orçamento, para deixar claro o que corresponde ao transporte e o que corresponde ao acompanhamento durante o passeio.
 
-  function escapeHtml(value){return String(value).replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));}
+*BASTOS | MOTORISTA PARTICULAR RJ*`
+ : `🚘 *Por que vale a pena contratar o transporte privativo Bastos?*
 
-  $('copyBudget').addEventListener('click', async ()=>{
-    const text=$('clientBudget').dataset.quote || '';
-    if(!text) return;
-    try { await navigator.clipboard.writeText(text); alert('Orçamento copiado. Agora você pode colar no WhatsApp.'); }
-    catch(e) { alert('Não foi possível copiar automaticamente neste navegador. Você pode selecionar o texto do orçamento e copiar.'); }
-  });
-  $('printBudget').addEventListener('click',()=>{
-    const content=$('budgetPaper').innerHTML;
-    const win=window.open('','_blank');
-    if(!win){alert('Permita a abertura de pop-ups para imprimir o orçamento.');return;}
-    win.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Orçamento Bastos</title><style>body{font:15px Arial,sans-serif;color:#172033;padding:28px;max-width:720px;margin:auto}p{line-height:1.5}div{box-sizing:border-box}</style></head><body>'+content+'</body></html>');
-    win.document.close(); win.focus(); win.print();
-  });
-  $('passengers').addEventListener('change',()=>{ if(!$('clientBudget').hidden) { try{calculate();}catch(e){} } });
-  $('client').addEventListener('input',()=>{ if(!$('clientBudget').hidden) { try{calculate();}catch(e){} } });
-  $('travelDate').addEventListener('change',()=>{ if(!$('clientBudget').hidden) { try{calculate();}catch(e){} } });
-  $('origin').addEventListener('input',()=>{ if(!$('clientBudget').hidden) { try{calculate();}catch(e){} } });
-  $('destination').addEventListener('input',()=>{ if(!$('clientBudget').hidden) { try{calculate();}catch(e){} } });
+A proposta é facilitar seu deslocamento do embarque até o destino e combinar antecipadamente o retorno.
 
-  $('preset').addEventListener('change',()=>{
-    $('custom').disabled=$('preset').value!=='custom';
-  });
+✅ Você combina o embarque em um endereço, sem precisar se deslocar até uma rodoviária.
+✅ Viaja com privacidade junto das pessoas do seu grupo.
+✅ Pode evitar conexões e deslocamentos extras entre diferentes meios de transporte.
+✅ Horário de ida e retorno combinados diretamente.
+✅ Conforto da Chevrolet Spin, com capacidade para até 6 passageiros além do motorista, respeitando a configuração adequada dos assentos e bagagens.
 
-  $('save').addEventListener('click',()=>{
-    try {
-      const c=calculate();
-      const arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');
-      arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});
-      localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));
-      renderHistory();
-      alert('Orçamento salvo neste aparelho.');
-    } catch(e) { alert(e.message); }
-  });
+A ideia é deixar o transporte organizado para que você aproveite o passeio sem precisar se preocupar em encontrar como voltar.
 
-  function renderHistory(){
-    const arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');
-    $('history').innerHTML=arr.length
-      ? arr.map(x=>`<li><b>${x.dest||'Destino não informado'}</b> — ${x.km} km — ${x.date} — faturamento mínimo ${money(x.revenue)}</li>`).join('')
-      : '<li>Nenhum orçamento salvo ainda.</li>';
-  }
-  $('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?')) location.reload();});
-  renderHistory();
+*BASTOS | MOTORISTA PARTICULAR RJ*`;
+ $('valueMessageText').textContent=valueMessage;
+ $('clientBudget').hidden=false;$('valueMessage').hidden=false;
+ return {km,revenue:total,transport:fare.total,per:fare.per,total,fuelCost,totalLitres};
+}
+$('calculate').addEventListener('click',()=>{ $('calcError').textContent='';try{calculate();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;}});
+$('copyBudget').addEventListener('click',async()=>{const text=$('clientBudget').dataset.quote||'';try{await navigator.clipboard.writeText(text);alert('Orçamento copiado. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente neste navegador. Selecione e copie o texto do orçamento.')}});
+$('copyValueMessage').addEventListener('click',async()=>{const text=$('valueMessageText').textContent;try{await navigator.clipboard.writeText(text);alert('Mensagem de valorização copiada. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione a mensagem e copie.')}});
+$('printBudget').addEventListener('click',()=>{const win=window.open('','_blank');if(!win){alert('Permita a abertura de pop-ups para imprimir.');return;}win.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Orçamento Bastos</title><style>body{font:15px Arial;color:#172033;padding:28px;max-width:720px;margin:auto}p{line-height:1.5}</style></head><body>'+ $('budgetPaper').innerHTML+'</body></html>');win.document.close();win.focus();win.print();});
+$('preset').addEventListener('change',()=>$('custom').disabled=$('preset').value!=='custom');
+$('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);});
+$('adults').addEventListener('input',syncPax);$('children').addEventListener('input',syncPax);
+function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);}
+$('save').addEventListener('click',()=>{try{const c=calculate(),arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));renderHistory();alert('Orçamento salvo neste aparelho.');}catch(e){alert(e.message);}});
+function renderHistory(){let arr=[];try{arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');}catch(e){}$('history').innerHTML=arr.length?arr.map(x=>`<li><b>${escapeHtml(x.dest||'Destino não informado')}</b> — ${fmt(x.km)} km — ${escapeHtml(x.date)} — faturamento ${money(x.revenue)}</li>`).join(''):'<li>Nenhum orçamento salvo ainda.</li>';}
+$('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?'))location.reload();});
+updateMode();renderHistory();
 })();
 </script>
-</body></html>
+</body>
+</html>
