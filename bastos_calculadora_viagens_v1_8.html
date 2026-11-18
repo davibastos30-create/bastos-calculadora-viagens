@@ -101,7 +101,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="field"><label>Telefone com DDD (opcional)</label><input id="phone" placeholder="(21) 99999-9999"></div>
 <div class="field"><label>Data da viagem</label><input id="travelDate" type="date"></div>
 <div class="field"><label>Horário de saída</label><input id="travelTime" type="time"></div>
-<div class="field"><label>Endereço de embarque</label><input id="origin" placeholder="Rua, número, bairro e cidade"></div>
+<div class="field"><label>Endereço de embarque ou terminal</label><input id="origin" placeholder="Rua e número ou Santos Dumont, Galeão ou Rodoviária Novo Rio"></div>
 <div class="field"><label>Destino principal</label><input id="destination" placeholder="Local de destino"></div>
 <div class="field"><label>Adultos</label><input id="adults" type="number" min="0" max="6" step="1" value="" placeholder="Ex.: 4"></div>
 <div class="field"><label>Crianças</label><input id="children" type="number" min="0" max="6" step="1" value="0"></div>
@@ -113,17 +113,17 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="field"><label>Carrinho de bebê?</label><select id="stroller"><option value="Não informado">Não informado</option><option>Não</option><option>Sim</option></select></div>
 <div class="field"><label>Precisa de cadeirinha/assento infantil?</label><select id="childSeat"><option value="Não informado">Não informado</option><option>Não</option><option>Sim</option><option>Já possui e levará</option></select></div>
 <div class="field"><label>Quantidade total de passageiros</label><input id="passengers" type="number" min="1" max="6" step="1" value="" placeholder="Preenchido pela soma dos passageiros"></div>
-<div class="field"><label>Tipo de serviço</label><select id="serviceMode"><option value="transport">Bate e volta — somente levar e buscar</option><option value="available">Bate e volta — motorista à disposição</option></select></div>
+<div class="field"><label>Tipo de serviço</label><select id="serviceMode"><option value="transport">A — Bate e volta — levar e buscar</option><option value="available">B — Motorista à disposição</option><option value="oneway">C — Transfer somente ida — sem retorno incluído</option></select></div>
 </div>
 <div class="field"><label>Observações e necessidades especiais</label><textarea id="observations" placeholder="Outras informações importantes para organizar a viagem"></textarea></div>
-<p class="hint">A modalidade motorista à disposição significa permanecer com o cliente e realizar deslocamentos entre os locais do passeio. O adicional será informado separadamente no orçamento.</p>
+<p class="hint" id="serviceModeHint">Bate e volta: informe os custos e os trechos previstos para levar e buscar o grupo.</p>
 </section>
 
 <section class="card">
 <h2>3. Combustível e distância</h2>
-<p class="hint">Consulte no Waze a distância total de ida e volta, incluindo deslocamentos extras previstos, e informe o total de quilômetros. Não é necessário informar quanto combustível já existe no tanque.</p>
+<p class="hint" id="kmHelp">Informe todos os trechos que a Spin deverá percorrer. No transfer somente ida, inclua o retorno vazio até sua base se não houver outro serviço na sequência. Essa distância é usada apenas para calcular seus custos operacionais; o serviço contratado pelo cliente continua sendo somente a ida.</p>
 <div class="grid">
-<div class="field"><label>Distância total (ida + volta), km — Waze</label><input id="km" type="number" min="0" step="0.1" value="368"></div>
+<div class="field"><label id="kmLabel">Distância total rodada pela Spin (km) — Waze</label><input id="km" type="number" min="0" step="0.1" value="368"></div>
 <div class="field"><label>Combustível</label><select id="fuel"><option value="Etanol">Etanol</option><option value="Gasolina">Gasolina</option></select></div>
 <div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.001" value="4.59"></div>
 <div class="field"><label>Consumo base (km/l)</label><select id="preset"><option value="10">Conservador — 10 km/l</option><option value="9">Mais conservador — 9 km/l</option><option value="10.5">Normal — 10,5 km/l</option><option value="11.5">Econômico — 11,5 km/l</option><option value="custom">Personalizar consumo</option></select></div>
@@ -138,11 +138,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <h2>4. Meta, pedágios e taxas do serviço</h2>
 <div class="grid">
 <div class="field"><label>Sobra desejada com 4 passageiros (R$)</label><input id="profit" type="number" min="0" step="0.01" value="600"></div>
-<div class="field"><label>Pedágios ida e volta (R$)</label><input id="tolls" type="number" min="0" step="0.01" value="0"></div>
+<div class="field"><label>Pedágios previstos no percurso (R$)</label><input id="tolls" type="number" min="0" step="0.01" value="0"></div>
 <div class="field" id="waitFeeField"><label>Taxa de disponibilidade / espera — somente levar e buscar (R$)</label><input id="waitFee" type="number" min="0" step="0.01" value="0"></div>
 <div class="field hidden" id="driverFeeField"><label>Adicional fixo — motorista à disposição (R$)</label><input id="driverFee" type="number" min="0" step="0.01" value="0"></div>
 </div>
-<p class="hint">As cobranças são exclusivas: somente levar e buscar pode ter taxa de disponibilidade/espera; motorista à disposição recebe o adicional fixo próprio. Nunca somar as duas taxas. Os adicionais são exibidos separadamente e não são divididos entre passageiros.</p>
+<p class="hint">As cobranças são exclusivas: bate e volta pode ter taxa de disponibilidade/espera; motorista à disposição recebe o adicional fixo próprio. Transfer somente ida não inclui espera nem acompanhamento. Nunca some taxas de modalidades diferentes. Os adicionais são exibidos separadamente e não são divididos entre passageiros.</p>
 </section>
 
 <section class="card"><button class="gold" id="calculate" style="width:100%;padding:15px;font-size:16px">CALCULAR E GERAR ORÇAMENTO</button><p id="calcError" class="error" role="alert"></p></section>
@@ -151,7 +151,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <h2>5. Resultado do planejamento</h2>
 <div class="results">
 <div class="metric"><span>Consumo ajustado com ar</span><strong id="adjusted">—</strong></div>
-<div class="metric"><span>Combustível consumido na ida e volta</span><strong id="tripFuel">—</strong></div>
+<div class="metric"><span>Combustível consumido no percurso</span><strong id="tripFuel">—</strong></div>
 <div class="metric"><span>Reserva de segurança</span><strong id="reserveFuel">—</strong></div>
 <div class="metric"><span>Total previsto (percurso + reserva)</span><strong id="totalFuel">—</strong></div>
 <div class="metric"><span>Autonomia correspondente à reserva</span><strong id="reserveRange">—</strong></div>
@@ -184,7 +184,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 2.9 — rótulos sem emojis inadequados para carrinho de bebê e cadeirinha; espaçamento reforçado na mensagem de WhatsApp; orçamento azul com contraste reforçado, Spin branca, PDF, importação de respostas, modalidades, taxas separadas e histórico. Distância informada manualmente conforme Waze.</p>
+<p class="hint">Versão 3.0 — importação de terminais de embarque (Santos Dumont, Galeão e Rodoviária Novo Rio), modalidade C de transfer somente ida, orçamento azul, PDF, WhatsApp e histórico.</p>
 </main>
 <script>
 (() => {
@@ -221,7 +221,8 @@ function importReply(){
  const state=first(find('Estado','UF'));
  const complement=find('Complemento');
  const reference=first(find('Ponto de referência','Ponto de referencia','Referência','Referencia'));
- const fullAddress=first(find('Endereço de embarque','Endereco de embarque','Endereço completo','Endereco completo','Endereço','Endereco'));
+ const pickup=first(find('Qual será o local de embarque','Qual sera o local de embarque','Local de embarque','Local do embarque','Ponto de embarque','Aeroporto ou rodoviária','Aeroporto ou rodoviaria'));
+ const fullAddress=first(find('Endereço de embarque','Endereco de embarque','Endereço completo','Endereco completo','Endereço','Endereco'),pickup);
  const address=[street,number?`nº ${number}`:'',neighborhood,city,state].filter(Boolean).join(', ');
  let origin=fullAddress||address;
  if(complement)origin+=(origin?' — ':'')+'Complemento: '+complement;
@@ -253,10 +254,14 @@ function importReply(){
  if(time){const tm=time.match(/(\d{1,2}):(\d{2})/);if(tm)set('travelTime',tm[1].padStart(2,'0')+':'+tm[2]);}
  if(date){let dm=date.match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(dm)set('travelDate',`${dm[3]}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`);else if(/^\d{4}-\d{2}-\d{2}$/.test(date))set('travelDate',date);}
  const option=first(find('Opção escolhida','Opcao escolhida','Tipo de serviço','Tipo de servico','Modalidade'));
- const om=option.match(/\b([AB])\b/i);
- if(om)$('serviceMode').value=om[1].toUpperCase()==='B'?'available':'transport';
- else if(/motorista.{0,30}disposi[cç][aã]o/i.test(raw))$('serviceMode').value='available';
- else if(/somente levar e buscar/i.test(raw))$('serviceMode').value='transport';
+ const serviceText=first(find('Serviço','Servico','Modalidade de serviço','Modalidade de servico'));
+ const om=option.match(/\b([ABC])\b/i);
+ if(om){
+   const code=om[1].toUpperCase();
+   $('serviceMode').value=code==='B'?'available':code==='C'?'oneway':'transport';
+ } else if(/transfer\s+somente\s+ida|sem retorno incluido/i.test(serviceText+' '+raw))$('serviceMode').value='oneway';
+ else if(/motorista.{0,30}disposi[cç][aã]o/i.test(serviceText+' '+raw))$('serviceMode').value='available';
+ else if(/somente levar e buscar|bate e volta/i.test(serviceText+' '+raw))$('serviceMode').value='transport';
  const total=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);
  if(total>0&&total<=6)$('passengers').value=String(total);
  updateMode();
@@ -266,9 +271,19 @@ function importReply(){
 }
 $('importReply').addEventListener('click',importReply);
 function updateMode(){
- const available=$('serviceMode').value==='available';
- $('waitFeeField').classList.toggle('hidden',available);
+ const mode=$('serviceMode').value;
+ const available=mode==='available';
+ const oneWay=mode==='oneway';
+ $('waitFeeField').classList.toggle('hidden',available||oneWay);
  $('driverFeeField').classList.toggle('hidden',!available);
+ $('serviceModeHint').textContent=oneWay
+   ? 'Transfer somente ida: o cliente será levado ao destino. Não inclui retorno, espera nem motorista à disposição. O retorno pode ser solicitado em orçamento separado.'
+   : available
+     ? 'Motorista à disposição: o motorista permanece com o cliente durante o período combinado. O adicional fixo será informado separadamente no orçamento.'
+     : 'Bate e volta: o motorista leva o grupo e retorna no horário combinado para buscar. Pode haver taxa de disponibilidade/espera, informada separadamente.';
+ $('kmHelp').textContent=oneWay
+   ? 'Informe todos os trechos que a Spin deverá percorrer para executar o serviço. Se precisar voltar vazio à sua base e não houver outro serviço na sequência, inclua esse retorno no Waze. Isso calcula seu custo operacional; o cliente contrata somente a ida.'
+   : 'Informe no Waze a quilometragem total que a Spin deverá percorrer, incluindo ida, retorno e deslocamentos extras previstos. Use os quilômetros reais de operação para calcular combustível e custos.';
 }
 $('serviceMode').addEventListener('change',updateMode);
 function calculate(){
@@ -308,7 +323,7 @@ function calculate(){
  const fare=fares[pax],client=$('client').value.trim(),origin=$('origin').value.trim()||'A combinar',destination=$('destination').value.trim()||'A combinar';
  const date=$('travelDate').value?new Date($('travelDate').value+'T12:00:00').toLocaleDateString('pt-BR'):'A combinar';
  const time=$('travelTime').value||'A combinar';
- const mode=$('serviceMode').value==='available'?'Bate e volta — motorista à disposição':'Bate e volta — somente levar e buscar';
+ const mode=$('serviceMode').value==='available'?'Motorista à disposição':$('serviceMode').value==='oneway'?'Transfer somente ida — sem retorno incluído':'Bate e volta — levar e buscar';
  const total=round2(fare.total+waitFee+driverFee);
  const people=`${adultCount} adulto(s) + ${childCount} criança(s) + ${babyCount} bebê(s)`;
  // A idade das crianças é lida dentro de calculate(); não pode depender da variável local da importação.
@@ -320,7 +335,8 @@ function calculate(){
  const quoteLines=[];
  const pushLine=value=>{if(value!==undefined&&value!==null&&String(value).trim()!=='')quoteLines.push(String(value));};
  const passengerWord=(count,one,many)=>`${count} ${count===1?one:many}`;
- const originParts=origin.split(/\s+—\s+/);
+ const isTerminalOrigin=/Aeroporto Santos Dumont|Aeroporto Internacional do Galeão|Rodoviária Novo Rio/i.test(origin);
+ const originParts=isTerminalOrigin?[origin]:origin.split(/\s+—\s+/);
  const originMain=originParts.shift()||origin;
  const complementPart=originParts.find(part=>/^complemento\s*:/i.test(part));
  const referencePart=originParts.find(part=>/^refer[eê]ncia\s*:/i.test(part));
@@ -385,7 +401,7 @@ function calculate(){
  pushLine(`*⭐ VALOR TOTAL: ${money(total)}*`);
  pushLine('━━━━━━━━━━━━━━━━━━━━');
  pushLine('Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.');
- pushLine('Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.');
+ pushLine($('serviceMode').value==='oneway'?'Transfer somente ida: retorno, espera e acompanhamento não estão incluídos. Caso precise voltar, solicite orçamento separado.':'Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.');
  pushSectionBreak();
  pushLine('*BASTOS | MOTORISTA PARTICULAR RJ*');
  $('clientBudget').dataset.quote=quoteLines.join('\n');
@@ -394,9 +410,20 @@ function calculate(){
  budget+=`<div class="budget-service">🚙 ${escapeHtml(mode)}</div><div class="budget-price"><div class="budget-section-title">💙 Investimento da sua viagem</div><div class="budget-price-row"><span>Transporte</span><b>${money(fare.total)}</b></div><div class="budget-price-row"><span>Valor por passageiro</span><b>${money(fare.per)}</b></div>`;
  if(waitFee>0)budget+=`<div class="budget-price-row"><span>⏳ Taxa de disponibilidade/espera</span><b>${money(waitFee)}</b></div>`;
  if(driverFee>0)budget+=`<div class="budget-price-row"><span>🚘 Adicional — motorista à disposição</span><b>${money(driverFee)}</b></div>`;
- budget+=`<div class="budget-total"><span>⭐ VALOR TOTAL</span><strong>${money(total)}</strong></div></div><p class="budget-foot">🚗 Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.<br>🔹 Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.<br><b class="budget-highlight">Bastos | Motorista Particular RJ</b> — será um prazer fazer parte da sua viagem!</p></div>`;
+ budget+=`<div class="budget-total"><span>⭐ VALOR TOTAL</span><strong>${money(total)}</strong></div></div><p class="budget-foot">🚗 Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.<br>🔹 ${$('serviceMode').value==='oneway'?'Serviço somente de ida. Retorno, espera e acompanhamento não estão incluídos; podem ser orçados separadamente.':'Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'}<br><b class="budget-highlight">Bastos | Motorista Particular RJ</b> — será um prazer fazer parte da sua viagem!</p></div>`;
  $('budgetText').innerHTML=budget;
- const valueMessage=$('serviceMode').value==='available'
+ const valueMessage=$('serviceMode').value==='oneway'
+ ? `🚘 *Por que vale a pena contratar o transfer somente ida Bastos?*
+
+Você terá um deslocamento privativo do local de embarque até o destino escolhido. Esta modalidade contempla somente a ida; retorno, espera e acompanhamento não estão incluídos. Caso precise voltar, solicite um orçamento separado.
+
+✅ Embarque no endereço ou terminal combinado.
+✅ Viagem privativa para seu grupo.
+✅ Horário de saída combinado diretamente.
+✅ Conforto da Chevrolet Spin, com capacidade para até 6 passageiros além do motorista, respeitando a configuração adequada dos assentos e bagagens.
+
+*BASTOS | MOTORISTA PARTICULAR RJ*`
+ : $('serviceMode').value==='available'
  ? `🚘 *Por que vale a pena contratar o Bastos — motorista à disposição?*
 
 Além do transporte até o destino, você conta com o motorista durante o passeio para realizar os deslocamentos entre os locais combinados.
