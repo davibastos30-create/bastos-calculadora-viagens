@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v4.4</title>
+<title>Bastos | Calculadora de Viagens — v4.5</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -107,7 +107,15 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 @media(max-width:650px){.compare-grid{grid-template-columns:1fr}.compare-provider-actions button{flex:1}.compare-actions{display:grid;grid-template-columns:1fr}.compare-actions button{width:100%}.compare-message{min-height:260px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}.compare-result-line{align-items:flex-start;gap:8px}.compare-result-line span{min-width:0}.compare-result-line strong{max-width:55%;overflow-wrap:anywhere}.compare-provider{padding:12px}.compare-intro{font-size:12px;line-height:1.5}}
 
 
-/* v4.4 — sequência de três mensagens independentes pelo WhatsApp */
+
+.budget-edit-panel{border:1px solid #cfe2f3;border-radius:13px;padding:14px;background:#f7fbff}
+.budget-edit-panel h3{margin:0 0 7px;color:#073763}
+.budget-edit-panel .hint{margin:0 0 11px}
+.budget-edit-panel .actions button{flex:1 1 190px;min-height:43px}
+.budget-custom-note{margin:10px 0 0;padding:10px 12px;border-left:3px solid #76add5;background:#f5faff;border-radius:8px;font-size:12px;line-height:1.5;color:#1b3044;white-space:pre-wrap}
+@media(max-width:560px){.budget-edit-panel{padding:12px}.budget-edit-panel .actions{display:grid;grid-template-columns:1fr}.budget-edit-panel .actions button{width:100%}}
+
+/* v4.5 — proposta comercial revisada, comprovantes com indicação visual e orçamento editável antes do PDF */
 .separate-print-actions{margin-top:10px;border:1px solid #cfe2f3;border-radius:12px;padding:12px;background:#f5f9fd}
 .separate-print-title{font-size:13px;font-weight:800;color:#073763;margin-bottom:5px}
 .separate-print-help{font-size:12px;color:#475467;line-height:1.5;margin:0 0 10px}
@@ -245,11 +253,22 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <section class="card" id="clientBudget" hidden>
 <h2>6. Orçamento para o cliente</h2>
 <div id="budgetPaper" class="budget-box"><div style="border-bottom:3px solid var(--gold);padding-bottom:12px;margin-bottom:14px"><div style="font-weight:800;color:var(--navy);font-size:18px">BASTOS | MOTORISTA PARTICULAR RJ</div><div class="hint">Orçamento de transporte privativo</div></div><div id="budgetText"></div></div>
+<div class="budget-edit-panel" style="margin-top:14px">
+  <h3>✏️ Revisar orçamento antes de enviar</h3>
+  <p class="hint">Você pode ajustar o valor final, a descrição do serviço e acrescentar uma observação antes de gerar o PDF, copiar o orçamento ou enviar a sequência de mensagens pelo WhatsApp. Os cálculos internos de combustível, custos e meta permanecem preservados.</p>
+  <div class="grid">
+    <div class="field"><label>Valor final que será apresentado ao cliente (R$)</label><input id="budgetFinalValue" type="number" min="0" step="0.01" placeholder="Valor calculado"></div>
+    <div class="field"><label>Descrição do serviço no orçamento</label><input id="budgetServiceDescription" type="text" placeholder="Ex.: Bate e volta — levar e buscar"></div>
+  </div>
+  <div class="field"><label>Observação adicional no orçamento (opcional)</label><textarea id="budgetAdditionalNote" placeholder="Escreva uma informação que deseja incluir no PDF e no texto do WhatsApp."></textarea></div>
+  <div class="actions"><button class="gold" type="button" id="applyBudgetEdits">Aplicar alterações ao orçamento</button><button class="secondary" type="button" id="restoreBudgetEdits">Restaurar valores calculados</button></div>
+  <p id="budgetEditStatus" class="hint" aria-live="polite">Revise os campos e aplique as alterações. O PDF e o texto do WhatsApp usarão a versão revisada.</p>
+</div>
 <div class="budget-send-actions" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
 <button class="gold" id="printBudget" type="button">📄 Gerar PDF do orçamento</button>
 <button class="secondary" id="copyBudget" type="button">💬 Copiar orçamento para WhatsApp</button>
 </div>
-<p class="hint" style="margin-top:9px"><b>PDF:</b> abre a prévia em outra aba; a calculadora permanece na aba original. Use “Voltar à calculadora” na prévia para retornar. Se a mesma aba for recarregada, os dados desta sessão serão recuperados. Ao fechar a aba e abrir uma nova, uma simulação antiga não será carregada. <b>WhatsApp:</b> copia o texto simples pronto para colar na conversa.</p>
+<p class="hint" style="margin-top:9px"><b>PDF:</b> antes de gerar, ajuste o valor e a descrição no painel “Revisar orçamento”. A prévia abre em outra aba e a calculadora permanece aberta. <b>WhatsApp:</b> o texto copiado também usa o orçamento revisado. Os cálculos internos não são alterados pelo ajuste comercial.</p>
 <p class="hint">Seus custos, meta de ganho e sobra estimada não aparecem para o cliente.</p>
 </section>
 
@@ -338,7 +357,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.4 — sequência de três mensagens independentes pelo WhatsApp e comprovantes enviados individualmente, sem legenda.</p>
+<p class="hint">Versão 4.5 — mensagens comerciais revisadas em três etapas, indicação para abrir os comprovantes e orçamento editável antes do PDF/WhatsApp.</p>
 </main>
 <script>
 (() => {
@@ -346,7 +365,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 const $ = id => document.getElementById(id);
 // Mantém o rascunho somente nesta aba: um recarregamento acidental recupera
 // o trabalho atual, mas uma nova aba/sessão começa limpa para o próximo cliente.
-const DRAFT_KEY = 'bastos-calculadora-viagens-active-v40';
+const DRAFT_KEY = 'bastos-calculadora-viagens-active-v45';
 const LEGACY_DRAFT_KEYS = ['bastos-calculadora-viagens-draft-v37','bastos-calculadora-viagens-draft-v39'];
 let suppressDraftSave=false;
 try{LEGACY_DRAFT_KEYS.forEach(key=>localStorage.removeItem(key));}catch(error){}
@@ -356,7 +375,7 @@ function saveDraft(){
    const fields=Array.from(document.querySelectorAll('input[id],select[id],textarea[id]'))
      .filter(el=>el.type!=='file')
      .map(el=>({id:el.id,value:el.value,checked:el.checked,auto:el.dataset.auto,manual:el.dataset.manual}));
-   const payload={version:'4.0',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
+   const payload={version:'4.5',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
    sessionStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
  }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento da sessão. */}
 }
@@ -394,7 +413,7 @@ const consumption = () => $('preset').value === 'custom' ? num('custom') : Numbe
 const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const comparisonImages = { uber: null, '99': null, bus: null };
 let comparisonMessagesDirty=false;
-const COMPARISON_SEQUENCE_KEY='bastos-comparison-sequence-v44';
+const COMPARISON_SEQUENCE_KEY='bastos-comparison-sequence-v45';
 let comparisonSequenceStep=0;
 try{const savedStep=Number(sessionStorage.getItem(COMPARISON_SEQUENCE_KEY));if(Number.isInteger(savedStep)&&savedStep>=0&&savedStep<=3)comparisonSequenceStep=savedStep;}catch(error){}
 function suggestedAppCars(){ return Number($('passengers').value||0)>=5 ? 2 : 1; }
@@ -525,47 +544,33 @@ function buildComparison(){
    }
  }
  if(selected.length){
-   comparisonLines.push('','📎 *Vou enviar os comprovantes selecionados em mensagens separadas.*','👆 Abra cada imagem e toque nela para ampliar e conferir a cotação.');
+   comparisonLines.push('','📎 *Vou enviar os comprovantes selecionados separadamente, depois das mensagens.*','👇 *Quando as imagens chegarem, toque em cada comprovante para abrir, ampliar e conferir os valores.*','Compare as cotações com a proposta Bastos antes de decidir.');
  }
 
- // MENSAGEM 2: proposta comercial e diferença matemática, sem repetir a explicação longa.
- const proposalLines=['*💙 PROPOSTA BASTOS | MOTORISTA PARTICULAR RJ*','',`Serviço: *${mode}*`,`*Valor total do pacote Bastos: ${money(bastos)}*`,'','*Comparando com as cotações informadas:*'];
- entries.forEach(x=>{
-   const label=x.label==='Ônibus'?'ônibus':x.label;
-   if(x.diff>0)proposalLines.push(`✅ Em relação a ${label}, o pacote Bastos fica *${money(x.diff)} mais econômico* nesta simulação.`);
-   else if(x.diff<0)proposalLines.push(`ℹ️ Nesta cotação, ${label} fica *${money(Math.abs(x.diff))} mais barato* que o pacote Bastos.`);
-   else proposalLines.push(`ℹ️ Nesta simulação, ${label} e o pacote Bastos têm o mesmo valor.`);
- });
- proposalLines.push('','Os valores consideram as tarifas e os deslocamentos informados. Cotações de aplicativos e passagens podem mudar.');
+ // MENSAGEM 2: proposta Bastos focada no valor do serviço, sem expor a comparação de preços dos concorrentes.
+ const proposalLines=[
+  '*💙 SUA VIAGEM COM A BASTOS | MOTORISTA PARTICULAR RJ*','',
+  'Agora que você conferiu as opções de transporte, quero apresentar o diferencial da nossa proposta.','',
+  '🚘 Você terá uma Chevrolet Spin particular, de 7 lugares, reservada para atender ao seu grupo.','',
+  '👥 Seu grupo pode viajar junto, sem precisar dividir os passageiros em veículos diferentes, desde que os assentos e as bagagens sejam compatíveis.','',
+  '🧳 Conferimos previamente a quantidade de passageiros, os assentos e o espaço disponível para as bagagens.','',
+  '📍 O embarque, o destino e os detalhes da viagem são combinados diretamente comigo, com tudo organizado antes da saída.','',
+  '💙 A vantagem da Bastos não está apenas no transporte: é ter uma viagem particular planejada para o seu grupo, do embarque até o destino contratado.','',
+  `💰 *Valor total do serviço: ${money(bastos)}*`,'',
+  'Escolha viajar com mais praticidade, organização e tranquilidade.','',
+  '*BASTOS | MOTORISTA PARTICULAR RJ*'
+ ];
 
- // MENSAGEM 3: argumento de valor adaptado à quantidade de passageiros e à opção de ônibus.
- const persuasionLines=['*🚘 POR QUE CONSIDERAR A BASTOS?*',''];
- if(pax===4){
-   persuasionLines.push('Para 4 passageiros, um carro de aplicativo pode aceitar o grupo, mas isso depende da categoria e da decisão do motorista. Alguns aceitam somente 3 pessoas. Também é preciso confirmar se haverá espaço para as malas.');
-   persuasionLines.push('Com a Spin, o veículo é combinado antecipadamente. O grupo pode viajar junto, sem depender de encontrar na hora um motorista com categoria e espaço adequados. Conferimos os assentos e as bagagens antes da viagem.');
- }else if(pax===5){
-   persuasionLines.push('Para 5 passageiros, um carro comum de 5 lugares não comporta todos: o motorista ocupa um dos assentos e sobram apenas 4 lugares para passageiros. Por isso, a comparação considera 2 carros na ida e 2 na volta.');
-   persuasionLines.push('Com a Spin, o grupo pode seguir junto em um único veículo, desde que as bagagens sejam compatíveis com o espaço disponível.');
- }else if(pax===6){
-   persuasionLines.push('Para 6 passageiros, são necessários 2 carros comuns na ida e 2 na volta, pois um veículo de 5 lugares não comporta todos além do motorista.');
-   persuasionLines.push('Com a Spin, os 6 passageiros podem viajar juntos em um único veículo, desde que assentos e bagagens sejam compatíveis.');
- }else{
-   persuasionLines.push('Com a Bastos, você combina antecipadamente o embarque, o destino e os detalhes da viagem, com assentos e bagagens conferidos antes da saída.');
- }
- if(bus){
-   if(bus.groundItems.length){
-     persuasionLines.push('Na opção de ônibus, também entraram na conta os deslocamentos adicionais que você informou. Com a Bastos, o embarque é combinado diretamente e o transporte segue até o destino contratado, sem precisar organizar essas conexões.');
-   }else{
-     persuasionLines.push('Na opção de ônibus, o total considera as passagens informadas. Deslocamentos até as rodoviárias ou da rodoviária ao destino final só entram na conta quando são informados. Com a Bastos, o embarque é combinado diretamente e o transporte segue até o destino contratado.');
-   }
- }
- persuasionLines.push('','A proposta é oferecer uma viagem mais prática e organizada, com o grupo seguindo junto e os detalhes combinados antes da saída.');
- if(selected.length)persuasionLines.push('','📎 Vou enviar os comprovantes separadamente em seguida. Quando receber cada imagem, abra para ampliar e compare a cotação com a proposta da Bastos.');
- if(roundTrip&&entries.some(x=>x.estimated))persuasionLines.push('','ℹ️ Quando a volta não tinha cotação própria, ela foi estimada pelo mesmo valor da ida. Os preços podem variar conforme horário, demanda e disponibilidade.');
- else if(!roundTrip)persuasionLines.push('','ℹ️ Esta proposta considera somente a ida. Retorno e deslocamentos não contratados não estão incluídos.');
- persuasionLines.push('','*BASTOS | MOTORISTA PARTICULAR RJ*');
-
- const messages=[comparisonLines.join('\n'),proposalLines.join('\n'),persuasionLines.join('\n')];
+ // MENSAGEM 3: fechamento curto, sem repetir os argumentos da proposta.
+ const closingLines=[
+  '*🤝 VAMOS ORGANIZAR SUA VIAGEM?*','',
+  'Se a proposta atende ao que você procura, me confirme para verificarmos a disponibilidade e alinharmos os últimos detalhes.','',
+  'Antes da viagem, conferimos juntos o embarque, os passageiros e as bagagens para deixar tudo combinado.','',
+  'Será um prazer levar seu grupo. 🚘','',
+  '*BASTOS | MOTORISTA PARTICULAR RJ*'
+ ];
+ if(!roundTrip)closingLines.splice(2,0,'Esta proposta considera somente a ida, conforme o serviço solicitado.','');
+ const messages=[comparisonLines.join('\n'),proposalLines.join('\n'),closingLines.join('\n')];
  return {text:messages.join('\n\n'),messages,entries,apps,bus,bastos,roundTrip,pax,selectedPrints:selected};
 }
 function updateFourPassengerSuggestion(){
@@ -637,16 +642,16 @@ function updateComparisonSequenceUI(){
  const labels=[
   '1/3 · Enviar comparação de transportes pelo WhatsApp',
   '2/3 · Enviar proposta Bastos pelo WhatsApp',
-  '3/3 · Enviar mensagem final sobre a Spin',
+  '3/3 · Enviar fechamento pelo WhatsApp',
   '✅ Sequência concluída · toque para iniciar novamente'
  ];
  button.textContent=labels[Math.max(0,Math.min(3,comparisonSequenceStep))];
  if(progress){
   const texts=[
-   'Pronto para começar. Envie a primeira mensagem, volte à calculadora e toque novamente no mesmo botão para abrir a proposta Bastos.',
+   'Pronto para começar. Envie a comparação, volte à calculadora e toque novamente no mesmo botão para abrir a proposta Bastos.',
    'Mensagem 1 de 3 aberta. Envie-a no WhatsApp e volte à calculadora para enviar a proposta Bastos.',
-   'Mensagem 2 de 3 aberta. Envie-a no WhatsApp e volte à calculadora para enviar a mensagem final sobre a Spin.',
-   'Mensagem 3 de 3 aberta. Envie-a no WhatsApp. A sequência terminou; toque novamente no botão quando quiser iniciar outra sequência.'
+   'Mensagem 2 de 3 aberta. Envie a proposta Bastos e volte à calculadora para abrir o fechamento.',
+   'Mensagem 3 de 3 aberta. Envie o fechamento. A sequência terminou; toque novamente no botão quando quiser iniciar outra sequência.'
   ];
   progress.textContent=texts[Math.max(0,Math.min(3,comparisonSequenceStep))];
  }
@@ -655,6 +660,13 @@ function setComparisonSequenceStep(step){
  comparisonSequenceStep=Math.max(0,Math.min(3,Number(step)||0));
  try{sessionStorage.setItem(COMPARISON_SEQUENCE_KEY,String(comparisonSequenceStep));}catch(error){}
  updateComparisonSequenceUI();
+}
+function budgetEditsPending(){
+ const budget=$('clientBudget');
+ if(!budget.dataset.quoteBase)return false;
+ return String($('budgetFinalValue').value||'')!==String(budget.dataset.appliedFinal||budget.dataset.baseTotal||'')
+   ||$('budgetServiceDescription').value.trim()!==String(budget.dataset.appliedService||budget.dataset.baseMode||'')
+   ||$('budgetAdditionalNote').value.trim()!==String(budget.dataset.appliedNote||'');
 }
 function openComparisonInWhatsApp(){
  let data;
@@ -961,14 +973,29 @@ function calculate(){
  pushLine($('serviceMode').value==='oneway'?'Transfer somente ida: retorno, espera e acompanhamento não estão incluídos. Caso precise voltar, solicite orçamento separado.':'Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.');
  pushSectionBreak();
  pushLine('*BASTOS | MOTORISTA PARTICULAR RJ*');
- $('clientBudget').dataset.quote=quoteLines.join('\n');
+ $('clientBudget').dataset.quoteBase=quoteLines.join('\n');
+ $('clientBudget').dataset.quote=$('clientBudget').dataset.quoteBase;
+ $('clientBudget').dataset.baseTotal=String(total);
+ $('clientBudget').dataset.baseTransport=String(fare.total);
+ $('clientBudget').dataset.basePer=String(fare.per);
+ $('clientBudget').dataset.waitFee=String(waitFee);
+ $('clientBudget').dataset.driverFee=String(driverFee);
+ $('clientBudget').dataset.baseMode=mode;
+ $('clientBudget').dataset.pax=String(pax);
  let budget=`<div class="budget-hero"><svg class="budget-vehicle-mark" viewBox="0 0 116 76" role="img" aria-label="Spin branca" xmlns="http://www.w3.org/2000/svg"><path d="M12 46 L17 34 Q19 29 27 27 L39 14 Q42 11 48 11 L76 11 Q82 11 86 17 L96 30 L104 33 Q109 35 109 41 L109 50 Q109 55 104 55 L101 55 A11 11 0 0 0 79 55 L41 55 A11 11 0 0 0 19 55 L13 55 Q8 55 8 50 L8 45 Q8 42 12 46Z" fill="#FFFFFF"/><path d="M43 16 Q45 14 49 14 L59 14 L59 29 L31 29 Z" fill="#073763"/><path d="M64 14 L75 14 Q79 14 82 19 L90 29 L64 29 Z" fill="#073763"/><path d="M15 37 L25 33 L91 33 L101 37" fill="none" stroke="#DCEEFF" stroke-width="2" stroke-linecap="round"/><circle cx="30" cy="54" r="8" fill="#082F55"/><circle cx="30" cy="54" r="3.5" fill="#EAF4FF"/><circle cx="90" cy="54" r="8" fill="#082F55"/><circle cx="90" cy="54" r="3.5" fill="#EAF4FF"/><path d="M10 43 L17 43 M101 42 L108 42" stroke="#DCEEFF" stroke-width="2.5" stroke-linecap="round"/></svg><div class="budget-kicker">Sua viagem começa com tranquilidade</div><div class="budget-brand">🚘 BASTOS | MOTORISTA PARTICULAR RJ</div><p>Orçamento de transporte privativo</p></div><div class="budget-content"><div class="budget-section-title">👤 Dados da reserva</div><div class="budget-info-grid"><div class="budget-info"><span>Cliente</span><strong>${escapeHtml(client||'Não informado')}</strong></div><div class="budget-info"><span>Passageiros</span><strong>${pax} — ${escapeHtml(people)}</strong></div><div class="budget-info"><span>Data</span><strong>📅 ${date}</strong></div><div class="budget-info"><span>Horário de saída</span><strong>🕒 ${time}</strong></div></div><div class="budget-route"><div class="budget-section-title">🧭 Seu trajeto</div><p>📍 <b>Embarque:</b> ${escapeHtml(origin)}</p><p>🏖️ <b>Destino:</b> ${escapeHtml(destination)}</p></div>`;
  if(extras.length)budget+=`<div class="budget-section-title">🎒 Detalhes importantes</div><div class="budget-extra">${extras.map(x=>{const noEmoji=/^Carrinho de bebê:/i.test(x)||/^Cadeirinha\/assento infantil:/i.test(x);const icon=/^Bagagens:/i.test(x)?'🧳':/^Bebês:/i.test(x)?'👶':/^Idades das crianças:/i.test(x)?'🧒':'•';return `<div class="budget-extra-item">${noEmoji?'':icon+' '}${escapeHtml(x)}</div>`}).join('')}</div>`;
- budget+=`<div class="budget-service">🚙 ${escapeHtml(mode)}</div><div class="budget-price"><div class="budget-section-title">💙 Investimento da sua viagem</div><div class="budget-price-row"><span>Transporte</span><b>${money(fare.total)}</b></div><div class="budget-price-row"><span>Valor por passageiro</span><b>${money(fare.per)}</b></div>`;
+ budget+=`<div class="budget-service" id="budgetServiceDisplay">🚙 ${escapeHtml(mode)}</div><div class="budget-price"><div class="budget-section-title">💙 Investimento da sua viagem</div><div class="budget-price-row"><span>Transporte</span><b id="budgetTransportDisplay">${money(fare.total)}</b></div><div class="budget-price-row"><span>Valor por passageiro</span><b id="budgetPerDisplay">${money(fare.per)}</b></div>`;
  if(waitFee>0)budget+=`<div class="budget-price-row"><span>⏳ Taxa de disponibilidade/espera</span><b>${money(waitFee)}</b></div>`;
  if(driverFee>0)budget+=`<div class="budget-price-row"><span>🚘 Adicional — motorista à disposição</span><b>${money(driverFee)}</b></div>`;
- budget+=`<div class="budget-total"><span>⭐ VALOR TOTAL</span><strong>${money(total)}</strong></div></div><p class="budget-foot">🚗 Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.<br>🔹 ${$('serviceMode').value==='oneway'?'Serviço somente de ida. Retorno, espera e acompanhamento não estão incluídos; podem ser orçados separadamente.':'Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'}<br><b class="budget-highlight">Bastos | Motorista Particular RJ</b> — será um prazer fazer parte da sua viagem!</p></div>`;
+ budget+=`<div class="budget-total"><span>⭐ VALOR TOTAL</span><strong id="budgetFinalDisplay">${money(total)}</strong></div></div><div class="budget-custom-note" id="budgetExtraNoteDisplay" hidden></div><p class="budget-foot">🚗 Transporte privativo em Chevrolet Spin, conforme dados e condições combinados.<br>🔹 ${$('serviceMode').value==='oneway'?'Serviço somente de ida. Retorno, espera e acompanhamento não estão incluídos; podem ser orçados separadamente.':'Orçamento sujeito à confirmação de disponibilidade e validação do trajeto.'}<br><b class="budget-highlight">Bastos | Motorista Particular RJ</b> — será um prazer fazer parte da sua viagem!</p></div>`;
  $('budgetText').innerHTML=budget;
+ $('budgetFinalValue').value=total.toFixed(2);
+ $('budgetServiceDescription').value=mode;
+ $('budgetAdditionalNote').value='';
+ $('clientBudget').dataset.appliedFinal=total.toFixed(2);
+ $('clientBudget').dataset.appliedService=mode;
+ $('clientBudget').dataset.appliedNote='';
+ $('budgetEditStatus').textContent='O valor calculado está carregado. Você pode ajustar o preço e a descrição antes de gerar o PDF ou copiar o texto para o WhatsApp.';
  const valueMessage=$('serviceMode').value==='oneway'
  ? `🚘 *Por que vale a pena contratar o transfer somente ida Bastos?*
 
@@ -1016,8 +1043,64 @@ A ideia é deixar o transporte organizado para que você aproveite o passeio sem
  renderComparison();
  return {km,revenue:total,transport:fare.total,per:fare.per,total,fuelCost,totalLitres};
 }
+function applyBudgetEdits(showFeedback=true){
+ const budget=$('clientBudget');
+ if(!budget.dataset.quoteBase){if(showFeedback)alert('Gere o orçamento primeiro.');return false;}
+ const finalTotal=Number(String($('budgetFinalValue').value||'').replace(',','.'));
+ const waitFee=Number(budget.dataset.waitFee||0),driverFee=Number(budget.dataset.driverFee||0);
+ const fixedFees=round2(waitFee+driverFee);
+ const pax=Math.max(1,Number(budget.dataset.pax||$('passengers').value||1));
+ const serviceDescription=$('budgetServiceDescription').value.trim()||budget.dataset.baseMode||'Transporte privativo';
+ const note=$('budgetAdditionalNote').value.trim();
+ if(!Number.isFinite(finalTotal)||finalTotal<fixedFees){
+   const msg=`Informe um valor final válido. Ele não pode ser inferior às taxas fixas já incluídas (${money(fixedFees)}).`;
+   $('budgetEditStatus').textContent=msg;if(showFeedback)alert(msg);return false;
+ }
+ const editedTransport=round2(finalTotal-fixedFees);
+ const editedPer=round2(editedTransport/pax);
+ const transportNode=$('budgetTransportDisplay'),perNode=$('budgetPerDisplay'),totalNode=$('budgetFinalDisplay'),serviceNode=$('budgetServiceDisplay'),noteNode=$('budgetExtraNoteDisplay');
+ if(transportNode)transportNode.textContent=money(editedTransport);
+ if(perNode)perNode.textContent=money(editedPer);
+ if(totalNode)totalNode.textContent=money(finalTotal);
+ if(serviceNode)serviceNode.textContent='🚙 '+serviceDescription;
+ if(noteNode){noteNode.textContent=note;noteNode.hidden=!note;}
+ let quote=budget.dataset.quoteBase||'';
+ quote=quote.replace(/^💵 Transporte: .*$/m,`💵 Transporte: ${money(editedTransport)}`);
+ quote=quote.replace(/^👤 Valor por passageiro: .*$/m,`👤 Valor por passageiro: ${money(editedPer)}`);
+ quote=quote.replace(/^\*⭐ VALOR TOTAL: .*$/m,`*⭐ VALOR TOTAL: ${money(finalTotal)}*`);
+ const oldMode=budget.dataset.baseMode||'';
+ if(oldMode)quote=quote.replace(`*🛣️ MODALIDADE DO SERVIÇO*\n${oldMode}`,`*🛣️ MODALIDADE DO SERVIÇO*\n${serviceDescription}`);
+ if(note){const signature='*BASTOS | MOTORISTA PARTICULAR RJ*';quote=quote.replace(signature,`*📝 OBSERVAÇÃO*\n${note}\n\n${signature}`);}
+ budget.dataset.quote=quote;
+ budget.dataset.currentTotal=String(finalTotal);
+ budget.dataset.appliedFinal=finalTotal.toFixed(2);
+ budget.dataset.appliedService=serviceDescription;
+ budget.dataset.appliedNote=note;
+ // A comparação comercial passa a usar o preço final revisado; os custos internos não mudam.
+ $('comparisonModule').dataset.bastosTotal=String(finalTotal);
+ $('comparisonBastosValue').value=finalTotal.toFixed(2);
+ $('comparisonBastosValue').dataset.manual='false';
+ setComparisonSequenceStep(0);
+ renderComparison();
+ $('budgetEditStatus').textContent=`Orçamento revisado: ${money(finalTotal)}. O PDF, o texto de WhatsApp e a comparação usarão este valor. Os custos internos do planejamento foram mantidos.`;
+ saveDraft();
+ return true;
+}
+function restoreBudgetEdits(){
+ const budget=$('clientBudget');
+ if(!budget.dataset.quoteBase){alert('Gere o orçamento primeiro.');return;}
+ $('budgetFinalValue').value=Number(budget.dataset.baseTotal||0).toFixed(2);
+ $('budgetServiceDescription').value=budget.dataset.baseMode||'';
+ $('budgetAdditionalNote').value='';
+ applyBudgetEdits(true);
+ $('budgetEditStatus').textContent='Valores originais do cálculo restaurados. Os custos internos continuam preservados.';
+}
+$('applyBudgetEdits').addEventListener('click',()=>applyBudgetEdits(true));
+$('restoreBudgetEdits').addEventListener('click',restoreBudgetEdits);
+
 $('calculate').addEventListener('click',()=>{ $('calcError').textContent='';setComparisonSequenceStep(0);try{calculate();saveDraft();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;saveDraft();}});
 $('copyBudget').addEventListener('click',async()=>{
+ if(!applyBudgetEdits(true))return;
  const text=$('clientBudget').dataset.quote||'';
  if(!text){alert('Gere o orçamento primeiro, clicando em Calcular / Gerar orçamento.');return;}
  try{await navigator.clipboard.writeText(text);alert('Texto do orçamento copiado. Agora é só colar na conversa do WhatsApp.');}
@@ -1025,6 +1108,7 @@ $('copyBudget').addEventListener('click',async()=>{
 });
 $('copyValueMessage').addEventListener('click',async()=>{const text=$('valueMessageText').textContent;try{await navigator.clipboard.writeText(text);alert('Mensagem de valorização copiada. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione a mensagem e copie.')}});
 $('printBudget').addEventListener('click',()=>{
+ if(!applyBudgetEdits(true))return;
  saveDraft();
  const paper=$('budgetPaper');
  if(!paper || !$('clientBudget').dataset.quote){alert('Gere o orçamento primeiro, clicando em Calcular / Gerar orçamento.');return;}
@@ -1062,6 +1146,7 @@ $('printBudget').addEventListener('click',()=>{
  .budget-total{border-top:2px solid #76add5;margin-top:7px;padding-top:10px;display:flex;justify-content:space-between;gap:10px;align-items:center;color:#062d50;font-weight:850;font-size:13px}
  .budget-total strong{font-size:22px;color:#034b82;white-space:nowrap}
  .budget-foot{font-size:10px;line-height:1.5;color:#26394c;margin:12px 2px 2px}
+ .budget-custom-note{margin:10px 0 0;padding:10px 12px;border-left:3px solid #76add5;background:#f5faff;border-radius:8px;font-size:11px;line-height:1.5;color:#1b3044;white-space:pre-wrap}
  .budget-highlight{color:#033f70;font-weight:850}
  .pdf-toolbar{max-width:780px;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
  .pdf-toolbar button{border:0;border-radius:9px;padding:11px 14px;background:#073763;color:#fff;font-weight:700;font-size:13px;cursor:pointer}
@@ -1116,7 +1201,7 @@ $('useFourPaxSuggestion').addEventListener('click',()=>{
 });
 ['comparisonMessage1','comparisonMessage2','comparisonMessage3'].forEach(id=>$(id).addEventListener('input',()=>{comparisonMessagesDirty=true;setComparisonSequenceStep(0);saveDraft();}));
 $('refreshComparisonMessage').addEventListener('click',()=>{comparisonMessagesDirty=false;setComparisonSequenceStep(0);renderComparison(true);saveDraft();});
-$('shareComparison').addEventListener('click',openComparisonInWhatsApp);
+$('shareComparison').addEventListener('click',()=>{if(budgetEditsPending()&&!applyBudgetEdits(true))return;openComparisonInWhatsApp();});
 $('phone').addEventListener('input',()=>setComparisonSequenceStep(0));
 const hadSavedBudget=restoreDraft();
 if($('comparisonBastosValue').dataset.manual===undefined)$('comparisonBastosValue').dataset.manual='false';
@@ -1124,7 +1209,11 @@ if(['comparisonMessage1','comparisonMessage2','comparisonMessage3'].some(id=>$(i
 updateComparisonSequenceUI();
 updateMode();renderHistory();updateAutoAppCars();updateSelectedPrintsStatus();
 if(hadSavedBudget){
- try{calculate();}catch(error){$('calcError').textContent='Os dados foram recuperados, mas confira os campos antes de gerar novamente o orçamento: '+error.message;}
+ const savedBudgetEdits={final:$('budgetFinalValue').value,service:$('budgetServiceDescription').value,note:$('budgetAdditionalNote').value};
+ try{
+   calculate();
+   if(savedBudgetEdits.final){$('budgetFinalValue').value=savedBudgetEdits.final;$('budgetServiceDescription').value=savedBudgetEdits.service||$('budgetServiceDescription').value;$('budgetAdditionalNote').value=savedBudgetEdits.note||'';applyBudgetEdits(false);}
+ }catch(error){$('calcError').textContent='Os dados foram recuperados, mas confira os campos antes de gerar novamente o orçamento: '+error.message;}
 }
 renderComparison();
 saveDraft();
