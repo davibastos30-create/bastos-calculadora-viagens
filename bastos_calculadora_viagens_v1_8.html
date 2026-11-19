@@ -80,6 +80,32 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .budget-hero:after { content:none !important; display:none !important; }
 @media(max-width:560px){ .budget-vehicle-mark { right:18px; top:18px; width:58px; height:38px; } }
 @media(max-width:560px){ .budget-send-actions{grid-template-columns:1fr!important} .budget-send-actions button{width:100%;min-height:44px} }
+
+/* Módulo opcional de comparação Uber/99 — v3.1 */
+.compare-intro{background:#eff7fd;border:1px solid #cfe2f3;border-radius:12px;padding:12px;color:#173a59;font-size:13px;line-height:1.55}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.compare-provider{border:1px solid #d6e2ed;border-radius:13px;padding:13px;background:#fbfdff;min-width:0}
+.compare-provider h3{margin:0 0 10px;color:#073763}
+.compare-preview{border:1px dashed #b6cadd;border-radius:10px;background:#f4f8fc;min-height:84px;padding:8px;display:flex;align-items:center;justify-content:center;margin:8px 0;overflow:hidden}
+.compare-preview img{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:7px}
+.compare-preview-empty{font-size:12px;color:#667085;text-align:center;padding:12px}
+.compare-file-name{font-size:11px;color:#40566b;overflow-wrap:anywhere;margin:4px 0 8px}
+.compare-provider-actions{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 12px}
+.compare-provider-actions button{font-size:12px;padding:9px 10px}
+.compare-results{display:grid;gap:10px;margin-top:12px}
+.compare-result{border:1px solid #cfe2f3;border-radius:12px;padding:13px;background:#f6faff}
+.compare-result h3{margin:0 0 9px;color:#073763}
+.compare-result-line{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:13px;color:#263f56}
+.compare-result-line strong{color:#102b45;text-align:right}
+.compare-result-total{border-top:1px solid #b8d6ed;margin-top:6px;padding-top:9px;font-weight:800;color:#073763}
+.compare-result-diff{margin-top:9px;padding:10px;border-radius:9px;background:#e7f5ea;color:#176b35;font-weight:800;font-size:13px}
+.compare-result-diff.more{background:#fff2e9;color:#8a3b12}
+.compare-message{min-height:190px;font-family:inherit;font-size:13px;line-height:1.5;background:#f8fafc}
+.compare-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.compare-actions button{flex:1 1 220px;min-height:46px}
+.compare-footnote{font-size:12px;line-height:1.55;color:#475467;margin-top:10px}
+@media(max-width:650px){.compare-grid{grid-template-columns:1fr}.compare-provider-actions button{flex:1}.compare-actions{display:grid;grid-template-columns:1fr}.compare-actions button{width:100%}}
+
 </style>
 </head>
 <body>
@@ -183,8 +209,46 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="actions" style="margin-top:12px"><button class="gold" id="copyValueMessage">Copiar mensagem de valorização</button></div>
 </section>
 
-<section class="card"><h2>8. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 3.0 — importação de terminais de embarque (Santos Dumont, Galeão e Rodoviária Novo Rio), modalidade C de transfer somente ida, orçamento azul, PDF, WhatsApp e histórico.</p>
+
+<section class="card" id="comparisonModule" hidden>
+<h2>8. Comparativo opcional — Uber, 99 e Bastos</h2>
+<p class="hint">Use este recurso somente quando quiser apresentar uma comparação ao cliente. Você pode anexar o print da Uber, da 99, os dois ou nenhum. Nada é enviado automaticamente; o compartilhamento só começa quando você tocar no botão abaixo.</p>
+<div class="compare-intro"><b>Como funciona:</b> informe a tarifa de ida que aparece no aplicativo e quantos carros seriam necessários por trecho. Se não souber a tarifa da volta, a calculadora usa a tarifa da ida apenas como <b>estimativa</b>, deixando isso explícito na mensagem. Confira categoria, capacidade e bagagens antes de definir a quantidade de carros.</div>
+<div class="compare-grid" style="margin-top:12px">
+  <div class="compare-provider" data-provider="uber">
+    <h3>📱 Uber</h3>
+    <div class="field"><label>Print da cotação Uber (opcional)</label><input id="uberImageInput" type="file" accept="image/*"></div>
+    <div id="uberImagePreview" class="compare-preview"><div class="compare-preview-empty">Nenhum print anexado</div></div>
+    <div id="uberImageName" class="compare-file-name">Você pode selecionar uma imagem da galeria do aparelho.</div>
+    <div class="compare-provider-actions"><button class="secondary" type="button" id="uberRemoveImage">Remover print</button></div>
+    <div class="field"><label>Valor da ida no aplicativo por carro (R$)</label><input id="uberFare" type="number" min="0" step="0.01" placeholder="Ex.: 550,00"></div>
+    <div class="field"><label>Carros necessários por trecho</label><input id="uberCars" type="number" min="1" max="6" step="1" value="1" data-auto="true"></div>
+    <div class="field"><label>Valor da volta por carro (R$) — opcional</label><input id="uberReturnFare" type="number" min="0" step="0.01" placeholder="Vazio = estimar pela ida"></div>
+  </div>
+  <div class="compare-provider" data-provider="99">
+    <h3>📱 99</h3>
+    <div class="field"><label>Print da cotação 99 (opcional)</label><input id="99ImageInput" type="file" accept="image/*"></div>
+    <div id="99ImagePreview" class="compare-preview"><div class="compare-preview-empty">Nenhum print anexado</div></div>
+    <div id="99ImageName" class="compare-file-name">Você pode selecionar uma imagem da galeria do aparelho.</div>
+    <div class="compare-provider-actions"><button class="secondary" type="button" id="99RemoveImage">Remover print</button></div>
+    <div class="field"><label>Valor da ida no aplicativo por carro (R$)</label><input id="99Fare" type="number" min="0" step="0.01" placeholder="Ex.: 550,00"></div>
+    <div class="field"><label>Carros necessários por trecho</label><input id="99Cars" type="number" min="1" max="6" step="1" value="1" data-auto="true"></div>
+    <div class="field"><label>Valor da volta por carro (R$) — opcional</label><input id="99ReturnFare" type="number" min="0" step="0.01" placeholder="Vazio = estimar pela ida"></div>
+  </div>
+</div>
+<div class="notice" style="margin-top:12px">Sugestão inicial: para 6 passageiros, a calculadora sugere 2 carros de aplicativo por trecho. Para grupos menores, sugere 1. Você pode alterar esse número conforme a categoria exibida, a capacidade confirmada e o volume de bagagens. A quantidade sugerida não é uma garantia de capacidade do aplicativo.</div>
+<div class="field" style="margin-top:13px"><label>Mensagem comparativa para o cliente — você pode revisar antes de compartilhar</label><textarea id="comparisonMessage" class="compare-message" placeholder="Preencha pelo menos uma tarifa de aplicativo para montar a comparação." readonly></textarea></div>
+<div id="comparisonResults" class="compare-results" aria-live="polite"></div>
+<div class="compare-actions">
+  <button class="gold" id="shareComparison" type="button">📲 Compartilhar comparação + prints selecionados</button>
+  <button class="secondary" id="copyComparison" type="button">💬 Copiar somente a mensagem comparativa</button>
+</div>
+<p id="comparisonStatus" class="compare-footnote" role="status">Os prints permanecem nesta página enquanto ela estiver aberta. Escolha manualmente quais imagens deseja incluir. No iPhone, o botão de compartilhar abre o menu do sistema quando o navegador permite compartilhar os arquivos.</p>
+<p class="compare-footnote"><b>Transparência:</b> valores de aplicativos podem mudar até a solicitação e a tarifa de retorno é apenas estimativa quando não informada separadamente. A economia só será mostrada quando a conta calculada indicar diferença favorável à Bastos. Não compartilhe uma comparação sem conferir os números, a quantidade de carros e a lotação real com bagagens.</p>
+</section>
+
+<section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
+<p class="hint">Versão 3.1 — comparativo opcional Uber/99 com prints selecionáveis e compartilhamento manual, importação de terminais de embarque (Santos Dumont, Galeão e Rodoviária Novo Rio), modalidade C de transfer somente ida, orçamento azul, PDF, WhatsApp e histórico.</p>
 </main>
 <script>
 (() => {
@@ -196,6 +260,138 @@ const num = id => Number(String($(id).value).replace(',','.'));
 const round2 = value => Math.round((value + Number.EPSILON) * 100) / 100;
 const consumption = () => $('preset').value === 'custom' ? num('custom') : Number($('preset').value);
 const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const comparisonImages = { uber: null, 99: null };
+function suggestedAppCars(){ return Number($('passengers').value||0)>5 ? 2 : 1; }
+function updateAutoAppCars(){
+ const suggestion=suggestedAppCars();
+ ['uberCars','99Cars'].forEach(id=>{if($(id).dataset.auto!=='false')$(id).value=String(suggestion);});
+ renderComparison();
+}
+function setComparisonImage(provider,file){
+ const old=comparisonImages[provider];
+ if(old?.url)URL.revokeObjectURL(old.url);
+ comparisonImages[provider]=file?{file,url:URL.createObjectURL(file)}:null;
+ const preview=$(provider+'ImagePreview'),name=$(provider+'ImageName'),input=$(provider+'ImageInput');
+ if(!file){preview.innerHTML='<div class="compare-preview-empty">Nenhum print anexado</div>';name.textContent='Você pode selecionar uma imagem da galeria do aparelho.';input.value='';return;}
+ if(!file.type.startsWith('image/')){comparisonImages[provider]=null;input.value='';preview.innerHTML='<div class="compare-preview-empty">Arquivo inválido. Escolha uma imagem.</div>';name.textContent='';return;}
+ preview.innerHTML='';
+ const img=document.createElement('img');img.src=comparisonImages[provider].url;img.alt='Print da cotação '+provider;preview.appendChild(img);
+ name.textContent=file.name+' • '+Math.max(1,Math.round(file.size/1024))+' KB';
+}
+function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
+ const fare=num(provider+'Fare'),cars=num(provider+'Cars'),returnFare=num(provider+'ReturnFare');
+ if(fare<0||returnFare<0)throw new Error('Os valores de ida e volta não podem ser negativos.');
+ if(!(fare>0))return null;
+ if(!Number.isInteger(cars)||cars<1||cars>6)throw new Error('Informe um número inteiro entre 1 e 6 carros para '+label+'.');
+ const ida=round2(fare*cars);
+ const volta=roundTrip?round2((returnFare>0?returnFare:fare)*cars):0;
+ const total=round2(ida+volta);
+ const estimated=roundTrip&&!(returnFare>0);
+ return {provider,label,fare,cars,returnFare,ida,volta,total,estimated,diff:round2(total-bastosTotal)};
+}
+function buildComparison(){
+ const bastos=Number($('comparisonModule').dataset.bastosTotal||0);
+ if(!(bastos>0))throw new Error('Primeiro gere o orçamento da Bastos clicando em Calcular e Gerar Orçamento.');
+ const pax=Number($('passengers').value||0),roundTrip=$('serviceMode').value!=='oneway';
+ const entries=[formatComparisonProvider('uber','Uber',bastos,roundTrip),formatComparisonProvider('99','99',bastos,roundTrip)].filter(Boolean);
+ if(!entries.length)throw new Error('Informe a tarifa de ida da Uber, da 99 ou das duas para montar a comparação.');
+ const mode=$('serviceMode').value==='oneway'?'Transfer somente ida':$('serviceMode').value==='available'?'Motorista à disposição — conforme período combinado':'Bate e volta — levar e buscar';
+ const lines=[];
+ lines.push('*🚘 COMPARATIVO DE TRANSPORTE — BASTOS*');
+ lines.push('');
+ lines.push(`👥 Grupo: ${pax} passageiro(s).`);
+ if(pax>5){
+   lines.push(`🚗 Para um grupo de ${pax} pessoas, é importante conferir se a categoria do aplicativo comporta todos os passageiros e as bagagens. Esta simulação considera ${entries.map(x=>x.label+': '+x.cars+' carro(s) por trecho').join('; ')}. A quantidade pode ser ajustada conforme a capacidade real exibida no aplicativo.`);
+ }else if(entries.some(x=>x.cars>1)){
+   lines.push('🚗 A simulação considera mais de um carro de aplicativo por trecho para acomodar o grupo e/ou as bagagens, conforme a quantidade informada. Confirme sempre a categoria e a capacidade exibida no aplicativo.');
+ }else{
+   lines.push('🚗 Mesmo quando um único carro atende ao grupo, vale comparar a viagem completa: ida e volta, e não apenas a primeira corrida. O pacote Bastos permite combinar os detalhes do transporte diretamente, sem deixar a organização do retorno para uma nova solicitação.');
+ }
+ lines.push('');
+ entries.forEach((x,i)=>{
+   lines.push(`*📱 ${x.label}*`);
+   lines.push(`Tarifa de ida por carro: ${money(x.fare)}`);
+   lines.push(`Carros por trecho: ${x.cars}`);
+   lines.push(`Total estimado da ida: ${money(x.ida)}`);
+   if(roundTrip){
+     lines.push(`Volta ${x.estimated?'estimada pela mesma tarifa da ida':'informada'}: ${money(x.volta)}`);
+     lines.push(`Total estimado de ida e volta: *${money(x.total)}*`);
+   }else{
+     lines.push(`Total estimado somente de ida: *${money(x.total)}*`);
+   }
+   if(i<entries.length-1)lines.push('');
+ });
+ lines.push('');
+ lines.push('*💙 BASTOS | MOTORISTA PARTICULAR RJ*');
+ lines.push(`Serviço cotado: ${mode}`);
+ lines.push(`Valor total do pacote Bastos: *${money(bastos)}*`);
+ lines.push('');
+ entries.forEach(x=>{
+   if(x.diff>0){
+     const pct=x.total>0?(x.diff/x.total*100):0;
+     lines.push(`✅ Considerando ${x.label}, a diferença estimada a favor do pacote Bastos é de *${money(x.diff)}* (${pct.toLocaleString('pt-BR',{maximumFractionDigits:1})}%).`);
+   }else if(x.diff<0){
+     lines.push(`ℹ️ Nesta simulação, o total de ${x.label} fica ${money(Math.abs(x.diff))} abaixo do pacote Bastos. Vale considerar também a comodidade, o embarque combinado e o serviço privativo.`);
+   }else{
+     lines.push(`ℹ️ Nesta simulação, o total de ${x.label} fica igual ao pacote Bastos. A escolha também pode considerar a comodidade e o serviço privativo.`);
+   }
+ });
+ lines.push('');
+ lines.push(`Com a Chevrolet Spin, a proposta é manter o grupo junto em um único veículo, com capacidade para até 6 passageiros além do motorista, desde que a configuração dos assentos e o espaço para as bagagens sejam compatíveis.`);
+ lines.push('O embarque e os detalhes da viagem são combinados diretamente com a Bastos, trazendo mais praticidade para organizar a ida e, quando contratado, o retorno.');
+ if(roundTrip&&entries.some(x=>x.estimated))lines.push('');
+ if(roundTrip&&entries.some(x=>x.estimated))lines.push('⚠️ A tarifa de retorno foi estimada usando o mesmo valor da ida porque não foi informada uma cotação específica de volta. Os preços dos aplicativos podem variar conforme horário, demanda, categoria e disponibilidade.');
+ else lines.push('⚠️ Os valores dos aplicativos são os exibidos/informados no momento da consulta e podem mudar conforme horário, demanda, categoria e disponibilidade.');
+ if(!roundTrip)lines.push('⚠️ O serviço Bastos desta cotação é somente de ida; retorno, espera e acompanhamento não estão incluídos.');
+ lines.push('');
+ lines.push('*BASTOS | MOTORISTA PARTICULAR RJ*');
+ return {text:lines.join('\n'),entries,bastos,roundTrip,pax};
+}
+function renderComparison(){
+ const result=$('comparisonResults');if(!result)return;
+ const bastos=Number($('comparisonModule').dataset.bastosTotal||0);
+ if(!bastos){result.innerHTML='';$('comparisonMessage').value='';return;}
+ const roundTrip=$('serviceMode').value!=='oneway';
+ let cards=[];
+ ['uber','99'].forEach(provider=>{
+   const label=provider==='uber'?'Uber':'99';
+   try{
+     const x=formatComparisonProvider(provider,label,bastos,roundTrip);if(!x)return;
+     const diff=x.diff>0?`Diferença estimada a favor da Bastos: ${money(x.diff)} (${(x.diff/x.total*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%)`:x.diff<0?`O aplicativo fica ${money(Math.abs(x.diff))} abaixo nesta simulação.`:'Valores iguais nesta simulação.';
+     cards.push(`<div class="compare-result"><h3>${label}</h3><div class="compare-result-line"><span>Carros por trecho</span><strong>${x.cars}</strong></div><div class="compare-result-line"><span>Ida</span><strong>${money(x.ida)}</strong></div>${roundTrip?`<div class="compare-result-line"><span>Volta ${x.estimated?'(estimada)':'(informada)'}</span><strong>${money(x.volta)}</strong></div>`:''}<div class="compare-result-line compare-result-total"><span>Total ${roundTrip?'ida e volta':'somente ida'}</span><strong>${money(x.total)}</strong></div><div class="compare-result-line"><span>Pacote Bastos</span><strong>${money(bastos)}</strong></div><div class="compare-result-diff ${x.diff<0?'more':''}">${escapeHtml(diff)}</div></div>`);
+   }catch(e){cards.push(`<div class="compare-result"><b>${label}:</b> ${escapeHtml(e.message)}</div>`);}
+ });
+ result.innerHTML=cards.join('');
+ try{$('comparisonMessage').value=buildComparison().text;}catch(e){$('comparisonMessage').value='';}
+}
+function downloadComparisonImages(){
+ ['uber','99'].forEach(provider=>{const item=comparisonImages[provider];if(!item)return;const a=document.createElement('a');a.href=item.url;a.download=item.file.name||`print-${provider}.jpg`;document.body.appendChild(a);a.click();a.remove();});
+}
+async function shareComparison(){
+ let data;try{data=buildComparison();}catch(e){alert(e.message);return;}
+ const files=['uber','99'].map(k=>comparisonImages[k]?.file).filter(Boolean);
+ const title='Comparativo de transporte — Bastos';
+ try{
+   if(files.length&&navigator.share&&navigator.canShare&&navigator.canShare({files})){
+     await navigator.share({title,text:data.text,files});
+     $('comparisonStatus').textContent='Menu de compartilhamento aberto. Confira os prints e a mensagem no aplicativo escolhido e toque em Enviar. Nada é enviado automaticamente pela calculadora.';
+     return;
+   }
+   if(!files.length&&navigator.share){
+     await navigator.share({title,text:data.text});
+     $('comparisonStatus').textContent='Menu de compartilhamento aberto. Revise a mensagem e confirme o envio no aplicativo escolhido.';
+     return;
+   }
+   if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(data.text);
+   if(files.length){downloadComparisonImages();$('comparisonStatus').textContent='Este navegador não permite compartilhar texto e imagens juntos. A mensagem foi copiada e os prints foram baixados; anexe as imagens manualmente no WhatsApp.';alert('A mensagem comparativa foi copiada e os prints foram baixados. Abra o WhatsApp, cole a mensagem e anexe os arquivos baixados.');}
+   else{$('comparisonStatus').textContent='Mensagem copiada. Cole no WhatsApp para enviar quando desejar.';alert('Mensagem comparativa copiada. Cole na conversa do WhatsApp.');}
+ }catch(e){
+   if(e.name==='AbortError'){$('comparisonStatus').textContent='Compartilhamento cancelado. Nenhuma mensagem ou imagem foi enviada.';return;}
+   $('comparisonStatus').textContent='Não foi possível abrir o menu de compartilhamento. Você pode copiar a mensagem e baixar os prints para anexá-los manualmente.';
+   alert('O compartilhamento não foi concluído. Nenhuma mensagem foi enviada. Tente novamente ou use a opção de copiar.');
+ }
+}
+
 function importReply(){
  const raw=$('clientReply').value.trim();
  if(!raw){$('importStatus').textContent='Cole primeiro a resposta preenchida do formulário/WhatsApp.';return;}
@@ -265,6 +461,7 @@ function importReply(){
  const total=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);
  if(total>0&&total<=6)$('passengers').value=String(total);
  updateMode();
+ updateAutoAppCars();
  const missing=[];
  if(!name)missing.push('nome');if(!date)missing.push('data');if(!time)missing.push('horário');if(!origin)missing.push('endereço de embarque');if(!destination)missing.push('destino');if(small==='')missing.push('bolsas/malas pequenas');if(!seatValue)missing.push('cadeirinha/assento infantil');
  $('importStatus').textContent='Importação processada. Total identificado: '+total+' passageiro(s). '+(missing.length?'Não encontrei no texto: '+missing.join(', ')+'. Confira se esses campos foram preenchidos e enviados pelo formulário.':'Os campos principais foram reconhecidos. Confira os dados antes de calcular.');
@@ -451,6 +648,10 @@ A ideia é deixar o transporte organizado para que você aproveite o passeio sem
 *BASTOS | MOTORISTA PARTICULAR RJ*`;
  $('valueMessageText').textContent=valueMessage;
  $('clientBudget').hidden=false;$('valueMessage').hidden=false;
+ $('comparisonModule').dataset.bastosTotal=String(total);
+ $('comparisonModule').hidden=false;
+ updateAutoAppCars();
+ renderComparison();
  return {km,revenue:total,transport:fare.total,per:fare.per,total,fuelCost,totalLitres};
 }
 $('calculate').addEventListener('click',()=>{ $('calcError').textContent='';try{calculate();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;}});
@@ -509,11 +710,26 @@ $('printBudget').addEventListener('click',()=>{
 $('preset').addEventListener('change',()=>$('custom').disabled=$('preset').value!=='custom');
 $('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);});
 $('adults').addEventListener('input',syncPax);$('children').addEventListener('input',syncPax);$('babyCount').addEventListener('input',syncPax);
-function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);}
+function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);updateAutoAppCars();}
+$('passengers').addEventListener('input',updateAutoAppCars);
 $('save').addEventListener('click',()=>{try{const c=calculate(),arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));renderHistory();alert('Orçamento salvo neste aparelho.');}catch(e){alert(e.message);}});
 function renderHistory(){let arr=[];try{arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');}catch(e){}$('history').innerHTML=arr.length?arr.map(x=>`<li><b>${escapeHtml(x.dest||'Destino não informado')}</b> — ${fmt(x.km)} km — ${escapeHtml(x.date)} — faturamento ${money(x.revenue)}</li>`).join(''):'<li>Nenhum orçamento salvo ainda.</li>';}
 $('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?'))location.reload();});
-updateMode();renderHistory();
+
+['uber','99'].forEach(provider=>{
+ $(provider+'ImageInput').addEventListener('change',e=>setComparisonImage(provider,e.target.files?.[0]||null));
+ $(provider+'RemoveImage').addEventListener('click',()=>setComparisonImage(provider,null));
+ [provider+'Fare',provider+'Cars',provider+'ReturnFare'].forEach(id=>$(id).addEventListener('input',()=>{
+   if(id===provider+'Cars')$(id).dataset.auto='false';
+   renderComparison();
+ }));
+});
+$('shareComparison').addEventListener('click',shareComparison);
+$('copyComparison').addEventListener('click',async()=>{
+ try{const data=buildComparison();await navigator.clipboard.writeText(data.text);alert('Mensagem comparativa copiada. Os prints não foram enviados; use o botão Compartilhar comparação para incluí-los.');}
+ catch(e){alert(e.message||'Não foi possível copiar a mensagem neste navegador.');}
+});
+updateMode();renderHistory();updateAutoAppCars();
 })();
 </script>
 </body></html>
