@@ -243,12 +243,13 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
   <button class="gold" id="shareComparison" type="button">📲 Compartilhar comparação + prints selecionados</button>
   <button class="secondary" id="copyComparison" type="button">💬 Copiar somente a mensagem comparativa</button>
 </div>
-<p id="comparisonStatus" class="compare-footnote" role="status">Os prints permanecem nesta página enquanto ela estiver aberta. Escolha manualmente quais imagens deseja incluir. No iPhone, o botão de compartilhar abre o menu do sistema quando o navegador permite compartilhar os arquivos.</p>
+<p id="selectedPrintsStatus" class="compare-footnote" role="status">Nenhum print selecionado. Você pode anexar o da Uber, o da 99 ou os dois.</p>
+<p id="comparisonStatus" class="compare-footnote">Os prints permanecem nesta página enquanto ela estiver aberta. Ao compartilhar, a calculadora envia os arquivos selecionados junto com a mensagem quando o navegador e o WhatsApp aceitam múltiplas imagens.</p>
 <p class="compare-footnote"><b>Transparência:</b> valores de aplicativos podem mudar até a solicitação e a tarifa de retorno é apenas estimativa quando não informada separadamente. A economia só será mostrada quando a conta calculada indicar diferença favorável à Bastos. Não compartilhe uma comparação sem conferir os números, a quantidade de carros e a lotação real com bagagens.</p>
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 3.1 — comparativo opcional Uber/99 com prints selecionáveis e compartilhamento manual, importação de terminais de embarque (Santos Dumont, Galeão e Rodoviária Novo Rio), modalidade C de transfer somente ida, orçamento azul, PDF, WhatsApp e histórico.</p>
+<p class="hint">Versão 3.2 — comparativo mais curto, identificação dos prints Uber/99 e compartilhamento de múltiplos anexos, importação de terminais de embarque (Santos Dumont, Galeão e Rodoviária Novo Rio), modalidade C de transfer somente ida, orçamento azul, PDF, WhatsApp e histórico.</p>
 </main>
 <script>
 (() => {
@@ -272,11 +273,22 @@ function setComparisonImage(provider,file){
  if(old?.url)URL.revokeObjectURL(old.url);
  comparisonImages[provider]=file?{file,url:URL.createObjectURL(file)}:null;
  const preview=$(provider+'ImagePreview'),name=$(provider+'ImageName'),input=$(provider+'ImageInput');
- if(!file){preview.innerHTML='<div class="compare-preview-empty">Nenhum print anexado</div>';name.textContent='Você pode selecionar uma imagem da galeria do aparelho.';input.value='';return;}
- if(!file.type.startsWith('image/')){comparisonImages[provider]=null;input.value='';preview.innerHTML='<div class="compare-preview-empty">Arquivo inválido. Escolha uma imagem.</div>';name.textContent='';return;}
+ if(!file){preview.innerHTML='<div class="compare-preview-empty">Nenhum print anexado</div>';name.textContent='Você pode selecionar uma imagem da galeria do aparelho.';input.value='';updateSelectedPrintsStatus();renderComparison();return;}
+ if(!file.type.startsWith('image/')){comparisonImages[provider]=null;input.value='';preview.innerHTML='<div class="compare-preview-empty">Arquivo inválido. Escolha uma imagem.</div>';name.textContent='';updateSelectedPrintsStatus();renderComparison();return;}
  preview.innerHTML='';
  const img=document.createElement('img');img.src=comparisonImages[provider].url;img.alt='Print da cotação '+provider;preview.appendChild(img);
  name.textContent=file.name+' • '+Math.max(1,Math.round(file.size/1024))+' KB';
+ updateSelectedPrintsStatus();
+ renderComparison();
+}
+function selectedComparisonPrints(){return ['uber','99'].filter(provider=>comparisonImages[provider]?.file);}
+function updateSelectedPrintsStatus(){
+ const selected=selectedComparisonPrints();
+ const status=$('selectedPrintsStatus');
+ if(!status)return;
+ if(!selected.length){status.textContent='Nenhum print selecionado. Você pode anexar o da Uber, o da 99 ou os dois.';return;}
+ const names=selected.map(p=>p==='uber'?'Uber':'99');
+ status.textContent=selected.length===2?'Dois prints selecionados: Uber e 99. Os dois serão incluídos no compartilhamento, se o aparelho e o aplicativo aceitarem múltiplas imagens.':`Print selecionado: ${names[0]}. Ele será incluído no compartilhamento, se o aparelho e o aplicativo aceitarem o arquivo.`;
 }
 function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
  const fare=num(provider+'Fare'),cars=num(provider+'Cars'),returnFare=num(provider+'ReturnFare');
@@ -295,57 +307,59 @@ function buildComparison(){
  const pax=Number($('passengers').value||0),roundTrip=$('serviceMode').value!=='oneway';
  const entries=[formatComparisonProvider('uber','Uber',bastos,roundTrip),formatComparisonProvider('99','99',bastos,roundTrip)].filter(Boolean);
  if(!entries.length)throw new Error('Informe a tarifa de ida da Uber, da 99 ou das duas para montar a comparação.');
- const mode=$('serviceMode').value==='oneway'?'Transfer somente ida':$('serviceMode').value==='available'?'Motorista à disposição — conforme período combinado':'Bate e volta — levar e buscar';
+ const mode=$('serviceMode').value==='oneway'?'Transfer somente ida':$('serviceMode').value==='available'?'Motorista à disposição':'Bate e volta — levar e buscar';
+ const selected=selectedComparisonPrints();
  const lines=[];
- lines.push('*🚘 COMPARATIVO DE TRANSPORTE — BASTOS*');
+ lines.push('*🚘 COMPARAÇÃO DE VALORES — BASTOS*');
  lines.push('');
- lines.push(`👥 Grupo: ${pax} passageiro(s).`);
- if(pax>5){
-   lines.push(`🚗 Para um grupo de ${pax} pessoas, é importante conferir se a categoria do aplicativo comporta todos os passageiros e as bagagens. Esta simulação considera ${entries.map(x=>x.label+': '+x.cars+' carro(s) por trecho').join('; ')}. A quantidade pode ser ajustada conforme a capacidade real exibida no aplicativo.`);
- }else if(entries.some(x=>x.cars>1)){
-   lines.push('🚗 A simulação considera mais de um carro de aplicativo por trecho para acomodar o grupo e/ou as bagagens, conforme a quantidade informada. Confirme sempre a categoria e a capacidade exibida no aplicativo.');
+ lines.push(`👥 *${pax} passageiros*`);
+ if(selected.length===2){
+   lines.push('📎 *Confira os 2 prints enviados junto com esta mensagem: um da Uber e outro da 99.* Eles mostram as cotações usadas nesta comparação.');
+ }else if(selected.length===1){
+   lines.push(`📎 *Confira o print da ${selected[0]==='uber'?'Uber':'99'} enviado junto com esta mensagem.* Ele mostra a cotação usada nesta comparação.`);
  }else{
-   lines.push('🚗 Mesmo quando um único carro atende ao grupo, vale comparar a viagem completa: ida e volta, e não apenas a primeira corrida. O pacote Bastos permite combinar os detalhes do transporte diretamente, sem deixar a organização do retorno para uma nova solicitação.');
+   lines.push('Compare os valores abaixo com as cotações consultadas nos aplicativos.');
  }
  lines.push('');
  entries.forEach((x,i)=>{
-   lines.push(`*📱 ${x.label}*`);
-   lines.push(`Tarifa de ida por carro: ${money(x.fare)}`);
-   lines.push(`Carros por trecho: ${x.cars}`);
-   lines.push(`Total estimado da ida: ${money(x.ida)}`);
+   lines.push(`*📱 ${x.label}* — ${x.cars} ${x.cars===1?'carro':'carros'} por trecho`);
+   lines.push(`Ida: ${money(x.fare)} × ${x.cars} = ${money(x.ida)}`);
    if(roundTrip){
-     lines.push(`Volta ${x.estimated?'estimada pela mesma tarifa da ida':'informada'}: ${money(x.volta)}`);
-     lines.push(`Total estimado de ida e volta: *${money(x.total)}*`);
+     lines.push(`Volta ${x.estimated?'(estimada)':'(informada)'}: ${money(x.volta)}`);
+     lines.push(`*Total ida + volta: ${money(x.total)}*`);
    }else{
-     lines.push(`Total estimado somente de ida: *${money(x.total)}*`);
+     lines.push(`*Total somente ida: ${money(x.total)}*`);
    }
    if(i<entries.length-1)lines.push('');
  });
  lines.push('');
  lines.push('*💙 BASTOS | MOTORISTA PARTICULAR RJ*');
- lines.push(`Serviço cotado: ${mode}`);
- lines.push(`Valor total do pacote Bastos: *${money(bastos)}*`);
+ lines.push(`${mode}: *${money(bastos)}*`);
  lines.push('');
  entries.forEach(x=>{
    if(x.diff>0){
-     const pct=x.total>0?(x.diff/x.total*100):0;
-     lines.push(`✅ Considerando ${x.label}, a diferença estimada a favor do pacote Bastos é de *${money(x.diff)}* (${pct.toLocaleString('pt-BR',{maximumFractionDigits:1})}%).`);
+     lines.push(`✅ Em comparação com a ${x.label}, o pacote Bastos fica *${money(x.diff)} mais econômico* nesta simulação.`);
    }else if(x.diff<0){
-     lines.push(`ℹ️ Nesta simulação, o total de ${x.label} fica ${money(Math.abs(x.diff))} abaixo do pacote Bastos. Vale considerar também a comodidade, o embarque combinado e o serviço privativo.`);
+     lines.push(`ℹ️ Nesta simulação, a ${x.label} fica *${money(Math.abs(x.diff))} abaixo* do pacote Bastos.`);
    }else{
-     lines.push(`ℹ️ Nesta simulação, o total de ${x.label} fica igual ao pacote Bastos. A escolha também pode considerar a comodidade e o serviço privativo.`);
+     lines.push(`ℹ️ Nesta simulação, a ${x.label} e o pacote Bastos têm o mesmo valor.`);
    }
  });
  lines.push('');
- lines.push(`Com a Chevrolet Spin, a proposta é manter o grupo junto em um único veículo, com capacidade para até 6 passageiros além do motorista, desde que a configuração dos assentos e o espaço para as bagagens sejam compatíveis.`);
- lines.push('O embarque e os detalhes da viagem são combinados diretamente com a Bastos, trazendo mais praticidade para organizar a ida e, quando contratado, o retorno.');
- if(roundTrip&&entries.some(x=>x.estimated))lines.push('');
- if(roundTrip&&entries.some(x=>x.estimated))lines.push('⚠️ A tarifa de retorno foi estimada usando o mesmo valor da ida porque não foi informada uma cotação específica de volta. Os preços dos aplicativos podem variar conforme horário, demanda, categoria e disponibilidade.');
- else lines.push('⚠️ Os valores dos aplicativos são os exibidos/informados no momento da consulta e podem mudar conforme horário, demanda, categoria e disponibilidade.');
- if(!roundTrip)lines.push('⚠️ O serviço Bastos desta cotação é somente de ida; retorno, espera e acompanhamento não estão incluídos.');
+ lines.push('🚘 *Na Spin, o grupo viaja junto em um único veículo*, respeitando o espaço dos passageiros e das bagagens. O embarque e os detalhes da viagem são combinados diretamente comigo.');
+ if(roundTrip&&entries.some(x=>x.estimated)){
+   lines.push('');
+   lines.push('ℹ️ Quando a volta não tem cotação própria, usei o mesmo valor da ida como estimativa. As tarifas dos aplicativos podem variar.');
+ }else if(!roundTrip){
+   lines.push('');
+   lines.push('ℹ️ Esta cotação da Bastos inclui somente a ida.');
+ }else{
+   lines.push('');
+   lines.push('ℹ️ As tarifas dos aplicativos podem variar conforme horário, demanda e disponibilidade.');
+ }
  lines.push('');
  lines.push('*BASTOS | MOTORISTA PARTICULAR RJ*');
- return {text:lines.join('\n'),entries,bastos,roundTrip,pax};
+ return {text:lines.join('\n'),entries,bastos,roundTrip,pax,selectedPrints:selected};
 }
 function renderComparison(){
  const result=$('comparisonResults');if(!result)return;
@@ -369,12 +383,19 @@ function downloadComparisonImages(){
 }
 async function shareComparison(){
  let data;try{data=buildComparison();}catch(e){alert(e.message);return;}
- const files=['uber','99'].map(k=>comparisonImages[k]?.file).filter(Boolean);
- const title='Comparativo de transporte — Bastos';
+ // Preserve both selected image files as separate attachments, in a predictable order.
+ const files=[];
+ ['uber','99'].forEach(provider=>{
+   const item=comparisonImages[provider];
+   if(item?.file)files.push(new File([item.file],item.file.name||`print-${provider}.jpg`,{type:item.file.type||'image/jpeg',lastModified:item.file.lastModified||Date.now()}));
+ });
+ const title='Comparação de transporte — Bastos';
  try{
-   if(files.length&&navigator.share&&navigator.canShare&&navigator.canShare({files})){
-     await navigator.share({title,text:data.text,files});
-     $('comparisonStatus').textContent='Menu de compartilhamento aberto. Confira os prints e a mensagem no aplicativo escolhido e toque em Enviar. Nada é enviado automaticamente pela calculadora.';
+   const shareData={title,text:data.text,files};
+   if(files.length&&navigator.share&&navigator.canShare&&navigator.canShare(shareData)){
+     $('comparisonStatus').textContent=`Abrindo o compartilhamento com ${files.length} ${files.length===1?'print':'prints'} (${data.selectedPrints.join(' e ')}). Confira se os dois anexos aparecem no WhatsApp antes de enviar.`;
+     await navigator.share(shareData);
+     $('comparisonStatus').textContent=`Compartilhamento aberto com ${files.length} ${files.length===1?'print':'prints'} selecionado(s). No WhatsApp, confira se ${files.length===2?'os dois prints (Uber e 99)':''} e a mensagem aparecem antes de tocar em Enviar. Nada é enviado automaticamente pela calculadora.`;
      return;
    }
    if(!files.length&&navigator.share){
@@ -383,8 +404,14 @@ async function shareComparison(){
      return;
    }
    if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(data.text);
-   if(files.length){downloadComparisonImages();$('comparisonStatus').textContent='Este navegador não permite compartilhar texto e imagens juntos. A mensagem foi copiada e os prints foram baixados; anexe as imagens manualmente no WhatsApp.';alert('A mensagem comparativa foi copiada e os prints foram baixados. Abra o WhatsApp, cole a mensagem e anexe os arquivos baixados.');}
-   else{$('comparisonStatus').textContent='Mensagem copiada. Cole no WhatsApp para enviar quando desejar.';alert('Mensagem comparativa copiada. Cole na conversa do WhatsApp.');}
+   if(files.length){
+     downloadComparisonImages();
+     $('comparisonStatus').textContent=`Este navegador não permite compartilhar ${files.length===2?'os dois prints':'o print'} junto com o texto. A mensagem foi copiada e os arquivos foram baixados para anexar manualmente no WhatsApp.`;
+     alert(`A mensagem foi copiada e ${files.length===2?'os dois prints':'o print'} foi(ram) baixado(s). Abra o WhatsApp, cole a mensagem e anexe os arquivos.`);
+   }else{
+     $('comparisonStatus').textContent='Mensagem copiada. Cole no WhatsApp para enviar quando desejar.';
+     alert('Mensagem comparativa copiada. Cole na conversa do WhatsApp.');
+   }
  }catch(e){
    if(e.name==='AbortError'){$('comparisonStatus').textContent='Compartilhamento cancelado. Nenhuma mensagem ou imagem foi enviada.';return;}
    $('comparisonStatus').textContent='Não foi possível abrir o menu de compartilhamento. Você pode copiar a mensagem e baixar os prints para anexá-los manualmente.';
