@@ -147,11 +147,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 
 <section class="card">
 <h2>3. Combustível e distância</h2>
-<p class="hint" id="kmHelp">Informe separadamente a distância do seu local atual até o embarque, o trajeto do cliente até o destino e, se houver, os quilômetros de retorno ou outros deslocamentos. A calculadora soma tudo para estimar o custo real da operação da Spin.</p>
+<p class="hint" id="kmHelp">Informe a distância do seu local atual até o local de partida do cliente, depois o trajeto do cliente até o destino e, se houver, o retorno ou outros deslocamentos. A calculadora soma todos esses trechos para estimar a operação completa da Spin.</p>
 <div class="grid">
-<div class="field"><label>Do seu local atual até o embarque do cliente (km) — Waze</label><input id="approachKm" type="number" min="0" step="0.1" value="0"></div>
-<div class="field"><label>Consumo no deslocamento até o embarque (km/L)</label><input id="approachConsumption" type="number" min="0.1" step="0.1" value="7.5"><small>Informe manualmente a média desse trecho, por exemplo, 7,5 km/L em percurso urbano. O ajuste do ar-condicionado também será aplicado.</small></div>
-<div class="field"><label>Do embarque do cliente até o destino (km) — Waze</label><input id="clientKm" type="number" min="0.1" step="0.1" value="368"></div>
+<div class="field"><label>Do seu local atual até o local de partida do cliente (km) — Waze</label><input id="approachKm" type="number" min="0" step="0.1" value="0"></div>
+<div class="field"><label>Consumo no deslocamento até o local de partida do cliente (km/L)</label><input id="approachConsumption" type="number" min="0.1" step="0.1" value="7.5"><small>Informe manualmente a média desse trecho, por exemplo, 7,5 km/L em percurso urbano. O ajuste do ar-condicionado também será aplicado.</small></div>
+<div class="field"><label>Do local de partida do cliente até o destino (km) — Waze</label><input id="clientKm" type="number" min="0.1" step="0.1" value="368"></div>
 <div class="field"><label>Retorno e outros deslocamentos da Spin (km)</label><input id="extraKm" type="number" min="0" step="0.1" value="0"></div>
 <div class="field"><label>Combustível</label><select id="fuel"><option value="Etanol">Etanol</option><option value="Gasolina">Gasolina</option></select></div>
 <div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.001" value="4.59"></div>
@@ -178,31 +178,53 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 
 <section class="card">
 <h2>5. Resultado do planejamento</h2>
-<h3>Trajeto do cliente — embarque até o destino</h3>
+
+<h3>1. Deslocamento para buscar o cliente — seu local até o ponto de partida</h3>
+<div class="results">
+<div class="metric"><span>Distância do seu local até o local de partida do cliente</span><strong id="approachKmResult">—</strong></div>
+<div class="metric"><span>Consumo ajustado nesse deslocamento</span><strong id="approachConsumptionResult">—</strong></div>
+</div>
+
+<h3>2. Viagem do cliente — ponto de partida até o destino</h3>
 <div class="results">
 <div class="metric"><span>Distância percorrida pelo cliente</span><strong id="customerRouteKm">—</strong></div>
 <div class="metric"><span>Combustível usado nesse trecho</span><strong id="customerRouteFuel">—</strong></div>
 </div>
-<h3>Operação completa da Spin — seu local até o destino</h3>
+
+<h3>3. Retorno e outros deslocamentos</h3>
 <div class="results">
-<div class="metric"><span>Seu deslocamento até o embarque</span><strong id="approachKmResult">—</strong></div>
-<div class="metric"><span>Consumo ajustado no deslocamento até o embarque</span><strong id="approachConsumptionResult">—</strong></div>
+<div class="metric"><span>Distância de retorno e outros trechos</span><strong id="extraKmResult">—</strong></div>
+<div class="metric"><span>Combustível estimado nesses trechos</span><strong id="extraFuelResult">—</strong></div>
+</div>
+
+<h3>4. Total da operação da Spin</h3>
+<div class="results">
 <div class="metric"><span>Distância total rodada pela Spin</span><strong id="totalKmResult">—</strong><small class="metric-detail" id="totalKmBreakdown"></small></div>
-<div class="metric"><span>Combustível consumido na operação</span><strong id="tripFuel">—</strong></div>
-<div class="metric"><span>Reserva de segurança planejada</span><strong id="reserveFuel">—</strong></div>
-<div class="metric"><span>Total previsto (operação + reserva)</span><strong id="totalFuel">—</strong></div>
+<div class="metric"><span>Combustível consumido em toda a operação</span><strong id="tripFuel">—</strong></div>
 <div class="metric"><span>Consumo médio combinado da operação (com ar)</span><strong id="adjusted">—</strong></div>
 </div>
-<h3>Abastecimento necessário e autonomia prevista</h3>
+
+<h3>5. Combustível necessário e reserva de segurança</h3>
 <div class="results">
+<div class="metric"><span>Reserva de segurança planejada</span><strong id="reserveFuel">—</strong></div>
 <div class="metric"><span>Combustível total necessário (operação + reserva)</span><strong id="fuelStart">—</strong></div>
-<div class="metric"><span>Autonomia estimada com esse combustível</span><strong id="startRange">—</strong><small class="metric-detail" id="startRangeBreakdown"></small></div>
-<div class="metric"><span>Litros previstos como sobra após a operação (reserva)</span><strong id="remainingFuel">—</strong></div>
+<div class="metric" hidden><span>Total previsto (operação + reserva)</span><strong id="totalFuel">—</strong></div>
+</div>
+
+<h3>6. Autonomia estimada depois da operação</h3>
+<div class="results">
+<div class="metric"><span>Autonomia estimada com o combustível total necessário</span><strong id="startRange">—</strong><small class="metric-detail" id="startRangeBreakdown"></small></div>
+<div class="metric"><span>Quilômetros que ainda poderá percorrer após a operação</span><strong id="remainingRangeResult">—</strong><small class="metric-detail" id="remainingRangeBreakdown"></small></div>
+</div>
+
+<h3>7. Custo e faturamento do transporte</h3>
+<div class="results">
 <div class="metric"><span>Custo estimado do combustível necessário</span><strong id="fuelCost">—</strong></div>
 <div class="metric"><span>Faturamento base do transporte</span><strong id="revenue">—</strong></div>
 </div>
 <p id="fuelWarning" class="hint"></p>
-<h3>Preço sugerido do transporte por passageiro</h3>
+
+<h3>8. Preço sugerido do transporte por passageiro</h3>
 <table><thead><tr><th>Grupo</th><th>Por pessoa</th><th>Total do transporte</th><th>Sobra estimada*</th></tr></thead><tbody id="fareRows"></tbody></table>
 <p class="hint">*Sobra estimada após combustível e pedágios. A meta informada vale para 4 passageiros; com 5 a meta aumenta R$ 100 e com 6 aumenta R$ 200. Taxas de serviço são adicionais e aparecem separadamente no orçamento.</p>
 <div class="actions" style="margin-top:14px"><button class="gold" id="save">Salvar orçamento</button><button class="secondary" id="reset">Restaurar exemplo</button></div>
@@ -215,7 +237,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <button class="gold" id="printBudget" type="button">📄 Gerar PDF do orçamento</button>
 <button class="secondary" id="copyBudget" type="button">💬 Copiar orçamento para WhatsApp</button>
 </div>
-<p class="hint" style="margin-top:9px"><b>PDF:</b> abre a janela de impressão; escolha “Salvar como PDF” para guardar e enviar o orçamento com o visual completo. <b>WhatsApp:</b> copia o texto simples pronto para colar na conversa, como você já usa hoje.</p>
+<p class="hint" style="margin-top:9px"><b>PDF:</b> abre a prévia em outra aba; escolha “Salvar como PDF”. Use “Voltar à calculadora” na prévia para retornar. <b>Se o navegador recarregar a calculadora, os campos e o orçamento serão restaurados automaticamente neste aparelho.</b> <b>WhatsApp:</b> copia o texto simples pronto para colar na conversa.</p>
 <p class="hint">Seus custos, meta de ganho e sobra estimada não aparecem para o cliente.</p>
 </section>
 
@@ -253,7 +275,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     <div class="field"><label>Valor da volta por carro (R$) — opcional</label><input id="99ReturnFare" type="number" min="0" step="0.01" placeholder="Vazio = estimar pela ida"></div>
   </div>
 </div>
-<div class="notice" style="margin-top:12px">Sugestão inicial: para 4 passageiros, 1 carro, mas confira se a categoria aceita 4 pessoas e se há espaço para as malas. Para 5 ou 6 passageiros, a calculadora sugere 2 carros por trecho, pois um carro comum de 5 lugares conta também com o assento do motorista. Só altere para 1 se o aplicativo confirmar um veículo maior, com assentos e bagageiro adequados.</div>
+<div class="notice" style="margin-top:12px"><b>Critério inicial:</b> 4 passageiros = 1 carro, sujeito à aceitação do motorista e ao espaço para as malas. 5 ou 6 passageiros = 2 carros por trecho, porque um veículo comum de 5 lugares oferece apenas 4 assentos para passageiros. Só ajuste para 1 carro quando o aplicativo confirmar uma categoria maior e espaço adequado para todos e suas bagagens.</div>
 <div class="field" style="margin-top:13px"><label>Mensagem comparativa para o cliente — você pode revisar antes de compartilhar</label><textarea id="comparisonMessage" class="compare-message" placeholder="Preencha pelo menos uma tarifa de aplicativo para montar a comparação." readonly></textarea></div>
 <div id="comparisonResults" class="compare-results" aria-live="polite"></div>
 <div class="compare-actions">
@@ -266,12 +288,41 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 3.5 — consumo manual no deslocamento até o embarque, quilometragem total discriminada por trecho, autonomia restante calculada após descontar toda a operação, combustível total necessário sem depender do nível do tanque, comparação Uber/99 e compartilhamento de anexos.</p>
+<p class="hint">Versão 3.7 — salvamento automático dos dados e do orçamento para retorno após gerar PDF, prévia de PDF com botão para voltar à calculadora e mensagens comparativas específicas para grupos de 4, 5 e 6 passageiros.</p>
 </main>
 <script>
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
+// Mantém uma cópia local dos campos para que sair da prévia do PDF ou recarregar
+// a página não obrigue o usuário a colar e interpretar novamente a resposta.
+const DRAFT_KEY = 'bastos-calculadora-viagens-draft-v37';
+let suppressDraftSave=false;
+function saveDraft(){
+ if(suppressDraftSave)return;
+ try{
+   const fields=Array.from(document.querySelectorAll('input[id],select[id],textarea[id]'))
+     .filter(el=>el.type!=='file')
+     .map(el=>({id:el.id,value:el.value,checked:el.checked,auto:el.dataset.auto}));
+   const payload={version:'3.7',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
+   localStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
+ }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento local. */}
+}
+function restoreDraft(){
+ try{
+   const raw=localStorage.getItem(DRAFT_KEY);
+   if(!raw)return false;
+   const draft=JSON.parse(raw);
+   (draft.fields||[]).forEach(item=>{
+     const el=$(item.id);
+     if(!el||el.type==='file')return;
+     el.value=item.value??'';
+     if(typeof item.checked==='boolean')el.checked=item.checked;
+     if(item.auto!==undefined)el.dataset.auto=item.auto;
+   });
+   return !!draft.hasBudget;
+ }catch(error){return false;}
+}
 const money = value => (Math.round((Number(value) + Number.EPSILON) * 100) / 100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmt = value => Number(value).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:2});
 const num = id => Number(String($(id).value).replace(',','.'));
@@ -363,13 +414,14 @@ function buildComparison(){
    }
  });
  lines.push('');
+ const appCarSummary=entries.map(x=>x.label+': '+x.cars+' '+(x.cars===1?'carro':'carros')+' por trecho').join(' • ');
  if(pax===4){
-   lines.push('👨‍👩‍👧‍👦 *Para 4 passageiros:* um carro de aplicativo pode depender da categoria e do veículo enviado; algumas categorias limitam a quantidade de pessoas e as malas podem reduzir o espaço. Com a Spin, você combina antecipadamente um veículo de 7 lugares para o grupo, sem depender de qual carro vai chegar.');
- }else if(pax>=5){
-   const appCarSummary=entries.map(x=>x.label+': '+x.cars+' '+(x.cars===1?'carro':'carros')+' por trecho').join(' • ');
-   lines.push(`👨‍👩‍👧‍👦 *Para ${pax} passageiros:* um carro comum de 5 lugares acomoda até 4 passageiros, pois o motorista ocupa um assento. Nesta simulação: ${appCarSummary}. Só conte com um único carro de aplicativo se a categoria confirmar um veículo maior, com assentos e espaço para as malas. Com a Spin, o grupo pode seguir junto em um único veículo, após conferirmos bagagens e assentos.`);
+   lines.push(`👨‍👩‍👧‍👦 *Para 4 passageiros:* um carro de aplicativo pode atender, mas depende da categoria e da aceitação do motorista — alguns limitam a 3 pessoas. Mesmo quando aceitam 4, as malas podem comprometer o espaço. Com a Spin da Bastos, o veículo é reservado para o grupo e conferimos antes os assentos e as bagagens, sem depender de qual carro vai chegar. Nesta simulação: ${appCarSummary}.`);
+ }else if(pax===5){
+   lines.push(`👨‍👩‍👧‍👦 *Para 5 passageiros:* um carro comum de 5 lugares não comporta o grupo: o motorista ocupa um assento e restam apenas 4 para passageiros. Por isso, normalmente são necessários 2 carros por trecho. Nesta simulação: ${appCarSummary}. Um único carro só atende se o aplicativo confirmar uma categoria maior, com assentos e bagageiro para todos. Com a Spin, os 5 podem viajar juntos, com as bagagens conferidas antes.`);
+ }else if(pax===6){
+   lines.push(`👨‍👩‍👧‍👦 *Para 6 passageiros:* um carro comum oferece apenas 4 assentos para passageiros, então o grupo precisaria de 2 carros por trecho. Nesta simulação: ${appCarSummary}. Só considere um único carro de aplicativo se a categoria maior confirmar lugar para os 6 e bagagens. Com a Spin, todos podem seguir juntos, com os assentos e o espaço para as malas conferidos antes.`);
  }
- lines.push('🚘 *Na Spin, o grupo viaja junto em um único veículo*, com embarque combinado diretamente comigo e espaço conferido previamente para passageiros e bagagens.');
  if(roundTrip&&entries.some(x=>x.estimated)){
    lines.push('');
    lines.push('ℹ️ Quando a volta não tem cotação própria, usei o mesmo valor da ida como estimativa. As tarifas dos aplicativos podem variar.');
@@ -516,7 +568,7 @@ function importReply(){
  if(!name)missing.push('nome');if(!date)missing.push('data');if(!time)missing.push('horário');if(!origin)missing.push('endereço de embarque');if(!destination)missing.push('destino');if(small==='')missing.push('bolsas/malas pequenas');if(!seatValue)missing.push('cadeirinha/assento infantil');
  $('importStatus').textContent='Importação processada. Total identificado: '+total+' passageiro(s). '+(missing.length?'Não encontrei no texto: '+missing.join(', ')+'. Confira se esses campos foram preenchidos e enviados pelo formulário.':'Os campos principais foram reconhecidos. Confira os dados antes de calcular.');
 }
-$('importReply').addEventListener('click',importReply);
+$('importReply').addEventListener('click',()=>{importReply();saveDraft();});
 function updateMode(){
  const mode=$('serviceMode').value;
  const available=mode==='available';
@@ -529,10 +581,10 @@ function updateMode(){
      ? 'Motorista à disposição: o motorista permanece com o cliente durante o período combinado. O adicional fixo será informado separadamente no orçamento.'
      : 'Bate e volta: o motorista leva o grupo e retorna no horário combinado para buscar. Pode haver taxa de disponibilidade/espera, informada separadamente.';
  $('kmHelp').textContent=oneWay
-   ? 'Informe: (1) do seu local atual até o embarque; (2) o consumo manual desse deslocamento, por exemplo 7,5 km/L na cidade; (3) do embarque do cliente até o destino; (4) retorno vazio ou outros deslocamentos, se previstos. A calculadora soma tudo para estimar o custo operacional; o cliente contrata somente a ida.'
+   ? 'Informe: (1) do seu local atual até o local de partida do cliente; (2) o consumo manual desse deslocamento, por exemplo 7,5 km/L na cidade; (3) do embarque do cliente até o destino; (4) retorno vazio ou outros deslocamentos, se previstos. A calculadora soma tudo para estimar o custo operacional; o cliente contrata somente a ida.'
    : available
-     ? 'Informe: (1) do seu local atual até o embarque; (2) o consumo manual desse deslocamento; (3) do embarque até o destino; (4) deslocamentos entre locais, retorno ao embarque e/ou volta à sua base nos quilômetros adicionais. A soma representa a operação completa da Spin.'
-     : 'Informe: (1) do seu local atual até o embarque; (2) o consumo manual desse deslocamento; (3) do embarque do cliente até o destino; (4) retorno e outros deslocamentos nos quilômetros adicionais. Se você já estiver no embarque, informe 0 no primeiro campo.';
+     ? 'Informe: (1) do seu local atual até o local de partida do cliente; (2) o consumo manual desse deslocamento; (3) do embarque até o destino; (4) deslocamentos entre locais, retorno ao embarque e/ou volta à sua base nos quilômetros adicionais. A soma representa a operação completa da Spin.'
+     : 'Informe: (1) do seu local atual até o local de partida do cliente; (2) o consumo manual desse deslocamento; (3) do embarque do cliente até o destino; (4) retorno e outros deslocamentos nos quilômetros adicionais. Se você já estiver no embarque, informe 0 no primeiro campo.';
 }
 $('serviceMode').addEventListener('change',updateMode);
 function calculate(){
@@ -557,28 +609,30 @@ function calculate(){
  const totalLitres=tripLitres+reserveLitres;
  const averageOperationConsumption=km>0&&tripLitres>0?km/tripLitres:effective;
  const plannedRange=totalLitres*averageOperationConsumption;
- const remainingFuel=reserveLitres;
  const remainingRange=Math.max(0,plannedRange-km);
  const fuelCost=round2(totalLitres*price);
  const baseCost=round2(fuelCost+tolls);
  const revenue=round2(baseCost+profit);
- $('customerRouteKm').textContent=fmt(clientKm)+' km';
- $('customerRouteFuel').textContent=fmt(customerRouteFuel)+' L';
  $('approachKmResult').textContent=fmt(approachKm)+' km ('+fmt(approachFuel)+' L)';
  $('approachConsumptionResult').textContent=fmt(approachEffective)+' km/L';
+ $('customerRouteKm').textContent=fmt(clientKm)+' km';
+ $('customerRouteFuel').textContent=fmt(customerRouteFuel)+' L';
+ $('extraKmResult').textContent=fmt(extraKm)+' km';
+ $('extraFuelResult').textContent=fmt(extraKm/effective)+' L';
  $('totalKmResult').textContent=fmt(km)+' km';
- $('totalKmBreakdown').textContent=fmt(approachKm)+' km (seu deslocamento até o embarque) + '+fmt(clientKm)+' km (embarque do cliente até o destino) + '+fmt(extraKm)+' km (retorno/outros trechos) = '+fmt(km)+' km no total.';
+ $('totalKmBreakdown').textContent=fmt(approachKm)+' km (seu deslocamento até o local de partida do cliente) + '+fmt(clientKm)+' km (local de partida do cliente até o destino) + '+fmt(extraKm)+' km (retorno/outros trechos) = '+fmt(km)+' km no total.';
  $('adjusted').textContent=fmt(averageOperationConsumption)+' km/L';
  $('tripFuel').textContent=fmt(tripLitres)+' L';
  $('reserveFuel').textContent=fmt(reserveLitres)+' L';
  $('totalFuel').textContent=fmt(totalLitres)+' L';
  $('fuelStart').textContent=fmt(totalLitres)+' L';
  $('startRange').textContent=fmt(plannedRange)+' km';
- $('startRangeBreakdown').textContent=fmt(plannedRange)+' km de autonomia estimada − '+fmt(km)+' km rodados na operação = '+fmt(remainingRange)+' km que ainda poderá percorrer. A conta usa a média combinada de consumo dos trechos informados.';
- $('remainingFuel').textContent=fmt(remainingFuel)+' L';
+ $('startRangeBreakdown').textContent='Autonomia calculada com '+fmt(totalLitres)+' L, usando a média combinada de consumo dos trechos informados.';
+ $('remainingRangeResult').textContent=fmt(remainingRange)+' km';
+ $('remainingRangeBreakdown').textContent=fmt(plannedRange)+' km de autonomia estimada − '+fmt(km)+' km rodados na operação = '+fmt(remainingRange)+' km restantes.';
  $('fuelCost').textContent=money(fuelCost);
  $('revenue').textContent=money(revenue);
- $('fuelWarning').textContent='Planejamento: '+fmt(approachKm)+' km até o embarque, calculados com consumo manual de '+fmt(approachBase)+' km/L antes do ajuste do ar-condicionado; mais '+fmt(clientKm+extraKm)+' km de trajeto do cliente, retorno e outros trechos, calculados com '+fmt(base)+' km/L antes do ajuste. Combustível da operação: '+fmt(tripLitres)+' L; reserva: '+fmt(reserveLitres)+' L; total necessário: '+fmt(totalLitres)+' L. A autonomia restante é estimada pela média combinada dos trechos. O cálculo não desconta combustível que já possa existir no tanque nem representa o volume para completar o tanque.';
+ $('fuelWarning').textContent='Planejamento: '+fmt(approachKm)+' km até o local de partida do cliente, calculados com consumo manual de '+fmt(approachBase)+' km/L antes do ajuste do ar-condicionado; mais '+fmt(clientKm+extraKm)+' km de trajeto do cliente, retorno e outros trechos, calculados com '+fmt(base)+' km/L antes do ajuste. Combustível da operação: '+fmt(tripLitres)+' L; reserva: '+fmt(reserveLitres)+' L; total necessário: '+fmt(totalLitres)+' L. A autonomia restante é estimada pela média combinada dos trechos. O cálculo não desconta combustível que já possa existir no tanque nem representa o volume para completar o tanque.';
  const fares={};
  $('fareRows').innerHTML=[4,5,6].map(n=>{
    const targetProfit=profit+(n-4)*100;
@@ -725,7 +779,7 @@ A ideia é deixar o transporte organizado para que você aproveite o passeio sem
  renderComparison();
  return {km,revenue:total,transport:fare.total,per:fare.per,total,fuelCost,totalLitres};
 }
-$('calculate').addEventListener('click',()=>{ $('calcError').textContent='';try{calculate();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;}});
+$('calculate').addEventListener('click',()=>{ $('calcError').textContent='';try{calculate();saveDraft();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;saveDraft();}});
 $('copyBudget').addEventListener('click',async()=>{
  const text=$('clientBudget').dataset.quote||'';
  if(!text){alert('Gere o orçamento primeiro, clicando em Calcular / Gerar orçamento.');return;}
@@ -734,6 +788,7 @@ $('copyBudget').addEventListener('click',async()=>{
 });
 $('copyValueMessage').addEventListener('click',async()=>{const text=$('valueMessageText').textContent;try{await navigator.clipboard.writeText(text);alert('Mensagem de valorização copiada. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione a mensagem e copie.')}});
 $('printBudget').addEventListener('click',()=>{
+ saveDraft();
  const paper=$('budgetPaper');
  if(!paper || !$('clientBudget').dataset.quote){alert('Gere o orçamento primeiro, clicando em Calcular / Gerar orçamento.');return;}
  const cleanName=value=>String(value||'').trim().replace(/[^\p{L}\p{N} -]/gu,'').replace(/\s+/g,'_')||'Viagem';
@@ -770,13 +825,17 @@ $('printBudget').addEventListener('click',()=>{
  .budget-total strong{font-size:22px;color:#034b82;white-space:nowrap}
  .budget-foot{font-size:10px;line-height:1.5;color:#26394c;margin:12px 2px 2px}
  .budget-highlight{color:#033f70;font-weight:850}
- @media print{body{padding:0}.budget-box{box-shadow:none}.budget-price,.budget-info,.budget-route,.budget-service,.budget-hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+ .pdf-toolbar{max-width:780px;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+ .pdf-toolbar button{border:0;border-radius:9px;padding:11px 14px;background:#073763;color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+ .pdf-toolbar button.secondary{background:#e8eef4;color:#173a59}
+ .pdf-toolbar p{flex-basis:100%;margin:2px 0;color:#42586d;font-size:12px;line-height:1.4}
+ @media print{body{padding:0}.pdf-toolbar{display:none!important}.budget-box{box-shadow:none}.budget-price,.budget-info,.budget-route,.budget-service,.budget-hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
  @media screen{body{padding:18px;background:#eef2f7}.budget-box{max-width:780px;margin:0 auto;box-shadow:0 5px 20px rgba(8,47,85,.12)}}
  `;
  win.document.open();
- win.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Orcamento_Bastos_${clientName}_${destination}</title><style>${printStyles}</style></head><body>${paper.outerHTML}</body></html>`);
+ win.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Orcamento_Bastos_${clientName}_${destination}</title><style>${printStyles}</style></head><body><div class="pdf-toolbar"><button type="button" id="pdfPrintButton">📄 Salvar / imprimir PDF</button><button type="button" class="secondary" id="backToCalculatorButton">← Voltar à calculadora</button><p>Depois de salvar ou compartilhar o orçamento, toque em “Voltar à calculadora”. Os dados também ficam salvos automaticamente neste aparelho.</p></div>${paper.outerHTML}<script>const calculatorReturnUrl=${JSON.stringify(window.location.href)};document.getElementById('pdfPrintButton').addEventListener('click',()=>window.print());document.getElementById('backToCalculatorButton').addEventListener('click',()=>{if(window.opener&&!window.opener.closed){window.close();}else{window.location.href=calculatorReturnUrl;}});<\/script></body></html>`);
  win.document.close();
- setTimeout(()=>{try{win.focus();win.print();}catch(e){alert('A prévia abriu, mas não foi possível iniciar a impressão automaticamente. Use Ctrl + P e escolha “Salvar como PDF”.');}},450);
+ setTimeout(()=>{try{win.focus();win.print();}catch(e){alert('A prévia abriu, mas não foi possível iniciar a impressão automaticamente. Toque em “Salvar / imprimir PDF”.');}},450);
 });
 $('preset').addEventListener('change',()=>$('custom').disabled=$('preset').value!=='custom');
 $('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);});
@@ -785,7 +844,13 @@ function syncPax(){const n=Number($('adults').value||0)+Number($('children').val
 $('passengers').addEventListener('input',updateAutoAppCars);
 $('save').addEventListener('click',()=>{try{const c=calculate(),arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));renderHistory();alert('Orçamento salvo neste aparelho.');}catch(e){alert(e.message);}});
 function renderHistory(){let arr=[];try{arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');}catch(e){}$('history').innerHTML=arr.length?arr.map(x=>`<li><b>${escapeHtml(x.dest||'Destino não informado')}</b> — ${fmt(x.km)} km — ${escapeHtml(x.date)} — faturamento ${money(x.revenue)}</li>`).join(''):'<li>Nenhum orçamento salvo ainda.</li>';}
-$('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?'))location.reload();});
+$('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?')){suppressDraftSave=true;try{localStorage.removeItem(DRAFT_KEY);}catch(e){}location.reload();}});
+
+// Salva cada alteração do formulário e também quando a página perde o foco.
+document.addEventListener('input',event=>{if(event.target.matches('input,select,textarea')&&event.target.type!=='file')saveDraft();});
+document.addEventListener('change',event=>{if(event.target.matches('input,select,textarea')&&event.target.type!=='file')saveDraft();});
+window.addEventListener('pagehide',saveDraft);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveDraft();});
 
 ['uber','99'].forEach(provider=>{
  $(provider+'ImageInput').addEventListener('change',e=>setComparisonImage(provider,e.target.files?.[0]||null));
@@ -800,7 +865,12 @@ $('copyComparison').addEventListener('click',async()=>{
  try{const data=buildComparison();await navigator.clipboard.writeText(data.text);alert('Mensagem comparativa copiada. Os prints não foram enviados; use o botão Compartilhar comparação para incluí-los.');}
  catch(e){alert(e.message||'Não foi possível copiar a mensagem neste navegador.');}
 });
+const hadSavedBudget=restoreDraft();
 updateMode();renderHistory();updateAutoAppCars();
+if(hadSavedBudget){
+ try{calculate();}catch(error){$('calcError').textContent='Os dados foram recuperados, mas confira os campos antes de gerar novamente o orçamento: '+error.message;}
+}
+saveDraft();
 })();
 </script>
 </body></html>
