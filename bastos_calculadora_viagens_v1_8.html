@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v3.9</title>
+<title>Bastos | Calculadora de Viagens — v4.0</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -21,7 +21,7 @@ small,.hint{color:var(--muted);font-size:12px;line-height:1.45}.metric{backgroun
 .results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 button{border:0;border-radius:9px;padding:11px 14px;background:var(--navy);color:white;font-weight:700;font-size:13px;cursor:pointer}
 button.secondary{background:#edf0f5;color:var(--navy)}button.gold{background:var(--gold);color:#1b2435}
-.actions{display:flex;gap:8px;flex-wrap:wrap}.notice{background:#fff8e8;border:1px solid #f0dfb7;border-radius:10px;padding:11px;font-size:12px;line-height:1.45;color:#604b20}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.top-actions{margin-top:12px}.top-actions button{flex:1 1 230px;min-height:44px}.notice{background:#fff8e8;border:1px solid #f0dfb7;border-radius:10px;padding:11px;font-size:12px;line-height:1.45;color:#604b20}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}td small{display:block;margin-top:4px;font-size:11px;color:#475467;line-height:1.35}th{color:var(--muted);font-size:11px}
 #history{padding-left:18px;margin-bottom:0}#history li{margin:8px 0;font-size:13px}
 .hidden,[hidden]{display:none!important}.error{color:var(--red);font-weight:650}.good{color:var(--green);font-weight:650}
@@ -115,7 +115,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <h2>1. Importar resposta do WhatsApp Business</h2>
 <p class="hint">Use as respostas rápidas cadastradas no WhatsApp Business. Quando o cliente devolver o questionário preenchido, copie a mensagem inteira e cole aqui. A calculadora tentará identificar os campos e preencher os dados da viagem.</p>
 <div class="field" style="margin-top:13px"><label>Resposta preenchida pelo cliente (copiada do WhatsApp)</label><textarea id="clientReply" placeholder="Cole aqui a mensagem completa que o cliente devolveu..."></textarea></div>
-<div class="actions"><button id="importReply">Interpretar resposta e preencher os dados</button></div>
+<div class="actions top-actions"><button type="button" class="secondary" id="newSimulationBtn">↻ Nova simulação — limpar dados e atualizar</button><button id="importReply" type="button">Interpretar resposta e preencher os dados</button></div>
+<p class="hint">Use “Nova simulação” quando terminar um cliente. Ela limpa a resposta colada, os dados da viagem, resultados, comparações e prints, e recarrega a calculadora com os campos limpos. O histórico de orçamentos salvos permanece guardado.</p>
 <p id="importStatus" class="hint" aria-live="polite"></p>
 <div class="notice">A capacidade do veículo é de até 7 ocupantes incluindo o motorista, portanto até 6 passageiros. Esta calculadora aplica sua política comercial de grupos de 4 a 6 passageiros. Adultos, crianças e bebês entram na contagem total de passageiros. Confira as idades e os dispositivos de retenção infantil antes de confirmar o serviço.</div>
 </section>
@@ -151,7 +152,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="grid">
 <div class="field"><label>Do seu local atual até o local de partida do cliente (km) — Waze</label><input id="approachKm" type="number" min="0" step="0.1" value="0"></div>
 <div class="field"><label>Consumo no deslocamento até o local de partida do cliente (km/L)</label><input id="approachConsumption" type="number" min="0.1" step="0.1" value="7.5"><small>Informe manualmente a média desse trecho, por exemplo, 7,5 km/L em percurso urbano. O ajuste do ar-condicionado também será aplicado.</small></div>
-<div class="field"><label>Do local de partida do cliente até o destino (km) — Waze</label><input id="clientKm" type="number" min="0.1" step="0.1" value="368"></div>
+<div class="field"><label>Do local de partida do cliente até o destino (km) — Waze</label><input id="clientKm" type="number" min="0.1" step="0.1" value="" placeholder="Informe a distância do Waze"></div>
 <div class="field"><label>Retorno e outros deslocamentos da Spin (km)</label><input id="extraKm" type="number" min="0" step="0.1" value="0"></div>
 <div class="field"><label>Combustível</label><select id="fuel"><option value="Etanol">Etanol</option><option value="Gasolina">Gasolina</option></select></div>
 <div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.001" value="4.59"></div>
@@ -228,7 +229,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <p class="hint" id="fareTableExplain">Como ler a tabela: o valor por pessoa é o total sugerido para o grupo dividido pela quantidade de passageiros. O total é o que o grupo pagaria junto. A sobra estimada é o total recebido menos combustível e pedágios, antes de outros custos não cadastrados.</p>
 <table><thead><tr><th>Grupo</th><th>Por pessoa</th><th>Total do transporte</th><th>Sobra estimada*</th></tr></thead><tbody id="fareRows"></tbody></table>
 <p class="hint">*Sobra estimada após combustível e pedágios. A meta informada vale para 4 passageiros; com 5 a meta aumenta R$ 100 e com 6 aumenta R$ 200. Taxas de serviço são adicionais e aparecem separadamente no orçamento.</p>
-<div class="actions" style="margin-top:14px"><button class="gold" id="save">Salvar orçamento</button><button class="secondary" id="reset">Restaurar exemplo</button></div>
+<div class="actions" style="margin-top:14px"><button class="gold" id="save">Salvar orçamento</button></div>
 </section>
 
 <section class="card" id="clientBudget" hidden>
@@ -238,7 +239,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <button class="gold" id="printBudget" type="button">📄 Gerar PDF do orçamento</button>
 <button class="secondary" id="copyBudget" type="button">💬 Copiar orçamento para WhatsApp</button>
 </div>
-<p class="hint" style="margin-top:9px"><b>PDF:</b> abre a prévia em outra aba; escolha “Salvar como PDF”. Use “Voltar à calculadora” na prévia para retornar. <b>Se o navegador recarregar a calculadora, os campos e o orçamento serão restaurados automaticamente neste aparelho.</b> <b>WhatsApp:</b> copia o texto simples pronto para colar na conversa.</p>
+<p class="hint" style="margin-top:9px"><b>PDF:</b> abre a prévia em outra aba; a calculadora permanece na aba original. Use “Voltar à calculadora” na prévia para retornar. Se a mesma aba for recarregada, os dados desta sessão serão recuperados. Ao fechar a aba e abrir uma nova, uma simulação antiga não será carregada. <b>WhatsApp:</b> copia o texto simples pronto para colar na conversa.</p>
 <p class="hint">Seus custos, meta de ganho e sobra estimada não aparecem para o cliente.</p>
 </section>
 
@@ -323,31 +324,35 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 3.9 — comparativo opcional Uber, 99 e ônibus; valores e mensagem editáveis; política específica para 4, 5 e 6 passageiros; salvamento automático e PDF em aba separada.</p>
+<p class="hint">Versão 4.0 — nova simulação com limpeza completa; rascunho temporário por aba; comparativo Uber, 99 e ônibus; valores e mensagem editáveis; PDF em aba separada.</p>
 </main>
 <script>
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
-// Mantém uma cópia local dos campos para que sair da prévia do PDF ou recarregar
-// a página não obrigue o usuário a colar e interpretar novamente a resposta.
-const DRAFT_KEY = 'bastos-calculadora-viagens-draft-v37';
+// Mantém o rascunho somente nesta aba: um recarregamento acidental recupera
+// o trabalho atual, mas uma nova aba/sessão começa limpa para o próximo cliente.
+const DRAFT_KEY = 'bastos-calculadora-viagens-active-v40';
+const LEGACY_DRAFT_KEYS = ['bastos-calculadora-viagens-draft-v37','bastos-calculadora-viagens-draft-v39'];
 let suppressDraftSave=false;
+try{LEGACY_DRAFT_KEYS.forEach(key=>localStorage.removeItem(key));}catch(error){}
 function saveDraft(){
  if(suppressDraftSave)return;
  try{
    const fields=Array.from(document.querySelectorAll('input[id],select[id],textarea[id]'))
      .filter(el=>el.type!=='file')
      .map(el=>({id:el.id,value:el.value,checked:el.checked,auto:el.dataset.auto,manual:el.dataset.manual}));
-   const payload={version:'3.9',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
-   localStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
- }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento local. */}
+   const payload={version:'4.0',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
+   sessionStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
+ }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento da sessão. */}
 }
 function restoreDraft(){
  try{
-   const raw=localStorage.getItem(DRAFT_KEY);
+   const raw=sessionStorage.getItem(DRAFT_KEY);
    if(!raw)return false;
    const draft=JSON.parse(raw);
+   // Rascunhos muito antigos nunca devem reaparecer como se fossem do cliente atual.
+   if(!draft.savedAt || Date.now()-draft.savedAt>8*60*60*1000){sessionStorage.removeItem(DRAFT_KEY);return false;}
    (draft.fields||[]).forEach(item=>{
      const el=$(item.id);
      if(!el||el.type==='file')return;
@@ -358,6 +363,14 @@ function restoreDraft(){
    });
    return !!draft.hasBudget;
  }catch(error){return false;}
+}
+function startNewSimulation(){
+ if(!confirm('Iniciar uma nova simulação? A resposta colada, os dados do cliente, resultados, comparações, mensagem editada e prints serão apagados. O histórico de orçamentos salvos será mantido.'))return;
+ suppressDraftSave=true;
+ try{sessionStorage.removeItem(DRAFT_KEY);}catch(error){}
+ try{LEGACY_DRAFT_KEYS.forEach(key=>localStorage.removeItem(key));}catch(error){}
+ // O recarregamento restaura somente os valores padrão da calculadora, sem dados do cliente anterior.
+ window.location.reload();
 }
 const money = value => (Math.round((Number(value) + Number.EPSILON) * 100) / 100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmt = value => Number(value).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:2});
@@ -654,6 +667,7 @@ function importReply(){
  $('importStatus').textContent='Importação processada. Total identificado: '+total+' passageiro(s). '+(missing.length?'Não encontrei no texto: '+missing.join(', ')+'. Confira se esses campos foram preenchidos e enviados pelo formulário.':'Os campos principais foram reconhecidos. Confira os dados antes de calcular.');
 }
 $('importReply').addEventListener('click',()=>{importReply();saveDraft();});
+$('newSimulationBtn').addEventListener('click',startNewSimulation);
 function updateMode(){
  const mode=$('serviceMode').value;
  const available=mode==='available';
@@ -946,9 +960,9 @@ function syncPax(){const n=Number($('adults').value||0)+Number($('children').val
 $('passengers').addEventListener('input',updateAutoAppCars);
 $('save').addEventListener('click',()=>{try{const c=calculate(),arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));renderHistory();alert('Orçamento salvo neste aparelho.');}catch(e){alert(e.message);}});
 function renderHistory(){let arr=[];try{arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');}catch(e){}$('history').innerHTML=arr.length?arr.map(x=>`<li><b>${escapeHtml(x.dest||'Destino não informado')}</b> — ${fmt(x.km)} km — ${escapeHtml(x.date)} — faturamento ${money(x.revenue)}</li>`).join(''):'<li>Nenhum orçamento salvo ainda.</li>';}
-$('reset').addEventListener('click',()=>{if(confirm('Restaurar os valores do exemplo?')){suppressDraftSave=true;try{localStorage.removeItem(DRAFT_KEY);}catch(e){}location.reload();}});
 
-// Salva cada alteração do formulário e também quando a página perde o foco.
+
+// Salva cada alteração no armazenamento temporário desta aba, inclusive antes de abrir a prévia do PDF.
 document.addEventListener('input',event=>{if(event.target.matches('input,select,textarea')&&event.target.type!=='file')saveDraft();});
 document.addEventListener('change',event=>{if(event.target.matches('input,select,textarea')&&event.target.type!=='file')saveDraft();});
 window.addEventListener('pagehide',saveDraft);
