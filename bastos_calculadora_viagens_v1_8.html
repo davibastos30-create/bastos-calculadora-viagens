@@ -106,6 +106,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .compare-footnote{font-size:12px;line-height:1.55;color:#475467;margin-top:10px}
 @media(max-width:650px){.compare-grid{grid-template-columns:1fr}.compare-provider-actions button{flex:1}.compare-actions{display:grid;grid-template-columns:1fr}.compare-actions button{width:100%}.compare-message{min-height:260px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}.compare-result-line{align-items:flex-start;gap:8px}.compare-result-line span{min-width:0}.compare-result-line strong{max-width:55%;overflow-wrap:anywhere}.compare-provider{padding:12px}.compare-intro{font-size:12px;line-height:1.5}}
 
+
+/* v4.2 — envio sequencial: mensagem primeiro, comprovantes individuais depois */
+.separate-print-actions{margin-top:10px;border:1px solid #cfe2f3;border-radius:12px;padding:12px;background:#f5f9fd}
+.separate-print-title{font-size:13px;font-weight:800;color:#073763;margin-bottom:5px}
+.separate-print-help{font-size:12px;color:#475467;line-height:1.5;margin:0 0 10px}
+.separate-print-buttons{display:grid;grid-template-columns:1fr;gap:8px}
+.separate-print-buttons button{width:100%;min-height:44px;text-align:left;background:#edf0f5;color:#073763}
+.separate-print-buttons button:active{transform:translateY(1px)}
+@media(max-width:650px){.separate-print-actions{padding:10px}.separate-print-buttons button{font-size:13px;white-space:normal;line-height:1.35}}
+
 </style>
 </head>
 <body>
@@ -316,16 +326,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="actions"><button type="button" class="secondary" id="refreshComparisonMessage">Atualizar mensagem automática</button></div>
 <div id="comparisonResults" class="compare-results" aria-live="polite"></div>
 <div class="compare-actions">
-  <button class="gold" id="shareComparison" type="button">📲 Compartilhar comparação + prints selecionados</button>
-  <button class="secondary" id="copyComparison" type="button">💬 Copiar mensagem editada</button>
+  <button class="gold" id="shareComparison" type="button">1️⃣ Copiar mensagem para enviar primeiro</button>
 </div>
+<div id="separatePrintActions" class="separate-print-actions" aria-live="polite"></div>
 <p id="selectedPrintsStatus" class="compare-footnote" role="status">Nenhum print selecionado. Você pode anexar Uber, 99, ônibus ou qualquer combinação.</p>
-<p id="comparisonStatus" class="compare-footnote">Os prints ficam nesta página enquanto ela estiver aberta. O compartilhamento tentará enviar todos os arquivos selecionados junto com o texto; confira os anexos antes de enviar no WhatsApp.</p>
+<p id="comparisonStatus" class="compare-footnote">Envio separado: primeiro copie e envie a mensagem. Depois, compartilhe cada comprovante individualmente, sem legenda, pelos botões abaixo.</p>
 <p class="compare-footnote"><b>Transparência:</b> o preço de volta dos aplicativos ou do ônibus será estimado pelo valor da ida quando estiver em branco. Valores de aplicativos, passagens e deslocamentos locais podem mudar. Confira todas as informações e ajuste os campos antes de compartilhar. Os custos internos de planejamento não são incluídos na mensagem ao cliente.</p>
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.1 — mensagens comparativas mais didáticas no celular; custos locais do ônibus aparecem somente quando preenchidos.</p>
+<p class="hint">Versão 4.2 — mensagem e comprovantes enviados separadamente, com cada imagem individual e sem legenda.</p>
 </main>
 <script>
 (() => {
@@ -404,9 +414,22 @@ function providerLabel(provider){return provider==='uber'?'Uber':provider==='99'
 function updateSelectedPrintsStatus(){
  const selected=selectedComparisonPrints(),status=$('selectedPrintsStatus');
  if(!status)return;
- if(!selected.length){status.textContent='Nenhum print selecionado. Você pode anexar Uber, 99, ônibus ou qualquer combinação.';return;}
+ if(!selected.length){
+   status.textContent='Nenhum print selecionado. Você pode anexar Uber, 99, ônibus ou qualquer combinação.';
+   renderSeparatePrintActions();
+   return;
+ }
  const names=selected.map(providerLabel);
- status.textContent='Prints selecionados: '+names.join(', ')+'. Todos serão incluídos se o navegador e o aplicativo aceitarem múltiplos arquivos.';
+ status.textContent='Comprovantes selecionados: '+names.join(', ')+'. Cada imagem terá seu próprio botão de compartilhamento, sem texto ou legenda anexada.';
+ renderSeparatePrintActions();
+}
+function renderSeparatePrintActions(){
+ const root=$('separatePrintActions');
+ if(!root)return;
+ const selected=selectedComparisonPrints();
+ if(!selected.length){root.innerHTML='<div class="separate-print-title">2️⃣ Enviar comprovantes</div><p class="separate-print-help">Depois de selecionar os prints da Uber, 99 ou ônibus, aparecerá aqui um botão individual para cada imagem.</p>';return;}
+ root.innerHTML='<div class="separate-print-title">2️⃣ Envie os comprovantes, um por vez</div><p class="separate-print-help">Primeiro envie a mensagem copiada. Depois toque em cada botão abaixo, escolha o WhatsApp e envie somente a imagem, sem legenda. Volte à calculadora para compartilhar o próximo comprovante.</p><div class="separate-print-buttons">'+selected.map((provider,index)=>`<button type="button" data-share-provider="${provider}">📎 ${index+1}. Compartilhar comprovante ${escapeHtml(providerLabel(provider))}</button>`).join('')+'</div>';
+ root.querySelectorAll('[data-share-provider]').forEach(button=>button.addEventListener('click',()=>shareOneComparisonPrint(button.dataset.shareProvider)));
 }
 function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
  const fare=num(provider+'Fare'),cars=num(provider+'Cars'),returnFare=num(provider+'ReturnFare');
@@ -461,7 +484,7 @@ function buildComparison(){
  const lines=['*🚘 COMPARAÇÃO DE TRANSPORTE — BASTOS*','',`👥 *${pax} passageiros*`];
  if(selected.length){
    const providers=selected.map(providerLabel).join(', ');
-   lines.push(`📎 *Confira os prints anexados (${providers}).* Eles mostram as cotações usadas nesta comparação.`);
+   lines.push(`📎 *Depois desta mensagem, vou enviar os comprovantes de ${providers} em mensagens separadas.*`);
  }else{
    lines.push('Confira os valores abaixo. A comparação usa as cotações e os custos informados.');
  }
@@ -529,6 +552,12 @@ function buildComparison(){
    }
    lines.push('Com a Bastos, o embarque é combinado diretamente e o transporte segue até o destino contratado, sem precisar organizar essas conexões por conta própria.');
  }
+ if(selected.length){
+   lines.push('');
+   lines.push('*👆 Abra os comprovantes para conferir as cotações.*');
+   lines.push('Toque em cada imagem para ampliar e comparar os valores da Uber, 99 ou ônibus com o pacote Bastos. Considere também o embarque combinado, o trajeto direto e a possibilidade de o grupo viajar junto na Spin, com assentos e bagagens conferidos.');
+   lines.push('Assim você compara não só o preço, mas também a praticidade e a tranquilidade de toda a viagem — e consegue avaliar por que a Bastos pode ser a escolha mais vantajosa para o seu grupo.');
+ }
  if(roundTrip&&entries.some(x=>x.estimated)){
    lines.push('');
    lines.push('ℹ️ Quando não havia cotação específica da volta, usei o mesmo valor da ida como estimativa. Os preços podem variar conforme horário, demanda e disponibilidade.');
@@ -584,37 +613,55 @@ function renderComparison(forceMessage=false){
    catch(e){$('comparisonMessage').value='';}
  }
 }
-function downloadComparisonImages(){
- ['uber','99','bus'].forEach(provider=>{const item=comparisonImages[provider];if(!item)return;const a=document.createElement('a');a.href=item.url;a.download=item.file.name||`print-${provider}.jpg`;document.body.appendChild(a);a.click();a.remove();});
+function downloadComparisonImage(provider){
+ const item=comparisonImages[provider];
+ if(!item)return false;
+ const a=document.createElement('a');
+ a.href=item.url;
+ a.download=item.file.name||`comprovante-${provider}.jpg`;
+ document.body.appendChild(a);a.click();a.remove();
+ return true;
 }
-async function shareComparison(){
+async function copyComparisonMessage(){
  let data;try{data=buildComparison();}catch(e){alert(e.message);return;}
  const message=$('comparisonMessage').value.trim()||data.text;
- if(!message){alert('A mensagem está vazia. Atualize ou escreva uma mensagem antes de compartilhar.');return;}
- const files=[];
- ['uber','99','bus'].forEach(provider=>{
-   const item=comparisonImages[provider];
-   if(item?.file)files.push(new File([item.file],item.file.name||`print-${provider}.jpg`,{type:item.file.type||'image/jpeg',lastModified:item.file.lastModified||Date.now()}));
- });
- const title='Comparação de transporte — Bastos';
+ if(!message){alert('A mensagem está vazia. Atualize ou escreva a mensagem antes de copiar.');return;}
  try{
-   const shareData={title,text:message,files};
-   if(files.length&&navigator.share&&navigator.canShare&&navigator.canShare(shareData)){
-     $('comparisonStatus').textContent=`Preparando ${files.length} ${files.length===1?'arquivo':'arquivos'} (${selectedComparisonPrints().map(providerLabel).join(', ')}). Confira todos os anexos e o texto no WhatsApp antes de enviar.`;
-     await navigator.share(shareData);
-     $('comparisonStatus').textContent=`Menu de compartilhamento concluído/fechado. Confira se os ${files.length} anexos e a mensagem chegaram ao WhatsApp. A calculadora não envia nada automaticamente.`;
+   if(!navigator.clipboard?.writeText)throw new Error('Clipboard indisponível');
+   await navigator.clipboard.writeText(message);
+   $('comparisonStatus').textContent='Mensagem copiada. Etapa 1 concluída: cole e envie este texto primeiro na conversa do WhatsApp. Depois volte aqui e compartilhe cada comprovante separadamente pelos botões abaixo.';
+   alert('Mensagem copiada! Agora cole e envie o texto no WhatsApp. Depois volte à calculadora e compartilhe cada comprovante individualmente.');
+ }catch(e){
+   $('comparisonMessage').focus();$('comparisonMessage').select();
+   $('comparisonStatus').textContent='Não foi possível copiar automaticamente. A mensagem está selecionada: copie manualmente, envie primeiro no WhatsApp e depois compartilhe cada imagem pelos botões abaixo.';
+   alert('A mensagem foi selecionada. Copie, envie primeiro no WhatsApp e depois volte para compartilhar os comprovantes um por vez.');
+ }
+}
+async function shareOneComparisonPrint(provider){
+ const item=comparisonImages[provider];
+ if(!item?.file){alert('Este comprovante não está mais selecionado. Escolha a imagem novamente.');return;}
+ const label=providerLabel(provider);
+ const originalName=item.file.name||`comprovante-${provider}.jpg`;
+ const file=new File([item.file],originalName,{type:item.file.type||'image/jpeg',lastModified:item.file.lastModified||Date.now()});
+ const shareData={files:[file]};
+ try{
+   if(!navigator.share|| (navigator.canShare&&!navigator.canShare(shareData))){
+     downloadComparisonImage(provider);
+     $('comparisonStatus').textContent=`O navegador não oferece compartilhamento direto deste arquivo. O comprovante ${label} foi preparado para baixar; anexe-o manualmente no WhatsApp, sem legenda.`;
+     alert(`Não foi possível abrir o compartilhamento direto. O comprovante ${label} foi preparado para baixar. Anexe somente essa imagem no WhatsApp, sem texto.`);
      return;
    }
-   if(!files.length&&navigator.share){await navigator.share({title,text:message});$('comparisonStatus').textContent='Menu de compartilhamento aberto. Revise a mensagem e confirme o envio no aplicativo escolhido.';return;}
-   let copied=false;
-   if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(message);copied=true;}
-   if(files.length){downloadComparisonImages();$('comparisonStatus').textContent=(copied?'A mensagem foi copiada e ':'A mensagem não pôde ser copiada automaticamente; ')+ 'os prints foram baixados. Anexe manualmente todos os arquivos no WhatsApp.';alert(`${copied?'A mensagem foi copiada. ':'Copie a mensagem manualmente. '}${files.length} arquivo(s) foram baixados para você anexar manualmente no WhatsApp.`);}
-   else if(copied){$('comparisonStatus').textContent='Mensagem copiada. Cole no WhatsApp para enviar quando desejar.';alert('Mensagem comparativa copiada. Cole na conversa do WhatsApp.');}
-   else{$('comparisonStatus').textContent='Não foi possível copiar automaticamente. Selecione e copie o texto da mensagem.';alert('Selecione e copie manualmente a mensagem.');}
+   // Envia somente um arquivo: sem title e sem text para evitar que o WhatsApp
+   // transforme a primeira imagem em uma mensagem com legenda.
+   await navigator.share(shareData);
+   $('comparisonStatus').textContent=`Menu de compartilhamento do comprovante ${label} aberto/concluído. Escolha o WhatsApp e envie somente a imagem, sem legenda. Depois volte para compartilhar o próximo comprovante.`;
  }catch(e){
-   if(e.name==='AbortError'){$('comparisonStatus').textContent='Compartilhamento cancelado. Nenhuma mensagem ou imagem foi enviada.';return;}
-   $('comparisonStatus').textContent='Não foi possível abrir o menu de compartilhamento. Você pode copiar a mensagem e baixar os prints para anexá-los manualmente.';
-   alert('O compartilhamento não foi concluído. Nenhuma mensagem foi enviada. Tente novamente ou use a opção de copiar.');
+   if(e.name==='AbortError'){
+     $('comparisonStatus').textContent=`Compartilhamento do comprovante ${label} cancelado. Nenhuma imagem foi enviada.`;
+     return;
+   }
+   $('comparisonStatus').textContent=`Não foi possível compartilhar o comprovante ${label}. Tente novamente ou baixe a imagem para anexá-la manualmente, sem legenda.`;
+   alert(`Não foi possível compartilhar o comprovante ${label}. Tente novamente ou use o download e anexe a imagem manualmente no WhatsApp.`);
  }
 }
 
@@ -1019,17 +1066,11 @@ $('useFourPaxSuggestion').addEventListener('click',()=>{
 });
 $('comparisonMessage').addEventListener('input',()=>{comparisonMessageDirty=true;saveDraft();});
 $('refreshComparisonMessage').addEventListener('click',()=>{comparisonMessageDirty=false;renderComparison(true);saveDraft();});
-$('shareComparison').addEventListener('click',shareComparison);
-$('copyComparison').addEventListener('click',async()=>{
- const text=$('comparisonMessage').value.trim();
- if(!text){alert('Primeiro gere uma comparação e confira a mensagem.');return;}
- try{await navigator.clipboard.writeText(text);alert('Mensagem editada copiada. Cole no WhatsApp. Os prints não são copiados; use o botão de compartilhar para incluir os anexos.');}
- catch(e){alert('Não foi possível copiar automaticamente. Selecione o texto da mensagem e copie.');}
-});
+$('shareComparison').addEventListener('click',copyComparisonMessage);
 const hadSavedBudget=restoreDraft();
 if($('comparisonBastosValue').dataset.manual===undefined)$('comparisonBastosValue').dataset.manual='false';
 if($('comparisonMessage').value.trim())comparisonMessageDirty=true;
-updateMode();renderHistory();updateAutoAppCars();
+updateMode();renderHistory();updateAutoAppCars();updateSelectedPrintsStatus();
 if(hadSavedBudget){
  try{calculate();}catch(error){$('calcError').textContent='Os dados foram recuperados, mas confira os campos antes de gerar novamente o orçamento: '+error.message;}
 }
