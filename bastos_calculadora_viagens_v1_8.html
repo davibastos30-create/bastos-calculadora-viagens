@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v4.1</title>
+<title>Bastos | Calculadora de Viagens — v4.3</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -107,7 +107,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 @media(max-width:650px){.compare-grid{grid-template-columns:1fr}.compare-provider-actions button{flex:1}.compare-actions{display:grid;grid-template-columns:1fr}.compare-actions button{width:100%}.compare-message{min-height:260px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}.compare-result-line{align-items:flex-start;gap:8px}.compare-result-line span{min-width:0}.compare-result-line strong{max-width:55%;overflow-wrap:anywhere}.compare-provider{padding:12px}.compare-intro{font-size:12px;line-height:1.5}}
 
 
-/* v4.2 — envio sequencial: mensagem primeiro, comprovantes individuais depois */
+/* v4.3 — envio da mensagem pelo WhatsApp e comprovantes individuais depois */
 .separate-print-actions{margin-top:10px;border:1px solid #cfe2f3;border-radius:12px;padding:12px;background:#f5f9fd}
 .separate-print-title{font-size:13px;font-weight:800;color:#073763;margin-bottom:5px}
 .separate-print-help{font-size:12px;color:#475467;line-height:1.5;margin:0 0 10px}
@@ -135,7 +135,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <h2>2. Dados da viagem e dos passageiros</h2>
 <div class="grid">
 <div class="field"><label>Nome do responsável</label><input id="client" placeholder="Nome do cliente"></div>
-<div class="field"><label>Telefone com DDD (opcional)</label><input id="phone" placeholder="(21) 99999-9999"></div>
+<div class="field"><label>Telefone do cliente com DDD (opcional)</label><input id="phone" type="tel" inputmode="tel" placeholder="(21) 99999-9999"><small>Se preencher este telefone, o botão de WhatsApp abre diretamente a conversa com esse cliente. Se deixar vazio, o WhatsApp mostra seus contatos para você escolher.</small></div>
 <div class="field"><label>Data da viagem</label><input id="travelDate" type="date"></div>
 <div class="field"><label>Horário de saída</label><input id="travelTime" type="time"></div>
 <div class="field"><label>Endereço de embarque ou terminal</label><input id="origin" placeholder="Rua e número ou Santos Dumont, Galeão ou Rodoviária Novo Rio"></div>
@@ -326,16 +326,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="actions"><button type="button" class="secondary" id="refreshComparisonMessage">Atualizar mensagem automática</button></div>
 <div id="comparisonResults" class="compare-results" aria-live="polite"></div>
 <div class="compare-actions">
-  <button class="gold" id="shareComparison" type="button">1️⃣ Copiar mensagem para enviar primeiro</button>
+  <button class="gold" id="shareComparison" type="button">1️⃣ Enviar mensagem pelo WhatsApp</button>
 </div>
 <div id="separatePrintActions" class="separate-print-actions" aria-live="polite"></div>
 <p id="selectedPrintsStatus" class="compare-footnote" role="status">Nenhum print selecionado. Você pode anexar Uber, 99, ônibus ou qualquer combinação.</p>
-<p id="comparisonStatus" class="compare-footnote">Envio separado: primeiro copie e envie a mensagem. Depois, compartilhe cada comprovante individualmente, sem legenda, pelos botões abaixo.</p>
+<p id="comparisonStatus" class="compare-footnote">Primeiro envie a mensagem pelo WhatsApp. Depois, volte aqui e compartilhe cada comprovante separadamente, sem legenda.</p>
 <p class="compare-footnote"><b>Transparência:</b> o preço de volta dos aplicativos ou do ônibus será estimado pelo valor da ida quando estiver em branco. Valores de aplicativos, passagens e deslocamentos locais podem mudar. Confira todas as informações e ajuste os campos antes de compartilhar. Os custos internos de planejamento não são incluídos na mensagem ao cliente.</p>
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.2 — mensagem e comprovantes enviados separadamente, com cada imagem individual e sem legenda.</p>
+<p class="hint">Versão 4.3 — mensagem aberta pelo WhatsApp e comprovantes enviados individualmente, sem legenda.</p>
 </main>
 <script>
 (() => {
@@ -428,7 +428,7 @@ function renderSeparatePrintActions(){
  if(!root)return;
  const selected=selectedComparisonPrints();
  if(!selected.length){root.innerHTML='<div class="separate-print-title">2️⃣ Enviar comprovantes</div><p class="separate-print-help">Depois de selecionar os prints da Uber, 99 ou ônibus, aparecerá aqui um botão individual para cada imagem.</p>';return;}
- root.innerHTML='<div class="separate-print-title">2️⃣ Envie os comprovantes, um por vez</div><p class="separate-print-help">Primeiro envie a mensagem copiada. Depois toque em cada botão abaixo, escolha o WhatsApp e envie somente a imagem, sem legenda. Volte à calculadora para compartilhar o próximo comprovante.</p><div class="separate-print-buttons">'+selected.map((provider,index)=>`<button type="button" data-share-provider="${provider}">📎 ${index+1}. Compartilhar comprovante ${escapeHtml(providerLabel(provider))}</button>`).join('')+'</div>';
+ root.innerHTML='<div class="separate-print-title">2️⃣ Envie os comprovantes, um por vez</div><p class="separate-print-help">Depois de enviar a mensagem pelo WhatsApp, volte aqui e toque em cada botão. Escolha o WhatsApp para enviar somente aquela imagem, sem legenda. Volte à calculadora para compartilhar o próximo comprovante.</p><div class="separate-print-buttons">'+selected.map((provider,index)=>`<button type="button" data-share-provider="${provider}">📎 ${index+1}. Compartilhar comprovante ${escapeHtml(providerLabel(provider))}</button>`).join('')+'</div>';
  root.querySelectorAll('[data-share-provider]').forEach(button=>button.addEventListener('click',()=>shareOneComparisonPrint(button.dataset.shareProvider)));
 }
 function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
@@ -484,7 +484,9 @@ function buildComparison(){
  const lines=['*🚘 COMPARAÇÃO DE TRANSPORTE — BASTOS*','',`👥 *${pax} passageiros*`];
  if(selected.length){
    const providers=selected.map(providerLabel).join(', ');
-   lines.push(`📎 *Depois desta mensagem, vou enviar os comprovantes de ${providers} em mensagens separadas.*`);
+   lines.push(`📎 *Vou enviar os comprovantes de ${providers} separadamente, logo depois desta mensagem.*`);
+   lines.push('👆 *Quando receber cada imagem, toque nela para ampliar e confira a cotação.*');
+   lines.push('Compare os valores mostrados nos comprovantes com o total do pacote Bastos nesta mensagem. Assim você consegue visualizar a diferença de preço e também avaliar a praticidade de viajar com o grupo junto na Spin, com embarque combinado e bagagens conferidas.');
  }else{
    lines.push('Confira os valores abaixo. A comparação usa as cotações e os custos informados.');
  }
@@ -552,12 +554,6 @@ function buildComparison(){
    }
    lines.push('Com a Bastos, o embarque é combinado diretamente e o transporte segue até o destino contratado, sem precisar organizar essas conexões por conta própria.');
  }
- if(selected.length){
-   lines.push('');
-   lines.push('*👆 Abra os comprovantes para conferir as cotações.*');
-   lines.push('Toque em cada imagem para ampliar e comparar os valores da Uber, 99 ou ônibus com o pacote Bastos. Considere também o embarque combinado, o trajeto direto e a possibilidade de o grupo viajar junto na Spin, com assentos e bagagens conferidos.');
-   lines.push('Assim você compara não só o preço, mas também a praticidade e a tranquilidade de toda a viagem — e consegue avaliar por que a Bastos pode ser a escolha mais vantajosa para o seu grupo.');
- }
  if(roundTrip&&entries.some(x=>x.estimated)){
    lines.push('');
    lines.push('ℹ️ Quando não havia cotação específica da volta, usei o mesmo valor da ida como estimativa. Os preços podem variar conforme horário, demanda e disponibilidade.');
@@ -622,19 +618,36 @@ function downloadComparisonImage(provider){
  document.body.appendChild(a);a.click();a.remove();
  return true;
 }
-async function copyComparisonMessage(){
- let data;try{data=buildComparison();}catch(e){alert(e.message);return;}
+function normalizeWhatsAppPhone(raw){
+ const digits=String(raw||'').replace(/\D/g,'');
+ if(!digits)return null;
+ if(digits.startsWith('55')&&(digits.length===12||digits.length===13))return digits;
+ if(digits.length===10||digits.length===11)return '55'+digits;
+ return false;
+}
+function openComparisonInWhatsApp(){
+ let data;
+ try{data=buildComparison();}catch(e){alert(e.message);return;}
  const message=$('comparisonMessage').value.trim()||data.text;
- if(!message){alert('A mensagem está vazia. Atualize ou escreva a mensagem antes de copiar.');return;}
- try{
-   if(!navigator.clipboard?.writeText)throw new Error('Clipboard indisponível');
-   await navigator.clipboard.writeText(message);
-   $('comparisonStatus').textContent='Mensagem copiada. Etapa 1 concluída: cole e envie este texto primeiro na conversa do WhatsApp. Depois volte aqui e compartilhe cada comprovante separadamente pelos botões abaixo.';
-   alert('Mensagem copiada! Agora cole e envie o texto no WhatsApp. Depois volte à calculadora e compartilhe cada comprovante individualmente.');
- }catch(e){
-   $('comparisonMessage').focus();$('comparisonMessage').select();
-   $('comparisonStatus').textContent='Não foi possível copiar automaticamente. A mensagem está selecionada: copie manualmente, envie primeiro no WhatsApp e depois compartilhe cada imagem pelos botões abaixo.';
-   alert('A mensagem foi selecionada. Copie, envie primeiro no WhatsApp e depois volte para compartilhar os comprovantes um por vez.');
+ if(!message){alert('A mensagem está vazia. Atualize a mensagem automática ou escreva o texto antes de enviar.');return;}
+ const rawPhone=$('phone').value.trim();
+ const phone=normalizeWhatsAppPhone(rawPhone);
+ if(phone===false){
+   alert('Confira o telefone do cliente. Informe DDD + número, por exemplo (21) 99999-9999, ou deixe o campo vazio para escolher o contato no WhatsApp.');
+   $('phone').focus();
+   return;
+ }
+ const encoded=encodeURIComponent(message);
+ const url=phone?`https://wa.me/${phone}?text=${encoded}`:`https://wa.me/?text=${encoded}`;
+ const opened=window.open(url,'_blank');
+ if(!opened){
+   // Fallback para navegadores que bloqueiam a nova aba iniciada pelo link universal.
+   window.location.href=url;
+ }
+ if(phone){
+   $('comparisonStatus').textContent='Abrindo a conversa do número informado. Confira o texto no WhatsApp e toque em Enviar. Depois volte aqui para compartilhar os comprovantes, um por vez.';
+ }else{
+   $('comparisonStatus').textContent='O WhatsApp vai mostrar seus contatos porque nenhum telefone foi informado. Escolha o cliente; a mensagem já estará preenchida. Confira e toque em Enviar. Depois volte aqui para compartilhar os comprovantes.';
  }
 }
 async function shareOneComparisonPrint(provider){
@@ -1066,7 +1079,7 @@ $('useFourPaxSuggestion').addEventListener('click',()=>{
 });
 $('comparisonMessage').addEventListener('input',()=>{comparisonMessageDirty=true;saveDraft();});
 $('refreshComparisonMessage').addEventListener('click',()=>{comparisonMessageDirty=false;renderComparison(true);saveDraft();});
-$('shareComparison').addEventListener('click',copyComparisonMessage);
+$('shareComparison').addEventListener('click',openComparisonInWhatsApp);
 const hadSavedBudget=restoreDraft();
 if($('comparisonBastosValue').dataset.manual===undefined)$('comparisonBastosValue').dataset.manual='false';
 if($('comparisonMessage').value.trim())comparisonMessageDirty=true;
