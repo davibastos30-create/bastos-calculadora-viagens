@@ -16,7 +16,7 @@ h2{font-size:16px;margin:0 0 14px;color:var(--navy)}h3{font-size:14px;color:var(
 label{display:block;font-size:12px;font-weight:650;color:#475467;margin:0 0 5px}
 input,select,textarea{width:100%;padding:11px 10px;border:1px solid #d0d5dd;border-radius:9px;background:white;font:inherit;color:var(--ink);min-width:0}
 textarea{min-height:84px;resize:vertical}.field{margin-bottom:11px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-small,.hint{color:var(--muted);font-size:12px;line-height:1.45}.metric{background:#f7f8fb;border-radius:10px;padding:12px}
+small,.hint{color:var(--muted);font-size:12px;line-height:1.45}.metric{background:#f7f8fb;border-radius:10px;padding:12px}.metric-detail{display:block;margin-top:7px;color:#475467;font-size:11px;line-height:1.45}
 .metric span{display:block;color:var(--muted);font-size:11px}.metric strong{display:block;font-size:19px;margin-top:4px;color:var(--navy)}
 .results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 button{border:0;border-radius:9px;padding:11px 14px;background:var(--navy);color:white;font-weight:700;font-size:13px;cursor:pointer}
@@ -150,11 +150,12 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <p class="hint" id="kmHelp">Informe separadamente a distância do seu local atual até o embarque, o trajeto do cliente até o destino e, se houver, os quilômetros de retorno ou outros deslocamentos. A calculadora soma tudo para estimar o custo real da operação da Spin.</p>
 <div class="grid">
 <div class="field"><label>Do seu local atual até o embarque do cliente (km) — Waze</label><input id="approachKm" type="number" min="0" step="0.1" value="0"></div>
+<div class="field"><label>Consumo no deslocamento até o embarque (km/L)</label><input id="approachConsumption" type="number" min="0.1" step="0.1" value="7.5"><small>Informe manualmente a média desse trecho, por exemplo, 7,5 km/L em percurso urbano. O ajuste do ar-condicionado também será aplicado.</small></div>
 <div class="field"><label>Do embarque do cliente até o destino (km) — Waze</label><input id="clientKm" type="number" min="0.1" step="0.1" value="368"></div>
 <div class="field"><label>Retorno e outros deslocamentos da Spin (km)</label><input id="extraKm" type="number" min="0" step="0.1" value="0"></div>
 <div class="field"><label>Combustível</label><select id="fuel"><option value="Etanol">Etanol</option><option value="Gasolina">Gasolina</option></select></div>
 <div class="field"><label>Preço por litro (R$)</label><input id="price" type="number" min="0" step="0.001" value="4.59"></div>
-<div class="field"><label>Consumo base (km/l)</label><select id="preset"><option value="10">Conservador — 10 km/l</option><option value="9">Mais conservador — 9 km/l</option><option value="10.5">Normal — 10,5 km/l</option><option value="11.5">Econômico — 11,5 km/l</option><option value="custom">Personalizar consumo</option></select></div>
+<div class="field"><label>Consumo base nos trechos principais (km/L)</label><select id="preset"><option value="10">Estrada livre — 10 km/L</option><option value="9">Mais conservador — 9 km/l</option><option value="10.5">Normal — 10,5 km/l</option><option value="11.5">Econômico — 11,5 km/l</option><option value="custom">Personalizar consumo</option></select></div>
 <div class="field"><label>Consumo personalizado (km/l)</label><input id="custom" type="number" min="0.1" step="0.1" value="10" disabled></div>
 <div class="field"><label>Ajuste estimado do ar-condicionado</label><select id="ac"><option value="10">Considerar 10% a mais de combustível</option><option value="5">Considerar 5% a mais de combustível</option><option value="0">Sem ajuste adicional</option></select></div>
 <div class="field"><label>Reserva de segurança (%)</label><input id="reserve" type="number" min="0" max="100" step="1" value="15"></div>
@@ -185,18 +186,18 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <h3>Operação completa da Spin — seu local até o destino</h3>
 <div class="results">
 <div class="metric"><span>Seu deslocamento até o embarque</span><strong id="approachKmResult">—</strong></div>
-<div class="metric"><span>Distância total rodada pela Spin</span><strong id="totalKmResult">—</strong></div>
+<div class="metric"><span>Consumo ajustado no deslocamento até o embarque</span><strong id="approachConsumptionResult">—</strong></div>
+<div class="metric"><span>Distância total rodada pela Spin</span><strong id="totalKmResult">—</strong><small class="metric-detail" id="totalKmBreakdown"></small></div>
 <div class="metric"><span>Combustível consumido na operação</span><strong id="tripFuel">—</strong></div>
 <div class="metric"><span>Reserva de segurança planejada</span><strong id="reserveFuel">—</strong></div>
 <div class="metric"><span>Total previsto (operação + reserva)</span><strong id="totalFuel">—</strong></div>
-<div class="metric"><span>Consumo ajustado com ar</span><strong id="adjusted">—</strong></div>
+<div class="metric"><span>Consumo médio combinado da operação (com ar)</span><strong id="adjusted">—</strong></div>
 </div>
 <h3>Abastecimento necessário e autonomia prevista</h3>
 <div class="results">
 <div class="metric"><span>Combustível total necessário (operação + reserva)</span><strong id="fuelStart">—</strong></div>
-<div class="metric"><span>Autonomia estimada com esse combustível</span><strong id="startRange">—</strong></div>
+<div class="metric"><span>Autonomia estimada com esse combustível</span><strong id="startRange">—</strong><small class="metric-detail" id="startRangeBreakdown"></small></div>
 <div class="metric"><span>Litros previstos como sobra após a operação (reserva)</span><strong id="remainingFuel">—</strong></div>
-<div class="metric"><span>Quilômetros extras disponíveis após a operação (reserva)</span><strong id="remainingRange">—</strong></div>
 <div class="metric"><span>Custo estimado do combustível necessário</span><strong id="fuelCost">—</strong></div>
 <div class="metric"><span>Faturamento base do transporte</span><strong id="revenue">—</strong></div>
 </div>
@@ -265,7 +266,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 3.4 — planejamento separado do trajeto do cliente e da operação completa da Spin, combustível total necessário sem depender do nível do tanque, autonomia da reserva após a operação, regra de 2 carros sugerida para 5 e 6 passageiros, comparação Uber/99 e compartilhamento de anexos.</p>
+<p class="hint">Versão 3.5 — consumo manual no deslocamento até o embarque, quilometragem total discriminada por trecho, autonomia restante calculada após descontar toda a operação, combustível total necessário sem depender do nível do tanque, comparação Uber/99 e compartilhamento de anexos.</p>
 </main>
 <script>
 (() => {
@@ -528,51 +529,56 @@ function updateMode(){
      ? 'Motorista à disposição: o motorista permanece com o cliente durante o período combinado. O adicional fixo será informado separadamente no orçamento.'
      : 'Bate e volta: o motorista leva o grupo e retorna no horário combinado para buscar. Pode haver taxa de disponibilidade/espera, informada separadamente.';
  $('kmHelp').textContent=oneWay
-   ? 'Informe: (1) do seu local atual até o embarque; (2) do embarque do cliente até o destino; (3) retorno vazio ou outros deslocamentos, somente se estiverem previstos. A calculadora soma tudo para estimar seu custo operacional; o cliente contrata somente a ida.'
+   ? 'Informe: (1) do seu local atual até o embarque; (2) o consumo manual desse deslocamento, por exemplo 7,5 km/L na cidade; (3) do embarque do cliente até o destino; (4) retorno vazio ou outros deslocamentos, se previstos. A calculadora soma tudo para estimar o custo operacional; o cliente contrata somente a ida.'
    : available
-     ? 'Informe: (1) do seu local atual até o embarque; (2) do embarque até o destino; (3) deslocamentos entre locais, retorno ao embarque e/ou volta à sua base nos quilômetros adicionais. A soma representa a operação completa da Spin.'
-     : 'Informe: (1) do seu local atual até o embarque; (2) do embarque do cliente até o destino; (3) retorno e outros deslocamentos nos quilômetros adicionais. Se você já estiver no embarque, informe 0 no primeiro campo.';
+     ? 'Informe: (1) do seu local atual até o embarque; (2) o consumo manual desse deslocamento; (3) do embarque até o destino; (4) deslocamentos entre locais, retorno ao embarque e/ou volta à sua base nos quilômetros adicionais. A soma representa a operação completa da Spin.'
+     : 'Informe: (1) do seu local atual até o embarque; (2) o consumo manual desse deslocamento; (3) do embarque do cliente até o destino; (4) retorno e outros deslocamentos nos quilômetros adicionais. Se você já estiver no embarque, informe 0 no primeiro campo.';
 }
 $('serviceMode').addEventListener('change',updateMode);
 function calculate(){
- const approachKm=num('approachKm'),clientKm=num('clientKm'),extraKm=num('extraKm');
+ const approachKm=num('approachKm'),approachBase=num('approachConsumption'),clientKm=num('clientKm'),extraKm=num('extraKm');
  const km=approachKm+clientKm+extraKm;
  const base=consumption(),ac=Number($('ac').value),reserve=num('reserve'),price=num('price'),tolls=num('tolls'),profit=num('profit');
  const waitFee=$('serviceMode').value==='transport'?num('waitFee'):0;
  const driverFee=$('serviceMode').value==='available'?num('driverFee'):0;
  const pax=Number($('passengers').value);
  const adultCount=num('adults'),childCount=num('children'),babyCount=num('babyCount');
- if(![approachKm,clientKm,extraKm,km,base,ac,reserve,price,tolls,profit,waitFee,driverFee,adultCount,childCount,babyCount].every(Number.isFinite)||approachKm<0||clientKm<=0||extraKm<0||base<=0||reserve<0||reserve>100||price<=0||tolls<0||profit<0||waitFee<0||driverFee<0)throw new Error('Confira as distâncias, o consumo, a reserva, o preço do combustível, os pedágios e os adicionais.');
+ if(![approachKm,approachBase,clientKm,extraKm,km,base,ac,reserve,price,tolls,profit,waitFee,driverFee,adultCount,childCount,babyCount].every(Number.isFinite)||approachKm<0||(approachKm>0&&approachBase<=0)||clientKm<=0||extraKm<0||base<=0||reserve<0||reserve>100||price<=0||tolls<0||profit<0||waitFee<0||driverFee<0)throw new Error('Confira as distâncias, o consumo, a reserva, o preço do combustível, os pedágios e os adicionais.');
  if(pax<4||pax>6)throw new Error('A política comercial desta calculadora permite orçamentos de 4 a 6 passageiros.');
  if(adultCount+childCount+babyCount>6)throw new Error('Adultos + crianças + bebês não podem ultrapassar 6 passageiros. Confira a configuração dos assentos.');
  if(adultCount+childCount+babyCount!==pax)throw new Error('A quantidade total precisa ser igual à soma de adultos, crianças e bebês.');
  const effective=base/(1+ac/100);
+ const approachEffective=(approachBase>0?approachBase:base)/(1+ac/100);
  const customerRouteFuel=clientKm/effective;
- const approachFuel=approachKm/effective;
- const tripLitres=km/effective;
+ const approachFuel=approachKm/approachEffective;
+ const mainRouteFuel=(clientKm+extraKm)/effective;
+ const tripLitres=approachFuel+mainRouteFuel;
  const reserveLitres=tripLitres*reserve/100;
  const totalLitres=tripLitres+reserveLitres;
- const plannedRange=totalLitres*effective;
+ const averageOperationConsumption=km>0&&tripLitres>0?km/tripLitres:effective;
+ const plannedRange=totalLitres*averageOperationConsumption;
  const remainingFuel=reserveLitres;
- const remainingRange=reserveLitres*effective;
+ const remainingRange=Math.max(0,plannedRange-km);
  const fuelCost=round2(totalLitres*price);
  const baseCost=round2(fuelCost+tolls);
  const revenue=round2(baseCost+profit);
  $('customerRouteKm').textContent=fmt(clientKm)+' km';
  $('customerRouteFuel').textContent=fmt(customerRouteFuel)+' L';
  $('approachKmResult').textContent=fmt(approachKm)+' km ('+fmt(approachFuel)+' L)';
+ $('approachConsumptionResult').textContent=fmt(approachEffective)+' km/L';
  $('totalKmResult').textContent=fmt(km)+' km';
- $('adjusted').textContent=fmt(effective)+' km/l';
+ $('totalKmBreakdown').textContent=fmt(approachKm)+' km (seu deslocamento até o embarque) + '+fmt(clientKm)+' km (embarque do cliente até o destino) + '+fmt(extraKm)+' km (retorno/outros trechos) = '+fmt(km)+' km no total.';
+ $('adjusted').textContent=fmt(averageOperationConsumption)+' km/L';
  $('tripFuel').textContent=fmt(tripLitres)+' L';
  $('reserveFuel').textContent=fmt(reserveLitres)+' L';
  $('totalFuel').textContent=fmt(totalLitres)+' L';
  $('fuelStart').textContent=fmt(totalLitres)+' L';
  $('startRange').textContent=fmt(plannedRange)+' km';
+ $('startRangeBreakdown').textContent=fmt(plannedRange)+' km de autonomia estimada − '+fmt(km)+' km rodados na operação = '+fmt(remainingRange)+' km que ainda poderá percorrer. A conta usa a média combinada de consumo dos trechos informados.';
  $('remainingFuel').textContent=fmt(remainingFuel)+' L';
- $('remainingRange').textContent=fmt(remainingRange)+' km';
  $('fuelCost').textContent=money(fuelCost);
  $('revenue').textContent=money(revenue);
- $('fuelWarning').textContent='Para esta operação, planeje '+fmt(tripLitres)+' L para percorrer '+fmt(km)+' km, mais '+fmt(reserveLitres)+' L de reserva. Ao concluir os trechos informados, essa reserva representa aproximadamente '+fmt(remainingRange)+' km extras de autonomia. Total necessário: '+fmt(totalLitres)+' L. O cálculo não desconta o combustível que já possa existir no tanque e não representa o volume para completar o tanque; é a necessidade total estimada para a operação. Os valores variam conforme trânsito, carga, velocidade, relevo e ar-condicionado.';
+ $('fuelWarning').textContent='Planejamento: '+fmt(approachKm)+' km até o embarque, calculados com consumo manual de '+fmt(approachBase)+' km/L antes do ajuste do ar-condicionado; mais '+fmt(clientKm+extraKm)+' km de trajeto do cliente, retorno e outros trechos, calculados com '+fmt(base)+' km/L antes do ajuste. Combustível da operação: '+fmt(tripLitres)+' L; reserva: '+fmt(reserveLitres)+' L; total necessário: '+fmt(totalLitres)+' L. A autonomia restante é estimada pela média combinada dos trechos. O cálculo não desconta combustível que já possa existir no tanque nem representa o volume para completar o tanque.';
  const fares={};
  $('fareRows').innerHTML=[4,5,6].map(n=>{
    const targetProfit=profit+(n-4)*100;
