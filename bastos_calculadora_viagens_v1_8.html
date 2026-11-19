@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v4.0</title>
+<title>Bastos | Calculadora de Viagens — v4.1</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -81,7 +81,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 @media(max-width:560px){ .budget-vehicle-mark { right:18px; top:18px; width:58px; height:38px; } }
 @media(max-width:560px){ .budget-send-actions{grid-template-columns:1fr!important} .budget-send-actions button{width:100%;min-height:44px} }
 
-/* Módulo opcional de comparação Uber, 99 e ônibus — v3.9 */
+/* Módulo opcional de comparação Uber, 99 e ônibus — v4.1 */
 .compare-intro{background:#eff7fd;border:1px solid #cfe2f3;border-radius:12px;padding:12px;color:#173a59;font-size:13px;line-height:1.55}
 .compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .compare-provider{border:1px solid #d6e2ed;border-radius:13px;padding:13px;background:#fbfdff;min-width:0}
@@ -104,7 +104,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .compare-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
 .compare-actions button{flex:1 1 220px;min-height:46px}
 .compare-footnote{font-size:12px;line-height:1.55;color:#475467;margin-top:10px}
-@media(max-width:650px){.compare-grid{grid-template-columns:1fr}.compare-provider-actions button{flex:1}.compare-actions{display:grid;grid-template-columns:1fr}.compare-actions button{width:100%}}
+@media(max-width:650px){.compare-grid{grid-template-columns:1fr}.compare-provider-actions button{flex:1}.compare-actions{display:grid;grid-template-columns:1fr}.compare-actions button{width:100%}.compare-message{min-height:260px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}.compare-result-line{align-items:flex-start;gap:8px}.compare-result-line span{min-width:0}.compare-result-line strong{max-width:55%;overflow-wrap:anywhere}.compare-provider{padding:12px}.compare-intro{font-size:12px;line-height:1.5}}
 
 </style>
 </head>
@@ -284,11 +284,12 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     <div class="compare-provider-actions"><button class="secondary" type="button" id="busRemoveImage">Remover print</button></div>
     <div class="field"><label>Passagem de ida por pessoa (R$)</label><input id="busFareOut" type="number" min="0" step="0.01" placeholder="Ex.: 120,00"></div>
     <div class="field"><label>Passagem de volta por pessoa (R$) — opcional</label><input id="busFareBack" type="number" min="0" step="0.01" placeholder="Vazio = estimar pelo valor da ida"></div>
-    <h3>Deslocamentos adicionais do grupo</h3>
-    <div class="field"><label>Seu local até a rodoviária de embarque (R$ — grupo todo)</label><input id="busOriginOut" type="number" min="0" step="0.01" value="0"></div>
-    <div class="field"><label>Rodoviária de chegada até o destino final (R$ — grupo todo)</label><input id="busDestinationOut" type="number" min="0" step="0.01" value="0"></div>
-    <div class="field"><label>Destino final até a rodoviária para voltar (R$ — grupo todo)</label><input id="busDestinationBack" type="number" min="0" step="0.01" value="0"></div>
-    <div class="field"><label>Rodoviária de chegada até seu endereço (R$ — grupo todo)</label><input id="busOriginBack" type="number" min="0" step="0.01" value="0"></div>
+    <h3>Deslocamentos adicionais do grupo (opcional)</h3>
+    <small>Preencha somente os deslocamentos que terão custo. Campos vazios ou zerados não aparecerão na mensagem enviada ao cliente.</small>
+    <div class="field"><label>Seu local até a rodoviária de embarque (R$ — grupo todo)</label><input id="busOriginOut" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
+    <div class="field"><label>Rodoviária de chegada até o destino final (R$ — grupo todo)</label><input id="busDestinationOut" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
+    <div class="field"><label>Destino final até a rodoviária para voltar (R$ — grupo todo)</label><input id="busDestinationBack" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
+    <div class="field"><label>Rodoviária de chegada até seu endereço (R$ — grupo todo)</label><input id="busOriginBack" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
     <div class="field"><label>Total do ônibus ajustado manualmente (R$) — opcional</label><input id="busManualTotal" type="number" min="0" step="0.01" placeholder="Vazio = usar a soma calculada"><small>Preencha somente se quiser substituir a soma automática por um total que você conferiu.</small></div>
   </div>
 </div>
@@ -324,7 +325,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.0 — nova simulação com limpeza completa; rascunho temporário por aba; comparativo Uber, 99 e ônibus; valores e mensagem editáveis; PDF em aba separada.</p>
+<p class="hint">Versão 4.1 — mensagens comparativas mais didáticas no celular; custos locais do ônibus aparecem somente quando preenchidos.</p>
 </main>
 <script>
 (() => {
@@ -420,16 +421,23 @@ function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
 function formatBusComparison(bastosTotal,roundTrip,pax){
  const fareOut=num('busFareOut'),fareBack=num('busFareBack'),manual=num('busManualTotal');
  const accessIds=['busOriginOut','busDestinationOut','busDestinationBack','busOriginBack'];
- const access=accessIds.map(num);
+ const access=accessIds.map(id=>$(id).value.trim()===''?0:num(id));
  if([fareOut,fareBack,manual,...access].some(v=>!Number.isFinite(v)||v<0))throw new Error('Confira os valores da passagem e dos deslocamentos do ônibus.');
  if(!(fareOut>0)&&!(manual>0))return null;
  const ticketsOut=round2(fareOut*pax);
  const ticketsBack=roundTrip?round2((fareBack>0?fareBack:fareOut)*pax):0;
  const groundOut=round2(access[0]+access[1]);
  const groundBack=roundTrip?round2(access[2]+access[3]):0;
- const calculatedTotal=round2(ticketsOut+ticketsBack+groundOut+groundBack);
+ const groundItems=[
+  {label:'Seu local até a rodoviária de embarque',value:access[0],leg:'out'},
+  {label:'Rodoviária de chegada até o destino final',value:access[1],leg:'out'},
+  {label:'Destino final até a rodoviária para voltar',value:access[2],leg:'back'},
+  {label:'Rodoviária de chegada até seu endereço',value:access[3],leg:'back'}
+ ].filter(item=>item.value>0&&(roundTrip||item.leg==='out'));
+ const groundTotal=round2(groundOut+groundBack);
+ const calculatedTotal=round2(ticketsOut+ticketsBack+groundTotal);
  const total=manual>0?round2(manual):calculatedTotal;
- return {label:'Ônibus',pax,fareOut,fareBack,ticketsOut,ticketsBack,groundOut,groundBack,groundTotal:round2(groundOut+groundBack),calculatedTotal,total,manual:manual>0,estimated:roundTrip&&fareBack<=0,diff:round2(total-bastosTotal)};
+ return {label:'Ônibus',pax,fareOut,fareBack,ticketsOut,ticketsBack,groundOut,groundBack,groundTotal,groundItems,calculatedTotal,total,manual:manual>0,estimated:roundTrip&&fareOut>0&&fareBack<=0&&manual<=0,diff:round2(total-bastosTotal)};
 }
 function currentComparisonEntries(){
  const bastos=Number($('comparisonBastosValue').value||$('comparisonModule').dataset.bastosBaseTotal||0);
@@ -452,31 +460,40 @@ function buildComparison(){
  const mode=$('serviceMode').value==='oneway'?'Transfer somente ida':$('serviceMode').value==='available'?'Motorista à disposição':'Bate e volta — levar e buscar';
  const lines=['*🚘 COMPARAÇÃO DE TRANSPORTE — BASTOS*','',`👥 *${pax} passageiros*`];
  if(selected.length){
-   lines.push(`📎 *Confira os ${selected.length===1?'print':'prints'} anexado(s): ${selected.map(providerLabel).join(', ')}.* ${selected.length===1?'A imagem mostra':'As imagens mostram'} a(s) cotação(ões) usada(s) nesta comparação.`);
+   const providers=selected.map(providerLabel).join(', ');
+   lines.push(`📎 *Confira os prints anexados (${providers}).* Eles mostram as cotações usadas nesta comparação.`);
  }else{
-   lines.push('Confira os valores abaixo. Eles foram calculados com base nas cotações e nos custos informados para esta comparação.');
+   lines.push('Confira os valores abaixo. A comparação usa as cotações e os custos informados.');
  }
  lines.push('');
- apps.forEach((x,i)=>{
+ apps.forEach(x=>{
    lines.push(`*📱 ${x.label}*`);
-   lines.push(`Ida: ${money(x.fare)} por carro × ${x.cars} ${x.cars===1?'carro':'carros'} = *${money(x.ida)}*`);
+   lines.push(roundTrip?`Para transportar o grupo, a simulação considera *${x.cars} ${x.cars===1?'carro':'carros'} para a ida e ${x.cars} ${x.cars===1?'carro':'carros'} para a volta*.`:`Para transportar o grupo, a simulação considera *${x.cars} ${x.cars===1?'carro':'carros'} para a ida*.`);
    if(roundTrip){
-     lines.push(`Volta ${x.estimated?'(estimada)':'(cotação informada)'}: ${money(x.returnFare>0?x.returnFare:x.fare)} por carro × ${x.cars} = *${money(x.volta)}*`);
-     lines.push(`*Total ida e volta: ${money(x.total)}*`);
-   }else lines.push(`*Total somente ida: ${money(x.total)}*`);
+     const returnUnit=x.returnFare>0?x.returnFare:x.fare;
+     lines.push(`• *Ida:* ${x.cars===1?`1 carro por ${money(x.fare)}`:`${x.cars} carros × ${money(x.fare)} cada`} = *${money(x.ida)}*.`);
+     lines.push(`• *Volta ${x.estimated?'(estimada)':'(cotação informada)'}:* ${x.cars===1?`1 carro por ${money(returnUnit)}`:`${x.cars} carros × ${money(returnUnit)} cada`} = *${money(x.volta)}*.`);
+     lines.push(`➡️ *Total previsto de ida e volta: ${money(x.total)}*.`);
+   }else{
+     lines.push(`• *Ida:* ${x.cars===1?`1 carro por ${money(x.fare)}`:`${x.cars} carros × ${money(x.fare)} cada`} = *${money(x.total)}*.`);
+     lines.push(`➡️ *Total previsto somente para a ida: ${money(x.total)}*.`);
+   }
    lines.push('');
  });
  if(bus){
    lines.push('*🚌 ÔNIBUS*');
    if(bus.manual){
-     lines.push(`*Total do ônibus informado/ajustado manualmente: ${money(bus.total)}*`);
+     lines.push(`O total do ônibus foi ajustado manualmente para *${money(bus.total)}*.`);
    }else{
-     if(bus.fareOut>0){
-       lines.push(`Passagens de ida: ${pax} × ${money(bus.fareOut)} = *${money(bus.ticketsOut)}*`);
-       if(roundTrip)lines.push(`Passagens de volta ${bus.estimated?'(estimadas)':'(cotadas)'}: ${pax} × ${money(bus.fareBack>0?bus.fareBack:bus.fareOut)} = *${money(bus.ticketsBack)}*`);
-       lines.push(`Deslocamentos adicionais ${roundTrip?'(ida e volta)':'(somente ida)'}: *${money(bus.groundTotal)}*`);
+     lines.push(`Para *${pax} passageiros*, são consideradas ${pax} passagens por viagem.`);
+     if(bus.fareOut>0)lines.push(`• *Ida:* ${pax} passagens × ${money(bus.fareOut)} = *${money(bus.ticketsOut)}*.`);
+     if(roundTrip&&bus.fareOut>0)lines.push(`• *Volta ${bus.estimated?'(estimada)':'(cotada)'}:* ${pax} passagens × ${money(bus.fareBack>0?bus.fareBack:bus.fareOut)} = *${money(bus.ticketsBack)}*.`);
+     if(bus.groundItems.length){
+       lines.push('*Deslocamentos locais informados:*');
+       bus.groundItems.forEach(item=>lines.push(`• ${item.label}: *${money(item.value)}*.`));
+       lines.push(`Subtotal dos deslocamentos locais: *${money(bus.groundTotal)}*.`);
      }
-     lines.push(`*Total estimado do ônibus: ${money(bus.total)}*`);
+     lines.push(`➡️ *Total estimado do ônibus: ${money(bus.total)}*.`);
    }
    lines.push('');
  }
@@ -484,28 +501,37 @@ function buildComparison(){
  lines.push(`${mode}: *${money(bastos)}*`);
  lines.push('');
  entries.forEach(x=>{
-   const label=x.label==='Ônibus'?'o ônibus':x.label;
-   lines.push(x.diff>0?`✅ Em comparação com ${label}, o pacote Bastos fica *${money(x.diff)} mais econômico* nesta simulação.`:x.diff<0?`ℹ️ Nesta simulação, ${label} fica *${money(Math.abs(x.diff))} abaixo* do pacote Bastos.`:`ℹ️ Nesta simulação, ${label} e Bastos têm o mesmo valor.`);
+   const label=x.label==='Ônibus'?'o ônibus':`a ${x.label}`;
+   lines.push(x.diff>0?`✅ Nesta simulação, o pacote Bastos fica *${money(x.diff)} mais econômico que ${label}*.`:x.diff<0?`ℹ️ Nesta simulação, ${label} fica *${money(Math.abs(x.diff))} mais barato* que o pacote Bastos.`:`ℹ️ Nesta simulação, ${label} e Bastos têm o mesmo valor.`);
  });
  lines.push('');
- 
- const appSummary=apps.map(x=>`${x.label}: ${x.cars} ${x.cars===1?'carro':'carros'} na ida e ${x.cars} ${x.cars===1?'carro':'carros'} na volta`).join('; ');
- const appSummaryText=apps.length?`Na simulação: ${appSummary}.`:'';
  if(pax===4){
-   lines.push(`👨‍👩‍👧‍👦 *Para 4 passageiros:* a referência inicial é um carro na ida e um na volta, mas isso depende da categoria e da aceitação do motorista — alguns aceitam somente 3 pessoas. Mesmo quando aceitam 4, as malas podem comprometer o espaço. ${appSummaryText} Com a Spin da Bastos, você combina antecipadamente um veículo maior para o grupo viajar junto, sem depender de qual carro será enviado pelo aplicativo. Conferimos previamente os assentos e as bagagens.`);
+   lines.push('*👨‍👩‍👧‍👦 Para 4 passageiros*');
+   lines.push('Um carro de aplicativo pode aceitar os quatro, mas isso depende da categoria e da decisão do motorista. Alguns aceitam somente três.');
+   lines.push('Também é preciso confirmar se haverá espaço para as malas.');
+   lines.push('Com a Spin, o veículo é combinado antecipadamente e o grupo pode viajar junto. Conferimos os assentos e as bagagens antes da viagem.');
  }else if(pax===5){
-   lines.push(`👨‍👩‍👧‍👦 *Para 5 passageiros:* um carro comum de 5 lugares leva o motorista e até 4 passageiros. Por isso, a referência é usar dois carros na ida e dois na volta. ${appSummaryText} Um único veículo só deve ser considerado se o aplicativo confirmar uma categoria maior, com assentos e espaço para as bagagens. Com a Spin, o grupo pode seguir junto em um único veículo, após conferirmos assentos e malas.`);
+   lines.push('*👨‍👩‍👧‍👦 Para 5 passageiros*');
+   lines.push('Um carro comum de 5 lugares tem apenas quatro assentos para passageiros, pois o motorista ocupa um deles. Por isso, a comparação considera dois carros na ida e dois na volta.');
+   lines.push('Com a Spin, o grupo pode seguir junto em um único veículo, desde que as bagagens sejam compatíveis com o espaço disponível.');
  }else if(pax===6){
-   lines.push(`👨‍👩‍👧‍👦 *Para 6 passageiros:* um carro comum de 5 lugares não comporta o grupo, pois restam somente 4 assentos para passageiros. A referência é usar dois carros na ida e dois na volta. ${appSummaryText} Com a Spin, os 6 passageiros podem viajar juntos, desde que a quantidade e o tamanho das bagagens sejam compatíveis com os assentos disponíveis.`);
+   lines.push('*👨‍👩‍👧‍👦 Para 6 passageiros*');
+   lines.push('Um carro comum não comporta os seis passageiros além do motorista. Por isso, a comparação considera dois carros na ida e dois na volta.');
+   lines.push('Com a Spin, os seis passageiros podem viajar juntos, desde que a quantidade e o tamanho das malas sejam compatíveis com os assentos disponíveis.');
  }
  if(bus){
    lines.push('');
-   lines.push('🚌 *Sobre o ônibus:* a comparação considera o preço das passagens e os deslocamentos adicionais informados para chegar à rodoviária, sair da rodoviária de destino e, quando aplicável, fazer o caminho de volta. Esses custos precisam ser conferidos conforme os endereços e a quantidade de pessoas.');
-   lines.push('🚘 *Com a Bastos:* o embarque é combinado diretamente e a viagem segue até o destino em transporte privativo, sem a necessidade de organizar conexões entre rodoviárias e outros veículos. O grupo pode viajar junto na Spin, após conferirmos assentos e bagagens.');
+   lines.push('*Por que considerar a Spin?*');
+   if(bus.groundItems.length){
+     lines.push('Além das passagens, esta simulação também inclui os deslocamentos locais que você informou para chegar às rodoviárias e ao destino final.');
+   }else{
+     lines.push('Nesta comparação, foram consideradas somente as passagens. Caso seja necessário pagar transporte até as rodoviárias ou até o destino final, esse custo ainda não está incluído.');
+   }
+   lines.push('Com a Bastos, o embarque é combinado diretamente e o transporte segue até o destino contratado, sem precisar organizar essas conexões por conta própria.');
  }
  if(roundTrip&&entries.some(x=>x.estimated)){
    lines.push('');
-   lines.push('ℹ️ Quando não havia cotação específica de volta, usei o mesmo valor da ida como estimativa. Tarifas de aplicativos e passagens podem mudar.');
+   lines.push('ℹ️ Quando não havia cotação específica da volta, usei o mesmo valor da ida como estimativa. Os preços podem variar conforme horário, demanda e disponibilidade.');
  }else if(!roundTrip){
    lines.push('');lines.push('ℹ️ Esta proposta considera somente a ida. Retorno e deslocamentos não contratados não estão incluídos.');
  }else{
@@ -545,7 +571,7 @@ function renderComparison(forceMessage=false){
  data.entries.forEach(x=>{
    const label=x.label, diff=formatDifference(x.total,bastos,label==='Ônibus'?'o ônibus':`a ${label}`);
    if(label==='Ônibus'){
-     const breakdown=x.manual?'':`${x.fareOut>0?`<div class="compare-result-line"><span>Passagens de ida</span><strong>${money(x.ticketsOut)}</strong></div>${data.roundTrip?`<div class="compare-result-line"><span>Passagens de volta ${x.estimated?'(estimadas)':'(informadas)'}</span><strong>${money(x.ticketsBack)}</strong></div>`:''}<div class="compare-result-line"><span>Deslocamentos adicionais</span><strong>${money(x.groundTotal)}</strong></div>`:''}`;
+     const breakdown=x.manual?'':`${x.fareOut>0?`<div class="compare-result-line"><span>Passagens de ida</span><strong>${money(x.ticketsOut)}</strong></div>${data.roundTrip?`<div class="compare-result-line"><span>Passagens de volta ${x.estimated?'(estimadas)':'(informadas)'}</span><strong>${money(x.ticketsBack)}</strong></div>`:''}`:''}${x.groundItems.length?x.groundItems.map(item=>`<div class="compare-result-line"><span>${escapeHtml(item.label)}</span><strong>${money(item.value)}</strong></div>`).join(''):''}`;
      cards.push(`<div class="compare-result"><h3>🚌 Ônibus</h3>${breakdown}<div class="compare-result-line compare-result-total"><span>${x.manual?'Total ajustado manualmente':'Total estimado'}</span><strong>${money(x.total)}</strong></div><div class="compare-result-line"><span>Pacote Bastos</span><strong>${money(bastos)}</strong></div><div class="compare-result-diff ${x.diff<0?'more':''}">${escapeHtml(diff)}</div></div>`);
    }else{
      cards.push(`<div class="compare-result"><h3>📱 ${escapeHtml(label)}</h3><div class="compare-result-line"><span>Carros para ida e volta</span><strong>${x.cars}</strong></div><div class="compare-result-line"><span>Total da ida</span><strong>${money(x.ida)}</strong></div>${data.roundTrip?`<div class="compare-result-line"><span>Total da volta ${x.estimated?'(estimada)':'(informada)'}</span><strong>${money(x.volta)}</strong></div>`:''}<div class="compare-result-line compare-result-total"><span>Total ${data.roundTrip?'ida e volta':'somente ida'}</span><strong>${money(x.total)}</strong></div><div class="compare-result-line"><span>Pacote Bastos</span><strong>${money(bastos)}</strong></div><div class="compare-result-diff ${x.diff<0?'more':''}">${escapeHtml(diff)}</div></div>`);
