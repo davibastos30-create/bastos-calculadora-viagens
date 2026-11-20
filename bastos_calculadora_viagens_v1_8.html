@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v4.7</title>
+<title>Bastos | Calculadora de Viagens — v4.9</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -123,6 +123,37 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .separate-print-buttons button{width:100%;min-height:44px;text-align:left;background:#edf0f5;color:#073763}
 .separate-print-buttons button:active{transform:translateY(1px)}
 @media(max-width:650px){.separate-print-actions{padding:10px}.separate-print-buttons button{font-size:13px;white-space:normal;line-height:1.35}}
+
+
+/* v4.9 — painel profissional de confirmação de agendamento */
+.booking-card{padding:0;overflow:hidden;border:1px solid #d7e2ec;box-shadow:0 8px 28px rgba(16,28,53,.08)}
+.booking-hero{padding:22px 20px;background:linear-gradient(128deg,#10233d 0%,#174968 62%,#1d6a78 100%);color:#fff}
+.booking-kicker{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:#e8d19a;font-weight:850;margin-bottom:8px}
+.booking-hero h2{font-size:20px;color:#fff;margin:0 0 7px}
+.booking-hero p{font-size:13px;line-height:1.5;color:#edf5fa;margin:0;max-width:650px}
+.booking-body{padding:18px}
+.booking-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:16px}
+.booking-summary-item{padding:11px 12px;border:1px solid #e1e8ef;border-radius:11px;background:#f8fafc;min-width:0}
+.booking-summary-item span{display:block;font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#63758a;margin-bottom:5px}
+.booking-summary-item strong{font-size:13px;color:#1c3147;overflow-wrap:anywhere;line-height:1.4}
+.booking-section-label{font-size:12px;font-weight:850;color:#163b58;letter-spacing:.7px;text-transform:uppercase;margin:15px 0 9px}
+.booking-payment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 14px}
+.booking-pay-item{padding:12px;border-radius:12px;border:1px solid #e0e7ee;background:#f8fafc;min-width:0}
+.booking-pay-item span{display:block;font-size:10px;color:#53687d;font-weight:750;line-height:1.35;margin-bottom:6px}
+.booking-pay-item strong{display:block;font-size:17px;color:#173a57;overflow-wrap:anywhere}
+.booking-pay-item.signal{background:#fff9ec;border-color:#f0dfb8}
+.booking-pay-item.balance{background:#eef8f3;border-color:#cce5d8}
+.booking-signal-entry{display:flex;align-items:center;gap:7px;margin-top:7px}.booking-signal-entry span{font-size:16px;font-weight:850;color:#6d5724}.booking-signal-input{margin:0;font-size:16px;font-weight:750;max-width:150px}
+.booking-confirm-check{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;border:1px solid #d7e2ec;border-radius:11px;background:#f7fafc;margin:13px 0}
+.booking-confirm-check input{width:18px;height:18px;min-width:18px;margin:1px 0 0;accent-color:#17684f}
+.booking-confirm-check label{margin:0;font-size:12px;line-height:1.45;color:#29445b;font-weight:700}
+.booking-message-label{display:block;font-size:12px;color:#344f66;font-weight:800;margin:14px 0 6px}
+#bookingConfirmationMessage{min-height:245px;line-height:1.5;font-size:13px;border-color:#cbd8e4;background:#fff}
+.booking-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:9px;margin-top:12px}
+.booking-actions button{min-height:46px}
+.booking-footnote{font-size:11px;line-height:1.5;color:#68798a;margin:10px 0 0}
+.booking-status{font-size:12px;font-weight:650;color:#31556e;min-height:18px;margin:9px 0 0}
+@media(max-width:560px){.booking-hero{padding:19px 16px}.booking-body{padding:14px}.booking-summary{grid-template-columns:1fr 1fr}.booking-payment{grid-template-columns:1fr}.booking-pay-item{display:flex;justify-content:space-between;align-items:center;gap:10px}.booking-pay-item span{margin:0;max-width:52%}.booking-pay-item strong{font-size:18px;text-align:right}.booking-signal-input{max-width:150px}.booking-actions{grid-template-columns:1fr}.booking-actions button{width:100%}}
 
 </style>
 </head>
@@ -272,18 +303,12 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <p class="hint">Seus custos, meta de ganho e sobra estimada não aparecem para o cliente.</p>
 </section>
 
-<section class="card" id="valueMessage" hidden>
-<h2>7. Por que vale a pena contratar o Bastos?</h2>
-<p class="hint">Mensagem de valorização adaptada ao serviço escolhido. Copie e envie depois do orçamento, se fizer sentido para a conversa.</p>
-<div id="valueMessageText" class="notice" style="white-space:pre-line"></div>
-<div class="actions" style="margin-top:12px"><button class="gold" id="copyValueMessage">Copiar mensagem de valorização</button></div>
-</section>
 
 
 <section class="card" id="comparisonModule" hidden>
-<h2>8. Comparativo opcional — Uber, 99, ônibus e Bastos</h2>
+<h2>7. Comparativo opcional — Uber, 99, ônibus e Bastos</h2>
 <p class="hint">Este módulo é interno: os detalhes de cálculo ficam somente na sua tela. Você escolhe o que comparar, pode alterar todos os valores e editar a mensagem antes de compartilhar. Nada é enviado automaticamente.</p>
-<div class="compare-intro"><b>Como funciona:</b> Uber e 99 são calculados pelo valor por carro, quantidade de carros para a ida e referência para a volta. Ônibus é calculado por passageiro, somando também os deslocamentos locais até as rodoviárias e entre a rodoviária de destino e o endereço final. Quando faltar uma cotação de volta, a calculadora usa a ida apenas como estimativa e informa isso ao cliente.</div>
+<div class="compare-intro"><b>Como funciona:</b> Uber e 99 são calculados pelo valor por carro, quantidade de carros para a ida e referência para a volta. Ônibus é calculado pela quantidade de passageiros multiplicada pelo valor individual das passagens de ida e volta. Quando faltar uma cotação de volta, a calculadora usa a ida apenas como estimativa e informa isso ao cliente.</div>
 <div class="compare-grid" style="margin-top:12px">
   <div class="compare-provider" data-provider="uber">
     <h3>📱 Uber</h3>
@@ -313,13 +338,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
     <div class="compare-provider-actions"><button class="secondary" type="button" id="busRemoveImage">Remover print</button></div>
     <div class="field"><label>Passagem de ida por pessoa (R$)</label><input id="busFareOut" type="number" min="0" step="0.01" placeholder="Ex.: 120,00"></div>
     <div class="field"><label>Passagem de volta por pessoa (R$) — opcional</label><input id="busFareBack" type="number" min="0" step="0.01" placeholder="Vazio = estimar pelo valor da ida"></div>
-    <h3>Deslocamentos adicionais do grupo (opcional)</h3>
-    <small>Preencha somente os deslocamentos que terão custo. Campos vazios ou zerados não aparecerão na mensagem enviada ao cliente.</small>
-    <div class="field"><label>Seu local até a rodoviária de embarque (R$ — grupo todo)</label><input id="busOriginOut" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
-    <div class="field"><label>Rodoviária de chegada até o destino final (R$ — grupo todo)</label><input id="busDestinationOut" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
-    <div class="field"><label>Destino final até a rodoviária para voltar (R$ — grupo todo)</label><input id="busDestinationBack" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
-    <div class="field"><label>Rodoviária de chegada até seu endereço (R$ — grupo todo)</label><input id="busOriginBack" type="number" min="0" step="0.01" placeholder="Deixe vazio se não houver custo"></div>
-    <div class="field"><label>Total do ônibus ajustado manualmente (R$) — opcional</label><input id="busManualTotal" type="number" min="0" step="0.01" placeholder="Vazio = usar a soma calculada"><small>Preencha somente se quiser substituir a soma automática por um total que você conferiu.</small></div>
+    <div class="field"><label>Total das passagens ajustado manualmente (R$) — opcional</label><input id="busManualTotal" type="number" min="0" step="0.01" placeholder="Vazio = calcular pelas passagens"><small>Use apenas se houver desconto, taxa ou valor final diferente da multiplicação automática das passagens.</small></div>
   </div>
 </div>
 <div class="notice" style="margin-top:12px"><b>Critério inicial para aplicativos:</b> 4 passageiros = 1 carro na ida e 1 na volta como referência, sujeito à categoria, aceitação do motorista e espaço para bagagens. 5 ou 6 passageiros = 2 carros na ida e 2 na volta como referência, pois um carro comum de 5 lugares oferece apenas 4 assentos para passageiros. Você pode ajustar a quantidade se a categoria confirmar um veículo maior e adequado.</div>
@@ -341,23 +360,65 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
   </div>
   <small>Este campo altera apenas a comparação e a mensagem. O orçamento/PDF original só muda se você ajustar os campos principais e gerar um novo orçamento.</small>
 </div>
-<div class="field" style="margin-top:13px"><label>Mensagem 1 de 3 — comparação de transportes</label><textarea id="comparisonMessage1" class="compare-message" placeholder="A comparação de Uber, 99 e ônibus aparecerá aqui. Você pode editar o texto."></textarea></div>
-<div class="field"><label>Mensagem 2 de 3 — proposta e preço da Bastos</label><textarea id="comparisonMessage2" class="compare-message" placeholder="O valor do pacote Bastos e as diferenças em relação às cotações aparecerão aqui."></textarea></div>
-<div class="field"><label>Mensagem 3 de 3 — por que considerar a Bastos?</label><textarea id="comparisonMessage3" class="compare-message" placeholder="A explicação das vantagens da Spin aparecerá aqui. Você pode editar o texto."></textarea></div>
-<div class="actions"><button type="button" class="secondary" id="refreshComparisonMessage">Atualizar as 3 mensagens automáticas</button></div>
+<div class="field" id="comparisonMessageField1" style="margin-top:13px"><label id="comparisonMessageLabel1">Mensagem 1 — comparação de transportes</label><textarea id="comparisonMessage1" class="compare-message" placeholder="A primeira mensagem aparecerá aqui. Você pode editar o texto."></textarea></div>
+<div class="field" id="comparisonMessageField2"><label id="comparisonMessageLabel2">Mensagem 2 — proposta Bastos</label><textarea id="comparisonMessage2" class="compare-message" placeholder="A mensagem da proposta Bastos aparecerá aqui."></textarea></div>
+<div class="field" id="comparisonMessageField3"><label id="comparisonMessageLabel3">Mensagem 3 — fechamento</label><textarea id="comparisonMessage3" class="compare-message" placeholder="A mensagem de fechamento aparecerá aqui."></textarea></div>
+<div class="field" id="comparisonMessageField4" hidden><label id="comparisonMessageLabel4">Mensagem 4 — fechamento</label><textarea id="comparisonMessage4" class="compare-message" placeholder="A quarta mensagem aparecerá aqui."></textarea></div>
+<div class="actions"><button type="button" class="secondary" id="refreshComparisonMessage">Atualizar mensagens automáticas</button></div>
 <div id="comparisonResults" class="compare-results" aria-live="polite"></div>
 <div class="compare-actions">
   <button class="gold" id="shareComparison" type="button">1/3 · Enviar comparação pelo WhatsApp</button>
 </div>
-<p id="comparisonSequenceProgress" class="compare-footnote" aria-live="polite">A sequência tem 3 mensagens separadas. Envie a primeira no WhatsApp, volte à calculadora e toque novamente no mesmo botão para abrir a próxima.</p>
+<p id="comparisonSequenceProgress" class="compare-footnote" aria-live="polite">A sequência terá 3 mensagens para 4 passageiros ou 4 mensagens para grupos de 5 ou 6 passageiros. Envie uma por vez e volte à calculadora para avançar.</p>
 <div id="separatePrintActions" class="separate-print-actions" aria-live="polite"></div>
 <p id="selectedPrintsStatus" class="compare-footnote" role="status">Nenhum print selecionado. Você pode anexar Uber, 99, ônibus ou qualquer combinação.</p>
-<p id="comparisonStatus" class="compare-footnote">Envie as três mensagens em sequência usando o mesmo botão. Depois, volte aqui e compartilhe cada comprovante separadamente, sem legenda.</p>
-<p class="compare-footnote"><b>Transparência:</b> o preço de volta dos aplicativos ou do ônibus será estimado pelo valor da ida quando estiver em branco. Valores de aplicativos, passagens e deslocamentos locais podem mudar. Confira todas as informações e ajuste os campos antes de compartilhar. Os custos internos de planejamento não são incluídos na mensagem ao cliente.</p>
+<p id="comparisonStatus" class="compare-footnote">Envie as mensagens em sequência usando o mesmo botão. A quantidade é definida pelo número de passageiros. Depois, volte aqui e compartilhe cada comprovante separadamente, sem legenda.</p>
+<p class="compare-footnote"><b>Transparência:</b> o preço de volta dos aplicativos ou do ônibus será estimado pelo valor da ida quando estiver em branco. Valores de aplicativos e passagens podem mudar. Confira todas as informações e ajuste os campos antes de compartilhar. Os custos internos de planejamento não são incluídos na mensagem ao cliente.</p>
+</section>
+
+<section class="card booking-card" id="bookingConfirmation" hidden>
+  <div class="booking-hero">
+    <div class="booking-kicker">Etapa final do atendimento</div>
+    <h2>8. Confirmação de agendamento</h2>
+    <p>Depois de confirmar o recebimento do sinal, revise os dados e envie ao cliente uma confirmação organizada e personalizada.</p>
+  </div>
+  <div class="booking-body">
+    <div class="booking-section-label">Resumo da reserva</div>
+    <div class="booking-summary">
+      <div class="booking-summary-item"><span>Cliente</span><strong id="bookingClientSummary">—</strong></div>
+      <div class="booking-summary-item"><span>Data e horário</span><strong id="bookingDateTimeSummary">—</strong></div>
+      <div class="booking-summary-item"><span>Embarque</span><strong id="bookingOriginSummary">—</strong></div>
+      <div class="booking-summary-item"><span>Destino</span><strong id="bookingDestinationSummary">—</strong></div>
+      <div class="booking-summary-item"><span>Passageiros</span><strong id="bookingPassengersSummary">—</strong></div>
+      <div class="booking-summary-item"><span>Serviço</span><strong id="bookingServiceSummary">—</strong></div>
+    </div>
+
+    <div class="booking-section-label">Conferência do pagamento</div>
+    <div class="booking-payment">
+      <div class="booking-pay-item"><span>Valor total do serviço</span><strong id="bookingTotalDisplay">R$ 0,00</strong></div>
+      <div class="booking-pay-item signal"><div><span>Sinal recebido (editável)</span><div class="booking-signal-entry"><span>R$</span><input class="booking-signal-input" id="bookingSignalAmount" type="number" min="0.01" step="0.01" value="100" inputmode="decimal" aria-label="Valor do sinal recebido em reais"></div></div></div>
+      <div class="booking-pay-item balance"><span>Saldo restante</span><strong id="bookingBalanceDisplay">R$ 0,00</strong></div>
+    </div>
+    <p class="hint" id="bookingPaymentExplain">O saldo é calculado automaticamente: valor total do serviço menos o sinal informado.</p>
+
+    <div class="booking-confirm-check">
+      <input id="bookingSignalConfirmed" type="checkbox">
+      <label for="bookingSignalConfirmed">Confirmo que já recebi o sinal informado acima. Só depois desta confirmação a mensagem poderá ser aberta no WhatsApp.</label>
+    </div>
+
+    <label class="booking-message-label" for="bookingConfirmationMessage">Mensagem de confirmação — você pode editar antes de enviar</label>
+    <textarea id="bookingConfirmationMessage" placeholder="A mensagem de confirmação será montada com os dados do cliente e do orçamento."></textarea>
+    <div class="booking-actions">
+      <button type="button" class="secondary" id="refreshBookingConfirmation">↻ Atualizar mensagem automática</button>
+      <button type="button" class="gold" id="sendBookingConfirmation" disabled>💬 Abrir confirmação no WhatsApp</button>
+    </div>
+    <p class="booking-status" id="bookingConfirmationStatus" aria-live="polite">Gere um orçamento para preparar a confirmação do agendamento.</p>
+    <p class="booking-footnote">O sinal começa em R$ 100,00, mas você pode informar outro valor. A calculadora atualiza o saldo e a mensagem. Confira nome, data, horário, destino e pagamento antes de enviar.</p>
+  </div>
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.7 — sequência de três mensagens com progresso salvo em chave fixa para retorno do WhatsApp no iPhone, comprovantes separados e orçamento editável.</p>
+<p class="hint">Versão 4.9 — confirmação de agendamento, sinal editável e comparação de ônibus simplificada; sequência dinâmica: 3 mensagens para 4 passageiros e 4 mensagens para 5 ou 6 passageiros, com explicação inicial sobre a capacidade dos carros de aplicativo.</p>
 </main>
 <script>
 (() => {
@@ -368,6 +429,7 @@ const $ = id => document.getElementById(id);
 const DRAFT_KEY = 'bastos-calculadora-viagens-active-v45';
 const LEGACY_DRAFT_KEYS = ['bastos-calculadora-viagens-draft-v37','bastos-calculadora-viagens-draft-v39'];
 let suppressDraftSave=false;
+let bookingMessageDirty=false;
 try{LEGACY_DRAFT_KEYS.forEach(key=>localStorage.removeItem(key));}catch(error){}
 function saveDraft(){
  if(suppressDraftSave)return;
@@ -375,7 +437,7 @@ function saveDraft(){
    const fields=Array.from(document.querySelectorAll('input[id],select[id],textarea[id]'))
      .filter(el=>el.type!=='file')
      .map(el=>({id:el.id,value:el.value,checked:el.checked,auto:el.dataset.auto,manual:el.dataset.manual}));
-   const payload={version:'4.7',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
+   const payload={version:'4.9',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote,bookingMessageDirty};
    sessionStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
  }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento da sessão. */}
 }
@@ -386,7 +448,12 @@ function restoreDraft(){
    const draft=JSON.parse(raw);
    // Rascunhos muito antigos nunca devem reaparecer como se fossem do cliente atual.
    if(!draft.savedAt || Date.now()-draft.savedAt>8*60*60*1000){sessionStorage.removeItem(DRAFT_KEY);return false;}
+   const hasCurrentMessageSchema=draft.version==='4.8'||draft.version==='4.9';
+   bookingMessageDirty=!!draft.bookingMessageDirty;
    (draft.fields||[]).forEach(item=>{
+     // A versão anterior tinha 3 mensagens com outra ordem. Preserva os dados do orçamento,
+     // mas recria os textos no novo esquema de 3/4 mensagens conforme passageiros.
+     if(!hasCurrentMessageSchema && /^comparisonMessage[1-4]$/.test(item.id))return;
      const el=$(item.id);
      if(!el||el.type==='file')return;
      el.value=item.value??'';
@@ -420,17 +487,17 @@ let comparisonMessagesDirty=false;
 // Uma chave fixa em localStorage mantém a etapa 1 -> 2 -> 3 mesmo após retorno,
 // recarregamento ou restauração da página. A calculadora foi projetada para
 // trabalhar uma sequência ativa por vez neste aparelho.
-const COMPARISON_SEQUENCE_KEY='bastos-comparison-sequence-v47';
-const COMPARISON_SEQUENCE_FALLBACK_KEY='bastos-comparison-sequence-fallback-v47';
+const COMPARISON_SEQUENCE_KEY='bastos-comparison-sequence-v48';
+const COMPARISON_SEQUENCE_FALLBACK_KEY='bastos-comparison-sequence-fallback-v48';
 let comparisonSequenceStep=0;
 function readComparisonSequenceStep(){
  try{
   const raw=localStorage.getItem(COMPARISON_SEQUENCE_KEY);
-  if(raw!==null){const value=Number(raw);if(Number.isInteger(value)&&value>=0&&value<=3)return value;}
+  if(raw!==null){const value=Number(raw);if(Number.isInteger(value)&&value>=0&&value<=4)return value;}
  }catch(error){/* Tenta o armazenamento alternativo logo abaixo. */}
  try{
   const value=Number(sessionStorage.getItem(COMPARISON_SEQUENCE_FALLBACK_KEY));
-  if(Number.isInteger(value)&&value>=0&&value<=3)return value;
+  if(Number.isInteger(value)&&value>=0&&value<=4)return value;
  }catch(ignore){}
  return 0;
 }
@@ -473,7 +540,7 @@ function renderSeparatePrintActions(){
  if(!root)return;
  const selected=selectedComparisonPrints();
  if(!selected.length){root.innerHTML='<div class="separate-print-title">2️⃣ Enviar comprovantes</div><p class="separate-print-help">Depois de selecionar os prints da Uber, 99 ou ônibus, aparecerá aqui um botão individual para cada imagem.</p>';return;}
- root.innerHTML='<div class="separate-print-title">2️⃣ Envie os comprovantes, um por vez</div><p class="separate-print-help">Depois de enviar as três mensagens pelo WhatsApp, volte aqui e toque em cada botão. Escolha o WhatsApp para enviar somente aquela imagem, sem legenda. Volte à calculadora para compartilhar o próximo comprovante.</p><div class="separate-print-buttons">'+selected.map((provider,index)=>`<button type="button" data-share-provider="${provider}">📎 ${index+1}. Compartilhar comprovante ${escapeHtml(providerLabel(provider))}</button>`).join('')+'</div>';
+ root.innerHTML='<div class="separate-print-title">2️⃣ Envie os comprovantes, um por vez</div><p class="separate-print-help">Depois de enviar todas as mensagens pelo WhatsApp, volte aqui e toque em cada botão. Escolha o WhatsApp para enviar somente aquela imagem, sem legenda. Volte à calculadora para compartilhar o próximo comprovante.</p><div class="separate-print-buttons">'+selected.map((provider,index)=>`<button type="button" data-share-provider="${provider}">📎 ${index+1}. Compartilhar comprovante ${escapeHtml(providerLabel(provider))}</button>`).join('')+'</div>';
  root.querySelectorAll('[data-share-provider]').forEach(button=>button.addEventListener('click',()=>shareOneComparisonPrint(button.dataset.shareProvider)));
 }
 function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
@@ -488,24 +555,13 @@ function formatComparisonProvider(provider,label,bastosTotal,roundTrip){
 }
 function formatBusComparison(bastosTotal,roundTrip,pax){
  const fareOut=num('busFareOut'),fareBack=num('busFareBack'),manual=num('busManualTotal');
- const accessIds=['busOriginOut','busDestinationOut','busDestinationBack','busOriginBack'];
- const access=accessIds.map(id=>$(id).value.trim()===''?0:num(id));
- if([fareOut,fareBack,manual,...access].some(v=>!Number.isFinite(v)||v<0))throw new Error('Confira os valores da passagem e dos deslocamentos do ônibus.');
+ if([fareOut,fareBack,manual].some(v=>!Number.isFinite(v)||v<0))throw new Error('Confira os valores das passagens de ônibus.');
  if(!(fareOut>0)&&!(manual>0))return null;
  const ticketsOut=round2(fareOut*pax);
  const ticketsBack=roundTrip?round2((fareBack>0?fareBack:fareOut)*pax):0;
- const groundOut=round2(access[0]+access[1]);
- const groundBack=roundTrip?round2(access[2]+access[3]):0;
- const groundItems=[
-  {label:'Seu local até a rodoviária de embarque',value:access[0],leg:'out'},
-  {label:'Rodoviária de chegada até o destino final',value:access[1],leg:'out'},
-  {label:'Destino final até a rodoviária para voltar',value:access[2],leg:'back'},
-  {label:'Rodoviária de chegada até seu endereço',value:access[3],leg:'back'}
- ].filter(item=>item.value>0&&(roundTrip||item.leg==='out'));
- const groundTotal=round2(groundOut+groundBack);
- const calculatedTotal=round2(ticketsOut+ticketsBack+groundTotal);
+ const calculatedTotal=round2(ticketsOut+ticketsBack);
  const total=manual>0?round2(manual):calculatedTotal;
- return {label:'Ônibus',pax,fareOut,fareBack,ticketsOut,ticketsBack,groundOut,groundBack,groundTotal,groundItems,calculatedTotal,total,manual:manual>0,estimated:roundTrip&&fareOut>0&&fareBack<=0&&manual<=0,diff:round2(total-bastosTotal)};
+ return {label:'Ônibus',pax,fareOut,fareBack,ticketsOut,ticketsBack,calculatedTotal,total,manual:manual>0,estimated:roundTrip&&fareOut>0&&fareBack<=0&&manual<=0,diff:round2(total-bastosTotal)};
 }
 function currentComparisonEntries(){
  const bastos=Number($('comparisonBastosValue').value||$('comparisonModule').dataset.bastosBaseTotal||0);
@@ -520,6 +576,18 @@ function formatDifference(total,bastos,label){
  if(diff<0)return `${label} fica ${money(Math.abs(diff))} abaixo do pacote Bastos nesta simulação.`;
  return `Os valores de ${label} e do pacote Bastos são iguais nesta simulação.`;
 }
+function comparisonSequenceTotal(){ return Number($('passengers').value||0)>4 ? 4 : 3; }
+function updateComparisonMessageEditorLabels(){
+ const largeGroup=Number($('passengers').value||0)>4;
+ const labels=largeGroup
+  ? ['Mensagem 1 de 4 — capacidade dos carros de aplicativo','Mensagem 2 de 4 — comparação de transportes','Mensagem 3 de 4 — proposta Bastos','Mensagem 4 de 4 — vamos organizar sua viagem?']
+  : ['Mensagem 1 de 3 — comparação de transportes','Mensagem 2 de 3 — proposta Bastos','Mensagem 3 de 3 — vamos organizar sua viagem?'];
+ for(let i=1;i<=4;i++){
+  const field=$('comparisonMessageField'+i),label=$('comparisonMessageLabel'+i);
+  if(field)field.hidden=i>labels.length;
+  if(label)label.textContent=labels[i-1]||'';
+ }
+}
 function buildComparison(){
  const data=currentComparisonEntries(),{bastos,roundTrip,apps,bus,entries}=data;
  if(!(bastos>0))throw new Error('Gere primeiro o orçamento e confira o valor da Bastos usado na comparação.');
@@ -528,45 +596,50 @@ function buildComparison(){
  const selected=selectedComparisonPrints();
  const mode=$('serviceMode').value==='oneway'?'Transfer somente ida':$('serviceMode').value==='available'?'Motorista à disposição':'Bate e volta — levar e buscar';
 
- // MENSAGEM 1: somente a comparação objetiva das alternativas de transporte.
- const comparisonLines=['*🚘 COMPARAÇÃO DE TRANSPORTES*','',`👥 *Grupo: ${pax} ${pax===1?'passageiro':'passageiros'}*`,'Confira abaixo os valores estimados de cada alternativa.'];
+ // Para grupos de 5 ou 6 passageiros, a sequência começa explicando por que
+ // normalmente são necessários dois carros comuns de aplicativo. Para 4,
+ // essa explicação não é enviada e a comparação continua sendo a primeira.
+ const capacityLines=[];
+ if(pax>4){
+   capacityLines.push('*🚘 UM DETALHE IMPORTANTE SOBRE O TRANSPORTE*','',`👥 *Seu grupo tem ${pax} passageiros.*`,'',
+    'Em geral, os carros comuns de aplicativo têm 5 lugares no total: 1 é ocupado pelo motorista e sobram até 4 lugares para passageiros. Além disso, alguns motoristas aceitam levar somente 3 passageiros.','',
+    `Como seu grupo tem ${pax} pessoas, um carro comum não é suficiente. Para acomodar todos, normalmente são necessários *2 carros para a ida${roundTrip?' e 2 carros para a volta':''}*. A próxima mensagem mostra a quantidade considerada em cada cotação.`,'',
+    'Um único carro só seria possível se o aplicativo disponibilizasse uma categoria com veículo maior, assentos adequados e espaço para todas as bagagens.','',
+    'Na próxima mensagem, veja quanto essas alternativas podem custar.');
+ }
+
+ // Mensagem de comparação: leitura simples, com ida, volta e total de cada opção.
+ const comparisonLines=['*🚘 COMPARAÇÃO DE TRANSPORTES*','',`👥 *Grupo: ${pax} ${pax===1?'passageiro':'passageiros'}*`];
+ if(pax<=4)comparisonLines.push('Confira quanto fica cada alternativa para levar o grupo.');
  apps.forEach(x=>{
    comparisonLines.push('',`*📱 ${x.label.toUpperCase()}*`);
-   comparisonLines.push(roundTrip
-     ?`Para levar o grupo, a simulação considera *${x.cars} ${x.cars===1?'carro':'carros'} na ida e ${x.cars} ${x.cars===1?'carro':'carros'} na volta*.`
-     :`Para levar o grupo na ida, a simulação considera *${x.cars} ${x.cars===1?'carro':'carros'}*.`);
-   if(x.cars===1)comparisonLines.push(`• *Ida:* 1 carro por *${money(x.fare)}*.`);
-   else comparisonLines.push(`• *Ida:* ${x.cars} carros, a *${money(x.fare)} cada* = *${money(x.ida)}*.`);
+   if(x.cars===1)comparisonLines.push(`• *Ida:* 1 carro = *${money(x.ida)}*.`);
+   else comparisonLines.push(`• *Ida:* ${x.cars} carros × *${money(x.fare)}* cada = *${money(x.ida)}*.`);
    if(roundTrip){
      const returnUnit=x.returnFare>0?x.returnFare:x.fare;
-     if(x.cars===1)comparisonLines.push(`• *Volta ${x.estimated?'(estimada)':'(cotação informada)'}:* 1 carro por *${money(returnUnit)}*.`);
-     else comparisonLines.push(`• *Volta ${x.estimated?'(estimada)':'(cotação informada)'}:* ${x.cars} carros, a *${money(returnUnit)} cada* = *${money(x.volta)}*.`);
-     comparisonLines.push(`➡️ *Total previsto de ida e volta: ${money(x.total)}*.`);
+     if(x.cars===1)comparisonLines.push(`• *Volta ${x.estimated?'(estimada)':'(cotação informada)'}:* 1 carro = *${money(x.volta)}*.`);
+     else comparisonLines.push(`• *Volta ${x.estimated?'(estimada)':'(cotação informada)'}:* ${x.cars} carros × *${money(returnUnit)}* cada = *${money(x.volta)}*.`);
+     comparisonLines.push(`➡️ *Total de ida e volta: ${money(x.total)}*.`);
    }else{
-     comparisonLines.push(`➡️ *Total previsto somente para a ida: ${money(x.total)}*.`);
+     comparisonLines.push(`➡️ *Total somente da ida: ${money(x.total)}*.`);
    }
  });
  if(bus){
    comparisonLines.push('','*🚌 ÔNIBUS*');
    if(bus.manual){
-     comparisonLines.push(`O total do ônibus foi ajustado manualmente para *${money(bus.total)}*.`);
+     comparisonLines.push(`O total do ônibus foi ajustado para *${money(bus.total)}*.`);
    }else{
-     comparisonLines.push(`Para ${pax} passageiros, são necessárias *${pax} passagens em cada viagem*.`);
-     if(bus.fareOut>0)comparisonLines.push(`• *Ida:* ${pax} passagens de *${money(bus.fareOut)}* = *${money(bus.ticketsOut)}*.`);
-     if(roundTrip&&bus.fareOut>0)comparisonLines.push(`• *Volta ${bus.estimated?'(estimada)':'(cotada)'}:* ${pax} passagens de *${money(bus.fareBack>0?bus.fareBack:bus.fareOut)}* = *${money(bus.ticketsBack)}*.`);
-     if(bus.groundItems.length){
-       comparisonLines.push('*Deslocamentos adicionais informados:*');
-       bus.groundItems.forEach(item=>comparisonLines.push(`• ${item.label}: *${money(item.value)}*.`));
-       comparisonLines.push(`Subtotal dos deslocamentos adicionais: *${money(bus.groundTotal)}*.`);
-     }
+     comparisonLines.push(`Para ${pax} passageiros, são consideradas *${pax} passagens por viagem*.`);
+     if(bus.fareOut>0)comparisonLines.push(`• *Ida:* ${pax} passagens × *${money(bus.fareOut)}* = *${money(bus.ticketsOut)}*.`);
+     if(roundTrip&&bus.fareOut>0)comparisonLines.push(`• *Volta ${bus.estimated?'(estimada)':'(cotada)'}:* ${pax} passagens × *${money(bus.fareBack>0?bus.fareBack:bus.fareOut)}* = *${money(bus.ticketsBack)}*.`);
      comparisonLines.push(`➡️ *Total estimado do ônibus: ${money(bus.total)}*.`);
    }
  }
  if(selected.length){
-   comparisonLines.push('','📎 *Vou enviar os comprovantes selecionados separadamente, depois das mensagens.*','👇 *Quando as imagens chegarem, toque em cada comprovante para abrir, ampliar e conferir os valores.*','Compare as cotações com a proposta Bastos antes de decidir.');
+   comparisonLines.push('','📎 *Vou enviar os comprovantes selecionados separadamente, depois das mensagens.*','👇 *Quando receber as imagens, toque em cada comprovante para abrir, ampliar e conferir os valores.*','Compare as cotações com a proposta Bastos antes de decidir.');
  }
 
- // MENSAGEM 2: proposta Bastos focada no valor do serviço, sem expor a comparação de preços dos concorrentes.
+ // Proposta Bastos: valoriza o serviço sem expor que algum concorrente ficou mais barato.
  const proposalLines=[
   '*💙 SUA VIAGEM COM A BASTOS | MOTORISTA PARTICULAR RJ*','',
   'Agora que você conferiu as opções de transporte, quero apresentar o diferencial da nossa proposta.','',
@@ -580,16 +653,18 @@ function buildComparison(){
   '*BASTOS | MOTORISTA PARTICULAR RJ*'
  ];
 
- // MENSAGEM 3: fechamento curto, sem repetir os argumentos da proposta.
+ // Fechamento separado: convite claro para combinar os detalhes.
  const closingLines=[
   '*🤝 VAMOS ORGANIZAR SUA VIAGEM?*','',
   'Se a proposta atende ao que você procura, me confirme para verificarmos a disponibilidade e alinharmos os últimos detalhes.','',
-  'Antes da viagem, conferimos juntos o embarque, os passageiros e as bagagens para deixar tudo combinado.','',
+  'Vamos combinar o local e o horário de embarque e conferir juntos os passageiros e as bagagens.','',
   'Será um prazer levar seu grupo. 🚘','',
   '*BASTOS | MOTORISTA PARTICULAR RJ*'
  ];
  if(!roundTrip)closingLines.splice(2,0,'Esta proposta considera somente a ida, conforme o serviço solicitado.','');
- const messages=[comparisonLines.join('\n'),proposalLines.join('\n'),closingLines.join('\n')];
+ const messages=pax>4
+   ? [capacityLines.join('\n'),comparisonLines.join('\n'),proposalLines.join('\n'),closingLines.join('\n')]
+   : [comparisonLines.join('\n'),proposalLines.join('\n'),closingLines.join('\n')];
  return {text:messages.join('\n\n'),messages,entries,apps,bus,bastos,roundTrip,pax,selectedPrints:selected};
 }
 function updateFourPassengerSuggestion(){
@@ -623,7 +698,7 @@ function renderComparison(forceMessage=false){
  data.entries.forEach(x=>{
    const label=x.label, diff=formatDifference(x.total,bastos,label==='Ônibus'?'o ônibus':`a ${label}`);
    if(label==='Ônibus'){
-     const breakdown=x.manual?'':`${x.fareOut>0?`<div class="compare-result-line"><span>Passagens de ida</span><strong>${money(x.ticketsOut)}</strong></div>${data.roundTrip?`<div class="compare-result-line"><span>Passagens de volta ${x.estimated?'(estimadas)':'(informadas)'}</span><strong>${money(x.ticketsBack)}</strong></div>`:''}`:''}${x.groundItems.length?x.groundItems.map(item=>`<div class="compare-result-line"><span>${escapeHtml(item.label)}</span><strong>${money(item.value)}</strong></div>`).join(''):''}`;
+     const breakdown=x.manual?'':`${x.fareOut>0?`<div class="compare-result-line"><span>Passagens de ida</span><strong>${money(x.ticketsOut)}</strong></div>${data.roundTrip?`<div class="compare-result-line"><span>Passagens de volta ${x.estimated?'(estimadas)':'(informadas)'}</span><strong>${money(x.ticketsBack)}</strong></div>`:''}`:''}`;
      cards.push(`<div class="compare-result"><h3>🚌 Ônibus</h3>${breakdown}<div class="compare-result-line compare-result-total"><span>${x.manual?'Total ajustado manualmente':'Total estimado'}</span><strong>${money(x.total)}</strong></div><div class="compare-result-line"><span>Pacote Bastos</span><strong>${money(bastos)}</strong></div><div class="compare-result-diff ${x.diff<0?'more':''}">${escapeHtml(diff)}</div></div>`);
    }else{
      cards.push(`<div class="compare-result"><h3>📱 ${escapeHtml(label)}</h3><div class="compare-result-line"><span>Carros para ida e volta</span><strong>${x.cars}</strong></div><div class="compare-result-line"><span>Total da ida</span><strong>${money(x.ida)}</strong></div>${data.roundTrip?`<div class="compare-result-line"><span>Total da volta ${x.estimated?'(estimada)':'(informada)'}</span><strong>${money(x.volta)}</strong></div>`:''}<div class="compare-result-line compare-result-total"><span>Total ${data.roundTrip?'ida e volta':'somente ida'}</span><strong>${money(x.total)}</strong></div><div class="compare-result-line"><span>Pacote Bastos</span><strong>${money(bastos)}</strong></div><div class="compare-result-diff ${x.diff<0?'more':''}">${escapeHtml(diff)}</div></div>`);
@@ -631,12 +706,18 @@ function renderComparison(forceMessage=false){
  });
  result.innerHTML=cards.join('');
  updateFourPassengerSuggestion();
+ updateComparisonMessageEditorLabels();
  if(forceMessage||!comparisonMessagesDirty){
    try{
      const generated=buildComparison().messages;
-     generated.forEach((message,index)=>{const field=$('comparisonMessage'+(index+1));if(field)field.value=message;});
+     for(let i=1;i<=4;i++){
+       const field=$('comparisonMessage'+i);
+       if(field)field.value=generated[i-1]||'';
+     }
      comparisonMessagesDirty=false;
-   }catch(e){['comparisonMessage1','comparisonMessage2','comparisonMessage3'].forEach(id=>{if($(id))$(id).value='';});}
+   }catch(e){
+     for(let i=1;i<=4;i++){const field=$('comparisonMessage'+i);if(field)field.value='';}
+   }
  }
 }
 function downloadComparisonImage(provider){
@@ -655,28 +736,125 @@ function normalizeWhatsAppPhone(raw){
  if(digits.length===10||digits.length===11)return '55'+digits;
  return false;
 }
+function bookingMoney(value){return money(Number.isFinite(value)?value:0);}
+function bookingServiceName(){
+ return $('clientBudget').dataset.appliedService||$('budgetServiceDescription').value.trim()||($('serviceMode').value==='oneway'?'Transfer somente ida':$('serviceMode').value==='available'?'Motorista à disposição':'Bate e volta — levar e buscar');
+}
+function buildBookingConfirmationText(){
+ const client=$('client').value.trim()||'cliente';
+ const rawDate=$('travelDate').value;
+ const date=rawDate?new Date(rawDate+'T12:00:00').toLocaleDateString('pt-BR'):'A combinar';
+ const time=$('travelTime').value||'A combinar';
+ const origin=$('origin').value.trim()||'A combinar';
+ const destination=$('destination').value.trim()||'A combinar';
+ const pax=Math.max(0,Number($('passengers').value||0));
+ const total=Number($('clientBudget').dataset.currentTotal||$('budgetFinalValue').value||0);
+ const signal=Number($('bookingSignalAmount').value||0);
+ const balance=round2(total-signal);
+ const lines=[
+  '✅ *AGENDAMENTO CONFIRMADO!*','',
+  `Então, *${client}*!`,'',
+  'Agradeço pela confiança em escolher a *BASTOS | MOTORISTA PARTICULAR RJ*. 💙','',
+  `Seu sinal de *${bookingMoney(signal)}* foi recebido e sua data está reservada.`,'',
+  '*📋 RESUMO DA SUA VIAGEM*','',
+  `📅 *Data:* ${date}`,
+  `🕒 *Horário de saída:* ${time}`,
+  `📍 *Embarque:* ${origin}`,
+  `🏁 *Destino:* ${destination}`,
+  `👥 *Passageiros:* ${pax}`,
+  `🚘 *Serviço:* ${bookingServiceName()}`
+ ];
+ const adults=Number($('adults').value||0),children=Number($('children').value||0),babies=Number($('babyCount').value||0);
+ if(adults>0)lines.push(`• Adultos: ${adults}`);
+ const childAges=$('childrenAges').value.trim(),babyAges=$('babyAges').value.trim();
+ if(children>0)lines.push(`• Crianças: ${children}${childAges?' — '+childAges:''}`);
+ if(babies>0)lines.push(`• Bebês: ${babies}${babyAges?' — '+babyAges:''}`);
+ const largeBags=Number($('largeBags').value||0),smallBags=Number($('smallBags').value||0);
+ if(largeBags>0||smallBags>0)lines.push(`🧳 *Bagagens:* ${largeBags} mala(s) grande(s) e ${smallBags} bolsa(s)/mala(s) pequena(s)`);
+ if($('stroller').value!=='Não informado')lines.push(`👶 *Carrinho de bebê:* ${$('stroller').value}`);
+ if($('childSeat').value!=='Não informado')lines.push(`🪑 *Cadeirinha/assento infantil:* ${$('childSeat').value}`);
+ const observation=$('observations').value.trim();
+ if(observation)lines.push('',`📝 *Observação:* ${observation}`);
+ lines.push('','*💰 RESUMO DO PAGAMENTO*','',
+  `Valor total do serviço: *${bookingMoney(total)}*`,
+  `Sinal recebido: *${bookingMoney(signal)}*`,
+  `Saldo restante: *${bookingMoney(Math.max(0,balance))}*${balance<=0?' (valor quitado)':''}`,'',
+  'Agora está tudo organizado! Na data combinada, estarei à disposição para realizar seu transporte com pontualidade, atenção e cuidado.','',
+  'Agradeço novamente pela preferência. Será um prazer levar você e seu grupo!','',
+  '*BASTOS | MOTORISTA PARTICULAR RJ* 🚘'
+ );
+ return lines.join('\n');
+}
+function updateBookingConfirmation(forceMessage=false){
+ const panel=$('bookingConfirmation');
+ if(!panel||!$('clientBudget').dataset.quoteBase)return;
+ panel.hidden=false;
+ const total=Number($('clientBudget').dataset.currentTotal||$('budgetFinalValue').value||0);
+ const signal=Number(String($('bookingSignalAmount').value||'').replace(',','.'));
+ const validSignal=Number.isFinite(signal)&&signal>0&&signal<=total;
+ const balance=round2(total-(Number.isFinite(signal)?signal:0));
+ $('bookingClientSummary').textContent=$('client').value.trim()||'Não informado';
+ const date=$('travelDate').value?new Date($('travelDate').value+'T12:00:00').toLocaleDateString('pt-BR'):'A combinar';
+ $('bookingDateTimeSummary').textContent=date+' • '+($('travelTime').value||'horário a combinar');
+ $('bookingOriginSummary').textContent=$('origin').value.trim()||'A combinar';
+ $('bookingDestinationSummary').textContent=$('destination').value.trim()||'A combinar';
+ $('bookingPassengersSummary').textContent=String($('passengers').value||'A confirmar');
+ $('bookingServiceSummary').textContent=bookingServiceName();
+ $('bookingTotalDisplay').textContent=bookingMoney(total);
+ $('bookingBalanceDisplay').textContent=bookingMoney(Math.max(0,balance));
+ $('bookingPaymentExplain').textContent=validSignal
+  ? `Cálculo automático: ${bookingMoney(total)} de valor total − ${bookingMoney(signal)} de sinal = ${bookingMoney(balance)} de saldo restante.`
+  : `Informe um sinal maior que R$ 0,00 e que não ultrapasse o valor total de ${bookingMoney(total)}.`;
+ if(forceMessage||!bookingMessageDirty)$('bookingConfirmationMessage').value=buildBookingConfirmationText();
+ const ready=$('bookingSignalConfirmed').checked&&validSignal;
+ $('sendBookingConfirmation').disabled=!ready;
+ if(!validSignal)$('bookingConfirmationStatus').textContent='Confira o valor do sinal: ele precisa ser maior que zero e não pode superar o valor total do serviço.';
+ else if(bookingMessageDirty)$('bookingConfirmationStatus').textContent='A mensagem foi editada manualmente. Confira se o sinal e o saldo escritos nela correspondem aos valores acima.';
+ else if(!$('bookingSignalConfirmed').checked)$('bookingConfirmationStatus').textContent='Marque a confirmação de recebimento do sinal para liberar o envio.';
+ else $('bookingConfirmationStatus').textContent='Tudo conferido. A mensagem está pronta para abrir no WhatsApp.';
+}
+function openBookingConfirmation(){
+ if(!$('clientBudget').dataset.quoteBase){alert('Gere o orçamento primeiro.');return;}
+ if(budgetEditsPending()&&!applyBudgetEdits(true))return;
+ updateBookingConfirmation();
+ const signal=Number(String($('bookingSignalAmount').value||'').replace(',','.'));
+ const total=Number($('clientBudget').dataset.currentTotal||0);
+ if(!$('bookingSignalConfirmed').checked){alert('Confirme que o sinal já foi recebido antes de enviar a confirmação.');return;}
+ if(!Number.isFinite(signal)||signal<=0||signal>total){alert('O sinal precisa ser maior que zero e não pode ser maior que o valor total do serviço.');return;}
+ const message=$('bookingConfirmationMessage').value.trim();
+ if(!message){alert('A mensagem de confirmação está vazia.');return;}
+ const phone=normalizeWhatsAppPhone($('phone').value.trim());
+ if(phone===false){alert('Confira o telefone com DDD ou deixe o campo vazio para escolher o contato no WhatsApp.');$('phone').focus();return;}
+ const url=phone?`https://wa.me/${phone}?text=${encodeURIComponent(message)}`:`https://wa.me/?text=${encodeURIComponent(message)}`;
+ const opened=window.open(url,'_blank');
+ if(!opened)window.location.href=url;
+ $('bookingConfirmationStatus').textContent='Confirmação preparada no WhatsApp. Confira o contato e toque em Enviar.';
+}
 function updateComparisonSequenceUI(){
  const button=$('shareComparison'),progress=$('comparisonSequenceProgress');
  if(!button)return;
- const labels=[
-  '1/3 · Enviar comparação de transportes pelo WhatsApp',
-  '2/3 · Enviar proposta Bastos pelo WhatsApp',
-  '3/3 · Enviar fechamento pelo WhatsApp',
-  '✅ Sequência concluída · toque para iniciar novamente'
- ];
- button.textContent=labels[Math.max(0,Math.min(3,comparisonSequenceStep))];
+ const total=comparisonSequenceTotal();
+ const names=Number($('passengers').value||0)>4
+  ? ['explicação sobre a quantidade de passageiros','comparação de transportes','proposta Bastos','fechamento — vamos organizar sua viagem?']
+  : ['comparação de transportes','proposta Bastos','fechamento — vamos organizar sua viagem?'];
+ if(comparisonSequenceStep>=total){
+   button.textContent=`✅ Sequência concluída (${total}/${total}) · toque para iniciar novamente`;
+   if(progress)progress.textContent=`As ${total} mensagens foram preparadas. Para iniciar uma nova sequência, toque novamente no botão.`;
+   return;
+ }
+ button.textContent=`${comparisonSequenceStep+1}/${total} · Enviar ${names[comparisonSequenceStep]} pelo WhatsApp`;
  if(progress){
-  const texts=[
-   'Pronto para começar. Envie a comparação, volte à calculadora e toque novamente no mesmo botão para abrir a proposta Bastos.',
-   'Mensagem 1 de 3 aberta. Envie-a no WhatsApp e volte à calculadora para enviar a proposta Bastos.',
-   'Mensagem 2 de 3 aberta. Envie a proposta Bastos e volte à calculadora para abrir o fechamento.',
-   'Mensagem 3 de 3 aberta. Envie o fechamento. A sequência terminou; toque novamente no botão quando quiser iniciar outra sequência.'
-  ];
-  progress.textContent=texts[Math.max(0,Math.min(3,comparisonSequenceStep))];
+  if(comparisonSequenceStep===0){
+   progress.textContent=total===4
+    ? 'A primeira mensagem explica por que 5 ou 6 passageiros normalmente precisam de dois carros comuns. Envie-a, volte à calculadora e toque novamente para ver os preços.'
+    : 'Envie a comparação de preços. Depois volte à calculadora e toque novamente para abrir a proposta Bastos.';
+  }else{
+   progress.textContent=`Mensagem ${comparisonSequenceStep} de ${total} preparada. Envie-a no WhatsApp, volte à calculadora e toque novamente para abrir a próxima.`;
+  }
  }
 }
 function setComparisonSequenceStep(step){
- comparisonSequenceStep=Math.max(0,Math.min(3,Number(step)||0));
+ comparisonSequenceStep=Math.max(0,Math.min(4,Number(step)||0));
  try{localStorage.setItem(COMPARISON_SEQUENCE_KEY,String(comparisonSequenceStep));}
  catch(error){try{sessionStorage.setItem(COMPARISON_SEQUENCE_FALLBACK_KEY,String(comparisonSequenceStep));}catch(ignore){}}
  updateComparisonSequenceUI();
@@ -707,15 +885,16 @@ function openComparisonInWhatsApp(){
  syncComparisonSequenceStep();
  let data;
  try{data=buildComparison();}catch(e){alert(e.message);return;}
- if(comparisonSequenceStep>=3){
+ const sequenceTotal=data.messages.length;
+ if(comparisonSequenceStep>=sequenceTotal){
    setComparisonSequenceStep(0);
-   $('comparisonStatus').textContent='Sequência reiniciada. A próxima mensagem será a comparação de transportes (1/3).';
+   $('comparisonStatus').textContent=`Sequência reiniciada. A próxima etapa será a mensagem 1 de ${sequenceTotal}.`;
    return;
  }
  const step=comparisonSequenceStep;
  const field=$('comparisonMessage'+(step+1));
  const message=(field?.value||data.messages[step]||'').trim();
- if(!message){alert('A mensagem desta etapa está vazia. Toque em “Atualizar as 3 mensagens automáticas” ou escreva o texto antes de enviar.');return;}
+ if(!message){alert('A mensagem desta etapa está vazia. Toque em “Atualizar mensagens automáticas” ou escreva o texto antes de enviar.');return;}
  const rawPhone=$('phone').value.trim();
  const phone=normalizeWhatsAppPhone(rawPhone);
  if(phone===false){
@@ -733,7 +912,7 @@ function openComparisonInWhatsApp(){
    window.location.href=url;
  }
  const destination=phone?'a conversa do número informado':'a lista de contatos para você escolher o cliente';
- $('comparisonStatus').textContent=`Mensagem ${step+1} de 3 preparada no WhatsApp (${destination}). Confira o destinatário e toque em Enviar. Depois volte à calculadora e use o mesmo botão para abrir a próxima mensagem.`;
+ $('comparisonStatus').textContent=`Mensagem ${step+1} de ${sequenceTotal} preparada no WhatsApp (${destination}). Confira o destinatário e toque em Enviar. Depois volte à calculadora e use o mesmo botão para abrir a próxima mensagem.`;
 }
 async function shareOneComparisonPrint(provider){
  const item=comparisonImages[provider];
@@ -1012,6 +1191,7 @@ function calculate(){
  $('clientBudget').dataset.quoteBase=quoteLines.join('\n');
  $('clientBudget').dataset.quote=$('clientBudget').dataset.quoteBase;
  $('clientBudget').dataset.baseTotal=String(total);
+ $('clientBudget').dataset.currentTotal=String(total);
  $('clientBudget').dataset.baseTransport=String(fare.total);
  $('clientBudget').dataset.basePer=String(fare.per);
  $('clientBudget').dataset.waitFee=String(waitFee);
@@ -1032,45 +1212,11 @@ function calculate(){
  $('clientBudget').dataset.appliedService=mode;
  $('clientBudget').dataset.appliedNote='';
  $('budgetEditStatus').textContent='O valor calculado está carregado. Você pode ajustar o preço e a descrição antes de gerar o PDF ou copiar o texto para o WhatsApp.';
- const valueMessage=$('serviceMode').value==='oneway'
- ? `🚘 *Por que vale a pena contratar o transfer somente ida Bastos?*
-
-Você terá um deslocamento privativo do local de embarque até o destino escolhido. Esta modalidade contempla somente a ida; retorno, espera e acompanhamento não estão incluídos. Caso precise voltar, solicite um orçamento separado.
-
-✅ Embarque no endereço ou terminal combinado.
-✅ Viagem privativa para seu grupo.
-✅ Horário de saída combinado diretamente.
-✅ Conforto da Chevrolet Spin, com capacidade para até 6 passageiros além do motorista, respeitando a configuração adequada dos assentos e bagagens.
-
-*BASTOS | MOTORISTA PARTICULAR RJ*`
- : $('serviceMode').value==='available'
- ? `🚘 *Por que vale a pena contratar o Bastos — motorista à disposição?*
-
-Além do transporte até o destino, você conta com o motorista durante o passeio para realizar os deslocamentos entre os locais combinados.
-
-✅ Mais praticidade para visitar diferentes pontos sem precisar procurar outro transporte a cada deslocamento.
-✅ Atendimento direto e horários organizados conforme o combinado.
-✅ Privacidade para aproveitar o passeio com sua família ou grupo.
-✅ Conforto da Chevrolet Spin, com capacidade para até 6 passageiros além do motorista, respeitando a configuração adequada dos assentos e bagagens.
-
-O adicional de motorista à disposição aparece separado no orçamento, para deixar claro o que corresponde ao transporte e o que corresponde ao acompanhamento durante o passeio.
-
-*BASTOS | MOTORISTA PARTICULAR RJ*`
- : `🚘 *Por que vale a pena contratar o transporte privativo Bastos?*
-
-A proposta é facilitar seu deslocamento do embarque até o destino e combinar antecipadamente o retorno.
-
-✅ Você combina o embarque em um endereço, sem precisar se deslocar até uma rodoviária.
-✅ Viaja com privacidade junto das pessoas do seu grupo.
-✅ Pode evitar conexões e deslocamentos extras entre diferentes meios de transporte.
-✅ Horário de ida e retorno combinados diretamente.
-✅ Conforto da Chevrolet Spin, com capacidade para até 6 passageiros além do motorista, respeitando a configuração adequada dos assentos e bagagens.
-
-A ideia é deixar o transporte organizado para que você aproveite o passeio sem precisar se preocupar em encontrar como voltar.
-
-*BASTOS | MOTORISTA PARTICULAR RJ*`;
- $('valueMessageText').textContent=valueMessage;
- $('clientBudget').hidden=false;$('valueMessage').hidden=false;
+ $('clientBudget').hidden=false;
+ bookingMessageDirty=false;
+ $('bookingConfirmation').hidden=false;
+ $('bookingSignalConfirmed').checked=false;
+ updateBookingConfirmation(true);
  $('comparisonModule').dataset.bastosTotal=String(total);
  $('comparisonModule').dataset.bastosBaseTotal=String(total);
  if($('comparisonBastosValue').dataset.manual!=='true'||!$('comparisonBastosValue').value){$('comparisonBastosValue').value=total.toFixed(2);$('comparisonBastosValue').dataset.manual='false';}
@@ -1083,6 +1229,7 @@ function applyBudgetEdits(showFeedback=true){
  const budget=$('clientBudget');
  if(!budget.dataset.quoteBase){if(showFeedback)alert('Gere o orçamento primeiro.');return false;}
  const finalTotal=Number(String($('budgetFinalValue').value||'').replace(',','.'));
+ const previousTotal=Number(budget.dataset.currentTotal||budget.dataset.baseTotal||0);
  const waitFee=Number(budget.dataset.waitFee||0),driverFee=Number(budget.dataset.driverFee||0);
  const fixedFees=round2(waitFee+driverFee);
  const pax=Math.max(1,Number(budget.dataset.pax||$('passengers').value||1));
@@ -1108,6 +1255,7 @@ function applyBudgetEdits(showFeedback=true){
  if(oldMode)quote=quote.replace(`*🛣️ MODALIDADE DO SERVIÇO*\n${oldMode}`,`*🛣️ MODALIDADE DO SERVIÇO*\n${serviceDescription}`);
  if(note){const signature='*BASTOS | MOTORISTA PARTICULAR RJ*';quote=quote.replace(signature,`*📝 OBSERVAÇÃO*\n${note}\n\n${signature}`);}
  budget.dataset.quote=quote;
+ if(Math.abs(previousTotal-finalTotal)>0.009)$('bookingSignalConfirmed').checked=false;
  budget.dataset.currentTotal=String(finalTotal);
  budget.dataset.appliedFinal=finalTotal.toFixed(2);
  budget.dataset.appliedService=serviceDescription;
@@ -1119,6 +1267,7 @@ function applyBudgetEdits(showFeedback=true){
  setComparisonSequenceStep(0);
  renderComparison();
  $('budgetEditStatus').textContent=`Orçamento revisado: ${money(finalTotal)}. O PDF, o texto de WhatsApp e a comparação usarão este valor. Os custos internos do planejamento foram mantidos.`;
+ updateBookingConfirmation(false);
  saveDraft();
  return true;
 }
@@ -1135,6 +1284,19 @@ $('applyBudgetEdits').addEventListener('click',()=>applyBudgetEdits(true));
 $('restoreBudgetEdits').addEventListener('click',restoreBudgetEdits);
 
 $('calculate').addEventListener('click',()=>{ $('calcError').textContent='';setComparisonSequenceStep(0);try{calculate();saveDraft();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;saveDraft();}});
+['client','travelDate','travelTime','origin','destination','passengers','adults','children','childrenAges','babyCount','babyAges','largeBags','smallBags','stroller','childSeat','observations','serviceMode'].forEach(id=>{
+ const field=$(id);
+ if(field){
+  const refresh=()=>{if(!$('bookingConfirmation').hidden)$('bookingSignalConfirmed').checked=false;updateBookingConfirmation(false);saveDraft();};
+  field.addEventListener('input',refresh);field.addEventListener('change',refresh);
+ }
+});
+$('bookingSignalAmount').addEventListener('input',()=>{$('bookingSignalConfirmed').checked=false;updateBookingConfirmation(false);saveDraft();});
+$('bookingSignalConfirmed').addEventListener('change',()=>{updateBookingConfirmation(false);saveDraft();});
+$('bookingConfirmationMessage').addEventListener('input',()=>{bookingMessageDirty=true;saveDraft();});
+$('refreshBookingConfirmation').addEventListener('click',()=>{bookingMessageDirty=false;updateBookingConfirmation(true);saveDraft();});
+$('sendBookingConfirmation').addEventListener('click',openBookingConfirmation);
+
 $('copyBudget').addEventListener('click',async()=>{
  if(!applyBudgetEdits(true))return;
  const text=$('clientBudget').dataset.quote||'';
@@ -1142,7 +1304,6 @@ $('copyBudget').addEventListener('click',async()=>{
  try{await navigator.clipboard.writeText(text);alert('Texto do orçamento copiado. Agora é só colar na conversa do WhatsApp.');}
  catch(e){alert('Não foi possível copiar automaticamente neste navegador. Selecione e copie o texto do orçamento.');}
 });
-$('copyValueMessage').addEventListener('click',async()=>{const text=$('valueMessageText').textContent;try{await navigator.clipboard.writeText(text);alert('Mensagem de valorização copiada. Cole no WhatsApp.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione a mensagem e copie.')}});
 $('printBudget').addEventListener('click',()=>{
  if(!applyBudgetEdits(true))return;
  saveDraft();
@@ -1216,7 +1377,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
  $(provider+'ImageInput').addEventListener('change',e=>setComparisonImage(provider,e.target.files?.[0]||null));
  $(provider+'RemoveImage').addEventListener('click',()=>setComparisonImage(provider,null));
 });
-['uberFare','uberCars','uberReturnFare','99Fare','99Cars','99ReturnFare','busFareOut','busFareBack','busOriginOut','busDestinationOut','busDestinationBack','busOriginBack','busManualTotal','fourPaxPremiumPct'].forEach(id=>{
+['uberFare','uberCars','uberReturnFare','99Fare','99Cars','99ReturnFare','busFareOut','busFareBack','busManualTotal','fourPaxPremiumPct'].forEach(id=>{
  $(id).addEventListener('input',()=>{
    if(id==='uberCars'||id==='99Cars')$(id).dataset.auto='false';
    setComparisonSequenceStep(0);renderComparison();saveDraft();
@@ -1235,13 +1396,14 @@ $('useFourPaxSuggestion').addEventListener('click',()=>{
  if(!(suggested>0)){alert('Informe primeiro uma cotação da Uber ou da 99 para calcular a sugestão.');return;}
  $('comparisonBastosValue').value=suggested.toFixed(2);$('comparisonBastosValue').dataset.manual='true';setComparisonSequenceStep(0);renderComparison(true);saveDraft();
 });
-['comparisonMessage1','comparisonMessage2','comparisonMessage3'].forEach(id=>$(id).addEventListener('input',()=>{comparisonMessagesDirty=true;setComparisonSequenceStep(0);saveDraft();}));
+['comparisonMessage1','comparisonMessage2','comparisonMessage3','comparisonMessage4'].forEach(id=>$(id).addEventListener('input',()=>{comparisonMessagesDirty=true;setComparisonSequenceStep(0);saveDraft();}));
 $('refreshComparisonMessage').addEventListener('click',()=>{comparisonMessagesDirty=false;setComparisonSequenceStep(0);renderComparison(true);saveDraft();});
+$('refreshComparisonMessage').textContent='Atualizar mensagens automáticas (3 ou 4, conforme passageiros)';
 $('shareComparison').addEventListener('click',()=>{if(budgetEditsPending()&&!applyBudgetEdits(true))return;openComparisonInWhatsApp();});
 // Corrigir o telefone do destinatário entre as etapas não reinicia a sequência.
 const hadSavedBudget=restoreDraft();
 if($('comparisonBastosValue').dataset.manual===undefined)$('comparisonBastosValue').dataset.manual='false';
-if(['comparisonMessage1','comparisonMessage2','comparisonMessage3'].some(id=>$(id).value.trim()))comparisonMessagesDirty=true;
+if(['comparisonMessage1','comparisonMessage2','comparisonMessage3','comparisonMessage4'].some(id=>$(id).value.trim()))comparisonMessagesDirty=true;
 updateComparisonSequenceUI();
 updateMode();renderHistory();updateAutoAppCars();updateSelectedPrintsStatus();
 if(hadSavedBudget){
@@ -1249,6 +1411,7 @@ if(hadSavedBudget){
  try{
    calculate();
    if(savedBudgetEdits.final){$('budgetFinalValue').value=savedBudgetEdits.final;$('budgetServiceDescription').value=savedBudgetEdits.service||$('budgetServiceDescription').value;$('budgetAdditionalNote').value=savedBudgetEdits.note||'';applyBudgetEdits(false);}
+   updateBookingConfirmation(false);
  }catch(error){$('calcError').textContent='Os dados foram recuperados, mas confira os campos antes de gerar novamente o orçamento: '+error.message;}
 }
 renderComparison();
