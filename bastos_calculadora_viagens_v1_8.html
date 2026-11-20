@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v4.9</title>
+<title>Bastos | Calculadora de Viagens — v5.0</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -366,13 +366,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <div class="field" id="comparisonMessageField4" hidden><label id="comparisonMessageLabel4">Mensagem 4 — fechamento</label><textarea id="comparisonMessage4" class="compare-message" placeholder="A quarta mensagem aparecerá aqui."></textarea></div>
 <div class="actions"><button type="button" class="secondary" id="refreshComparisonMessage">Atualizar mensagens automáticas</button></div>
 <div id="comparisonResults" class="compare-results" aria-live="polite"></div>
-<div class="compare-actions">
-  <button class="gold" id="shareComparison" type="button">1/3 · Enviar comparação pelo WhatsApp</button>
+<div class="compare-actions" id="comparisonMessageButtons">
+  <button class="gold" id="sendComparisonMessage1" type="button">💬 1 · Comparação de transportes</button>
+  <button class="gold" id="sendComparisonMessage2" type="button">💬 2 · Proposta Bastos</button>
+  <button class="gold" id="sendComparisonMessage3" type="button">💬 3 · Vamos organizar sua viagem?</button>
+  <button class="gold" id="sendComparisonMessage4" type="button" hidden>💬 4 · Vamos organizar sua viagem?</button>
 </div>
-<p id="comparisonSequenceProgress" class="compare-footnote" aria-live="polite">A sequência terá 3 mensagens para 4 passageiros ou 4 mensagens para grupos de 5 ou 6 passageiros. Envie uma por vez e volte à calculadora para avançar.</p>
+<p id="comparisonSequenceProgress" class="compare-footnote" aria-live="polite">Cada mensagem tem seu próprio botão. Você pode enviar qualquer uma, em qualquer ordem, repetir ou corrigir sem precisar reiniciar uma sequência.</p>
 <div id="separatePrintActions" class="separate-print-actions" aria-live="polite"></div>
 <p id="selectedPrintsStatus" class="compare-footnote" role="status">Nenhum print selecionado. Você pode anexar Uber, 99, ônibus ou qualquer combinação.</p>
-<p id="comparisonStatus" class="compare-footnote">Envie as mensagens em sequência usando o mesmo botão. A quantidade é definida pelo número de passageiros. Depois, volte aqui e compartilhe cada comprovante separadamente, sem legenda.</p>
+<p id="comparisonStatus" class="compare-footnote">Escolha livremente uma das mensagens acima. Depois, compartilhe cada comprovante separadamente, sem legenda.</p>
 <p class="compare-footnote"><b>Transparência:</b> o preço de volta dos aplicativos ou do ônibus será estimado pelo valor da ida quando estiver em branco. Valores de aplicativos e passagens podem mudar. Confira todas as informações e ajuste os campos antes de compartilhar. Os custos internos de planejamento não são incluídos na mensagem ao cliente.</p>
 </section>
 
@@ -418,7 +421,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.9 — confirmação de agendamento, sinal editável e comparação de ônibus simplificada; sequência dinâmica: 3 mensagens para 4 passageiros e 4 mensagens para 5 ou 6 passageiros, com explicação inicial sobre a capacidade dos carros de aplicativo.</p>
+<p class="hint">Versão 5.0 — mensagens independentes para envio pelo WhatsApp; 3 botões para 4 passageiros e 4 botões para 5 ou 6 passageiros.</p>
 </main>
 <script>
 (() => {
@@ -437,7 +440,7 @@ function saveDraft(){
    const fields=Array.from(document.querySelectorAll('input[id],select[id],textarea[id]'))
      .filter(el=>el.type!=='file')
      .map(el=>({id:el.id,value:el.value,checked:el.checked,auto:el.dataset.auto,manual:el.dataset.manual}));
-   const payload={version:'4.9',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote,bookingMessageDirty};
+   const payload={version:'5.0',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote,bookingMessageDirty};
    sessionStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
  }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento da sessão. */}
 }
@@ -448,7 +451,7 @@ function restoreDraft(){
    const draft=JSON.parse(raw);
    // Rascunhos muito antigos nunca devem reaparecer como se fossem do cliente atual.
    if(!draft.savedAt || Date.now()-draft.savedAt>8*60*60*1000){sessionStorage.removeItem(DRAFT_KEY);return false;}
-   const hasCurrentMessageSchema=draft.version==='4.8'||draft.version==='4.9';
+   const hasCurrentMessageSchema=draft.version==='4.8'||draft.version==='4.9'||draft.version==='5.0';
    bookingMessageDirty=!!draft.bookingMessageDirty;
    (draft.fields||[]).forEach(item=>{
      // A versão anterior tinha 3 mensagens com outra ordem. Preserva os dados do orçamento,
@@ -467,7 +470,7 @@ function restoreDraft(){
 function startNewSimulation(){
  if(!confirm('Iniciar uma nova simulação? A resposta colada, os dados do cliente, resultados, comparações, mensagem editada e prints serão apagados. O histórico de orçamentos salvos será mantido.'))return;
  suppressDraftSave=true;
- try{sessionStorage.removeItem(DRAFT_KEY);sessionStorage.removeItem(COMPARISON_SEQUENCE_FALLBACK_KEY);localStorage.removeItem(COMPARISON_SEQUENCE_KEY);}catch(error){}
+ try{sessionStorage.removeItem(DRAFT_KEY);localStorage.removeItem('bastos-comparison-sequence-v48');localStorage.removeItem('bastos-comparison-sequence-fallback-v48');}catch(error){}
  try{LEGACY_DRAFT_KEYS.forEach(key=>localStorage.removeItem(key));}catch(error){}
  // O recarregamento restaura somente os valores padrão da calculadora, sem dados do cliente anterior.
  window.location.reload();
@@ -480,28 +483,7 @@ const consumption = () => $('preset').value === 'custom' ? num('custom') : Numbe
 const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const comparisonImages = { uber: null, '99': null, bus: null };
 let comparisonMessagesDirty=false;
-// Progresso da sequência em uma chave fixa do mesmo domínio.
-// Não vincular a etapa a sessionStorage/identificador de aba: no iPhone, o
-// Safari pode restaurar o site em outro contexto depois de abrir o WhatsApp,
-// fazendo a aba receber um ID novo e voltar indevidamente para a mensagem 1.
-// Uma chave fixa em localStorage mantém a etapa 1 -> 2 -> 3 mesmo após retorno,
-// recarregamento ou restauração da página. A calculadora foi projetada para
-// trabalhar uma sequência ativa por vez neste aparelho.
-const COMPARISON_SEQUENCE_KEY='bastos-comparison-sequence-v48';
-const COMPARISON_SEQUENCE_FALLBACK_KEY='bastos-comparison-sequence-fallback-v48';
-let comparisonSequenceStep=0;
-function readComparisonSequenceStep(){
- try{
-  const raw=localStorage.getItem(COMPARISON_SEQUENCE_KEY);
-  if(raw!==null){const value=Number(raw);if(Number.isInteger(value)&&value>=0&&value<=4)return value;}
- }catch(error){/* Tenta o armazenamento alternativo logo abaixo. */}
- try{
-  const value=Number(sessionStorage.getItem(COMPARISON_SEQUENCE_FALLBACK_KEY));
-  if(Number.isInteger(value)&&value>=0&&value<=4)return value;
- }catch(ignore){}
- return 0;
-}
-comparisonSequenceStep=readComparisonSequenceStep();
+// Não existe mais estado de sequência: cada botão envia sua mensagem de forma independente.
 function suggestedAppCars(){ return Number($('passengers').value||0)>=5 ? 2 : 1; }
 function updateAutoAppCars(){
  const suggestion=suggestedAppCars();
@@ -509,7 +491,6 @@ function updateAutoAppCars(){
  renderComparison();
 }
 function setComparisonImage(provider,file){
- setComparisonSequenceStep(0);
  const old=comparisonImages[provider];
  if(old?.url)URL.revokeObjectURL(old.url);
  comparisonImages[provider]=file?{file,url:URL.createObjectURL(file)}:null;
@@ -576,17 +557,22 @@ function formatDifference(total,bastos,label){
  if(diff<0)return `${label} fica ${money(Math.abs(diff))} abaixo do pacote Bastos nesta simulação.`;
  return `Os valores de ${label} e do pacote Bastos são iguais nesta simulação.`;
 }
-function comparisonSequenceTotal(){ return Number($('passengers').value||0)>4 ? 4 : 3; }
 function updateComparisonMessageEditorLabels(){
  const largeGroup=Number($('passengers').value||0)>4;
  const labels=largeGroup
-  ? ['Mensagem 1 de 4 — capacidade dos carros de aplicativo','Mensagem 2 de 4 — comparação de transportes','Mensagem 3 de 4 — proposta Bastos','Mensagem 4 de 4 — vamos organizar sua viagem?']
-  : ['Mensagem 1 de 3 — comparação de transportes','Mensagem 2 de 3 — proposta Bastos','Mensagem 3 de 3 — vamos organizar sua viagem?'];
+  ? ['Mensagem 1 — capacidade dos carros de aplicativo','Mensagem 2 — comparação de transportes','Mensagem 3 — proposta Bastos','Mensagem 4 — vamos organizar sua viagem?']
+  : ['Mensagem 1 — comparação de transportes','Mensagem 2 — proposta Bastos','Mensagem 3 — vamos organizar sua viagem?'];
+ const buttonLabels=largeGroup
+  ? ['💬 1 · Explicação sobre os carros','💬 2 · Comparação de transportes','💬 3 · Proposta Bastos','💬 4 · Vamos organizar sua viagem?']
+  : ['💬 1 · Comparação de transportes','💬 2 · Proposta Bastos','💬 3 · Vamos organizar sua viagem?'];
  for(let i=1;i<=4;i++){
-  const field=$('comparisonMessageField'+i),label=$('comparisonMessageLabel'+i);
+  const field=$('comparisonMessageField'+i),label=$('comparisonMessageLabel'+i),button=$('sendComparisonMessage'+i);
   if(field)field.hidden=i>labels.length;
   if(label)label.textContent=labels[i-1]||'';
+  if(button){button.hidden=i>buttonLabels.length;if(i<=buttonLabels.length)button.textContent=buttonLabels[i-1];}
  }
+ const progress=$('comparisonSequenceProgress');
+ if(progress)progress.textContent=`Há ${labels.length} mensagens disponíveis. Cada uma tem seu próprio botão: escolha qualquer ordem, repita ou reenvie quando precisar.`;
 }
 function buildComparison(){
  const data=currentComparisonEntries(),{bastos,roundTrip,apps,bus,entries}=data;
@@ -690,6 +676,7 @@ function updateFourPassengerSuggestion(){
 }
 function renderComparison(forceMessage=false){
  const result=$('comparisonResults');if(!result)return;
+ updateComparisonMessageEditorLabels();
  const bastos=Number($('comparisonBastosValue').value||$('comparisonModule').dataset.bastosBaseTotal||0);
  if(!bastos){result.innerHTML='';updateFourPassengerSuggestion();return;}
  let data;
@@ -830,44 +817,6 @@ function openBookingConfirmation(){
  if(!opened)window.location.href=url;
  $('bookingConfirmationStatus').textContent='Confirmação preparada no WhatsApp. Confira o contato e toque em Enviar.';
 }
-function updateComparisonSequenceUI(){
- const button=$('shareComparison'),progress=$('comparisonSequenceProgress');
- if(!button)return;
- const total=comparisonSequenceTotal();
- const names=Number($('passengers').value||0)>4
-  ? ['explicação sobre a quantidade de passageiros','comparação de transportes','proposta Bastos','fechamento — vamos organizar sua viagem?']
-  : ['comparação de transportes','proposta Bastos','fechamento — vamos organizar sua viagem?'];
- if(comparisonSequenceStep>=total){
-   button.textContent=`✅ Sequência concluída (${total}/${total}) · toque para iniciar novamente`;
-   if(progress)progress.textContent=`As ${total} mensagens foram preparadas. Para iniciar uma nova sequência, toque novamente no botão.`;
-   return;
- }
- button.textContent=`${comparisonSequenceStep+1}/${total} · Enviar ${names[comparisonSequenceStep]} pelo WhatsApp`;
- if(progress){
-  if(comparisonSequenceStep===0){
-   progress.textContent=total===4
-    ? 'A primeira mensagem explica por que 5 ou 6 passageiros normalmente precisam de dois carros comuns. Envie-a, volte à calculadora e toque novamente para ver os preços.'
-    : 'Envie a comparação de preços. Depois volte à calculadora e toque novamente para abrir a proposta Bastos.';
-  }else{
-   progress.textContent=`Mensagem ${comparisonSequenceStep} de ${total} preparada. Envie-a no WhatsApp, volte à calculadora e toque novamente para abrir a próxima.`;
-  }
- }
-}
-function setComparisonSequenceStep(step){
- comparisonSequenceStep=Math.max(0,Math.min(4,Number(step)||0));
- try{localStorage.setItem(COMPARISON_SEQUENCE_KEY,String(comparisonSequenceStep));}
- catch(error){try{sessionStorage.setItem(COMPARISON_SEQUENCE_FALLBACK_KEY,String(comparisonSequenceStep));}catch(ignore){}}
- updateComparisonSequenceUI();
-}
-function syncComparisonSequenceStep(){
- const saved=readComparisonSequenceStep();
- if(saved!==comparisonSequenceStep){comparisonSequenceStep=saved;updateComparisonSequenceUI();}
-}
-// Revalida a etapa ao voltar do WhatsApp, inclusive quando o Safari restaura a aba.
-window.addEventListener('pageshow',syncComparisonSequenceStep);
-window.addEventListener('focus',syncComparisonSequenceStep);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncComparisonSequenceStep();});
-window.addEventListener('storage',event=>{if(event.key===COMPARISON_SEQUENCE_KEY)syncComparisonSequenceStep();});
 function budgetEditsPending(){
  const budget=$('clientBudget');
  if(!budget.dataset.quoteBase)return false;
@@ -875,26 +824,17 @@ function budgetEditsPending(){
    ||$('budgetServiceDescription').value.trim()!==String(budget.dataset.appliedService||budget.dataset.baseMode||'')
    ||$('budgetAdditionalNote').value.trim()!==String(budget.dataset.appliedNote||'');
 }
-let comparisonLaunchLocked=false;
-function openComparisonInWhatsApp(){
- if(comparisonLaunchLocked)return;
- comparisonLaunchLocked=true;
- const launchButton=$('shareComparison');
- if(launchButton)launchButton.disabled=true;
- window.setTimeout(()=>{comparisonLaunchLocked=false;if(launchButton)launchButton.disabled=false;},1200);
- syncComparisonSequenceStep();
+const comparisonButtonLocks=new Set();
+function openComparisonMessage(messageIndex){
+ const button=$('sendComparisonMessage'+messageIndex);
+ if(!button||button.hidden||comparisonButtonLocks.has(messageIndex))return;
  let data;
  try{data=buildComparison();}catch(e){alert(e.message);return;}
- const sequenceTotal=data.messages.length;
- if(comparisonSequenceStep>=sequenceTotal){
-   setComparisonSequenceStep(0);
-   $('comparisonStatus').textContent=`Sequência reiniciada. A próxima etapa será a mensagem 1 de ${sequenceTotal}.`;
-   return;
- }
- const step=comparisonSequenceStep;
- const field=$('comparisonMessage'+(step+1));
- const message=(field?.value||data.messages[step]||'').trim();
- if(!message){alert('A mensagem desta etapa está vazia. Toque em “Atualizar mensagens automáticas” ou escreva o texto antes de enviar.');return;}
+ const messagePosition=messageIndex-1;
+ if(messagePosition<0||messagePosition>=data.messages.length){alert('Esta mensagem não se aplica à quantidade de passageiros informada.');return;}
+ const field=$('comparisonMessage'+messageIndex);
+ const message=(field?.value||data.messages[messagePosition]||'').trim();
+ if(!message){alert('Esta mensagem está vazia. Toque em “Atualizar mensagens automáticas” ou escreva o texto antes de enviar.');return;}
  const rawPhone=$('phone').value.trim();
  const phone=normalizeWhatsAppPhone(rawPhone);
  if(phone===false){
@@ -903,16 +843,13 @@ function openComparisonInWhatsApp(){
    return;
  }
  const url=phone?`https://wa.me/${phone}?text=${encodeURIComponent(message)}`:`https://wa.me/?text=${encodeURIComponent(message)}`;
- // Avança e salva antes de abrir o WhatsApp, para que a próxima etapa continue
- // disponível quando o usuário voltar à calculadora depois de enviar a mensagem.
- setComparisonSequenceStep(step+1);
+ comparisonButtonLocks.add(messageIndex);
+ button.disabled=true;
+ window.setTimeout(()=>{comparisonButtonLocks.delete(messageIndex);button.disabled=false;},1000);
  const opened=window.open(url,'_blank');
- if(!opened){
-   // Fallback quando o navegador bloqueia nova aba: mantém o avanço na sessão e navega para o WhatsApp.
-   window.location.href=url;
- }
+ if(!opened)window.location.href=url;
  const destination=phone?'a conversa do número informado':'a lista de contatos para você escolher o cliente';
- $('comparisonStatus').textContent=`Mensagem ${step+1} de ${sequenceTotal} preparada no WhatsApp (${destination}). Confira o destinatário e toque em Enviar. Depois volte à calculadora e use o mesmo botão para abrir a próxima mensagem.`;
+ $('comparisonStatus').textContent=`Mensagem ${messageIndex} preparada no WhatsApp (${destination}). Você pode usar outro botão, voltar a esta ou repetir qualquer mensagem sem seguir uma ordem.`;
 }
 async function shareOneComparisonPrint(provider){
  const item=comparisonImages[provider];
@@ -1035,7 +972,7 @@ function updateMode(){
      ? 'Informe: (1) do seu local atual até o local de partida do cliente; (2) o consumo manual desse deslocamento; (3) do embarque até o destino; (4) deslocamentos entre locais, retorno ao embarque e/ou volta à sua base nos quilômetros adicionais. A soma representa a operação completa da Spin.'
      : 'Informe: (1) do seu local atual até o local de partida do cliente; (2) o consumo manual desse deslocamento; (3) do embarque do cliente até o destino; (4) retorno e outros deslocamentos nos quilômetros adicionais. Se você já estiver no embarque, informe 0 no primeiro campo.';
 }
-$('serviceMode').addEventListener('change',()=>{updateMode();setComparisonSequenceStep(0);renderComparison();saveDraft();});
+$('serviceMode').addEventListener('change',()=>{updateMode();renderComparison();saveDraft();});
 function calculate(){
  const approachKm=num('approachKm'),approachBase=num('approachConsumption'),clientKm=num('clientKm'),extraKm=num('extraKm');
  const km=approachKm+clientKm+extraKm;
@@ -1264,7 +1201,6 @@ function applyBudgetEdits(showFeedback=true){
  $('comparisonModule').dataset.bastosTotal=String(finalTotal);
  $('comparisonBastosValue').value=finalTotal.toFixed(2);
  $('comparisonBastosValue').dataset.manual='false';
- setComparisonSequenceStep(0);
  renderComparison();
  $('budgetEditStatus').textContent=`Orçamento revisado: ${money(finalTotal)}. O PDF, o texto de WhatsApp e a comparação usarão este valor. Os custos internos do planejamento foram mantidos.`;
  updateBookingConfirmation(false);
@@ -1283,7 +1219,7 @@ function restoreBudgetEdits(){
 $('applyBudgetEdits').addEventListener('click',()=>applyBudgetEdits(true));
 $('restoreBudgetEdits').addEventListener('click',restoreBudgetEdits);
 
-$('calculate').addEventListener('click',()=>{ $('calcError').textContent='';setComparisonSequenceStep(0);try{calculate();saveDraft();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;saveDraft();}});
+$('calculate').addEventListener('click',()=>{ $('calcError').textContent='';try{calculate();saveDraft();$('clientBudget').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('calcError').textContent=e.message;saveDraft();}});
 ['client','travelDate','travelTime','origin','destination','passengers','adults','children','childrenAges','babyCount','babyAges','largeBags','smallBags','stroller','childSeat','observations','serviceMode'].forEach(id=>{
  const field=$(id);
  if(field){
@@ -1359,10 +1295,10 @@ $('printBudget').addEventListener('click',()=>{
  try{win.focus();}catch(e){}
 });
 $('preset').addEventListener('change',()=>$('custom').disabled=$('preset').value!=='custom');
-$('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);setComparisonSequenceStep(0);renderComparison();});
+$('passengers').addEventListener('change',()=>{const n=Number($('passengers').value);if(n>=0&&n<=6&&$('adults').value==='4'&&$('children').value==='0')$('adults').value=String(n);renderComparison();});
 $('adults').addEventListener('input',syncPax);$('children').addEventListener('input',syncPax);$('babyCount').addEventListener('input',syncPax);
-function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);setComparisonSequenceStep(0);updateAutoAppCars();}
-$('passengers').addEventListener('input',()=>{setComparisonSequenceStep(0);updateAutoAppCars();});
+function syncPax(){const n=Number($('adults').value||0)+Number($('children').value||0)+Number($('babyCount').value||0);if(n>=1&&n<=6)$('passengers').value=String(n);updateAutoAppCars();}
+$('passengers').addEventListener('input',()=>{updateAutoAppCars();});
 $('save').addEventListener('click',()=>{try{const c=calculate(),arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');arr.unshift({dest:$('destination').value,km:c.km,revenue:c.revenue,date:new Date().toLocaleDateString('pt-BR')});localStorage.setItem('bastosTrips',JSON.stringify(arr.slice(0,30)));renderHistory();alert('Orçamento salvo neste aparelho.');}catch(e){alert(e.message);}});
 function renderHistory(){let arr=[];try{arr=JSON.parse(localStorage.getItem('bastosTrips')||'[]');}catch(e){}$('history').innerHTML=arr.length?arr.map(x=>`<li><b>${escapeHtml(x.dest||'Destino não informado')}</b> — ${fmt(x.km)} km — ${escapeHtml(x.date)} — faturamento ${money(x.revenue)}</li>`).join(''):'<li>Nenhum orçamento salvo ainda.</li>';}
 
@@ -1380,31 +1316,34 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 ['uberFare','uberCars','uberReturnFare','99Fare','99Cars','99ReturnFare','busFareOut','busFareBack','busManualTotal','fourPaxPremiumPct'].forEach(id=>{
  $(id).addEventListener('input',()=>{
    if(id==='uberCars'||id==='99Cars')$(id).dataset.auto='false';
-   setComparisonSequenceStep(0);renderComparison();saveDraft();
+   renderComparison();saveDraft();
  });
 });
 $('comparisonBastosValue').addEventListener('input',()=>{
  $('comparisonBastosValue').dataset.manual='true';
- setComparisonSequenceStep(0);renderComparison();saveDraft();
+ renderComparison();saveDraft();
 });
 $('restoreBastosValue').addEventListener('click',()=>{
  const base=Number($('comparisonModule').dataset.bastosBaseTotal||$('comparisonModule').dataset.bastosTotal||0);
- if(base>0){$('comparisonBastosValue').value=base.toFixed(2);$('comparisonBastosValue').dataset.manual='false';setComparisonSequenceStep(0);renderComparison();saveDraft();}
+ if(base>0){$('comparisonBastosValue').value=base.toFixed(2);$('comparisonBastosValue').dataset.manual='false';renderComparison();saveDraft();}
 });
 $('useFourPaxSuggestion').addEventListener('click',()=>{
  const suggested=Number($('fourPaxSuggestedPrice').dataset.value||0);
  if(!(suggested>0)){alert('Informe primeiro uma cotação da Uber ou da 99 para calcular a sugestão.');return;}
- $('comparisonBastosValue').value=suggested.toFixed(2);$('comparisonBastosValue').dataset.manual='true';setComparisonSequenceStep(0);renderComparison(true);saveDraft();
+ $('comparisonBastosValue').value=suggested.toFixed(2);$('comparisonBastosValue').dataset.manual='true';renderComparison(true);saveDraft();
 });
-['comparisonMessage1','comparisonMessage2','comparisonMessage3','comparisonMessage4'].forEach(id=>$(id).addEventListener('input',()=>{comparisonMessagesDirty=true;setComparisonSequenceStep(0);saveDraft();}));
-$('refreshComparisonMessage').addEventListener('click',()=>{comparisonMessagesDirty=false;setComparisonSequenceStep(0);renderComparison(true);saveDraft();});
+['comparisonMessage1','comparisonMessage2','comparisonMessage3','comparisonMessage4'].forEach(id=>$(id).addEventListener('input',()=>{comparisonMessagesDirty=true;saveDraft();}));
+$('refreshComparisonMessage').addEventListener('click',()=>{comparisonMessagesDirty=false;renderComparison(true);saveDraft();});
 $('refreshComparisonMessage').textContent='Atualizar mensagens automáticas (3 ou 4, conforme passageiros)';
-$('shareComparison').addEventListener('click',()=>{if(budgetEditsPending()&&!applyBudgetEdits(true))return;openComparisonInWhatsApp();});
+for(let i=1;i<=4;i++){
+ const button=$('sendComparisonMessage'+i);
+ button.addEventListener('click',()=>{if(budgetEditsPending()&&!applyBudgetEdits(true))return;openComparisonMessage(i);});
+}
 // Corrigir o telefone do destinatário entre as etapas não reinicia a sequência.
 const hadSavedBudget=restoreDraft();
 if($('comparisonBastosValue').dataset.manual===undefined)$('comparisonBastosValue').dataset.manual='false';
 if(['comparisonMessage1','comparisonMessage2','comparisonMessage3','comparisonMessage4'].some(id=>$(id).value.trim()))comparisonMessagesDirty=true;
-updateComparisonSequenceUI();
+updateComparisonMessageEditorLabels();
 updateMode();renderHistory();updateAutoAppCars();updateSelectedPrintsStatus();
 if(hadSavedBudget){
  const savedBudgetEdits={final:$('budgetFinalValue').value,service:$('budgetServiceDescription').value,note:$('budgetAdditionalNote').value};
