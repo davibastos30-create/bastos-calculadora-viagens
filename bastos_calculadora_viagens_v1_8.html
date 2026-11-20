@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101c35">
-<title>Bastos | Calculadora de Viagens — v4.6</title>
+<title>Bastos | Calculadora de Viagens — v4.7</title>
 <style>
 :root{--navy:#101c35;--gold:#d6ad55;--ink:#172033;--muted:#667085;--line:#e5e7eb;--bg:#f4f6fa;--green:#18794e;--red:#a33}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
@@ -115,7 +115,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 .budget-custom-note{margin:10px 0 0;padding:10px 12px;border-left:3px solid #76add5;background:#f5faff;border-radius:8px;font-size:12px;line-height:1.5;color:#1b3044;white-space:pre-wrap}
 @media(max-width:560px){.budget-edit-panel{padding:12px}.budget-edit-panel .actions{display:grid;grid-template-columns:1fr}.budget-edit-panel .actions button{width:100%}}
 
-/* v4.6 — proposta comercial revisada, comprovantes com indicação visual e orçamento editável antes do PDF */
+/* v4.7 — proposta comercial revisada, comprovantes com indicação visual e orçamento editável antes do PDF */
 .separate-print-actions{margin-top:10px;border:1px solid #cfe2f3;border-radius:12px;padding:12px;background:#f5f9fd}
 .separate-print-title{font-size:13px;font-weight:800;color:#073763;margin-bottom:5px}
 .separate-print-help{font-size:12px;color:#475467;line-height:1.5;margin:0 0 10px}
@@ -357,7 +357,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 </section>
 
 <section class="card"><h2>9. Histórico salvo neste aparelho</h2><ul id="history"><li>Nenhum orçamento salvo ainda.</li></ul><p class="hint">O histórico fica armazenado neste navegador/aparelho.</p></section>
-<p class="hint">Versão 4.6 — sequência de três mensagens com progresso persistente ao voltar do WhatsApp, comprovantes separados e orçamento editável.</p>
+<p class="hint">Versão 4.7 — sequência de três mensagens com progresso salvo em chave fixa para retorno do WhatsApp no iPhone, comprovantes separados e orçamento editável.</p>
 </main>
 <script>
 (() => {
@@ -375,7 +375,7 @@ function saveDraft(){
    const fields=Array.from(document.querySelectorAll('input[id],select[id],textarea[id]'))
      .filter(el=>el.type!=='file')
      .map(el=>({id:el.id,value:el.value,checked:el.checked,auto:el.dataset.auto,manual:el.dataset.manual}));
-   const payload={version:'4.6',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
+   const payload={version:'4.7',savedAt:Date.now(),fields,hasBudget:!!$('clientBudget')?.dataset.quote};
    sessionStorage.setItem(DRAFT_KEY,JSON.stringify(payload));
  }catch(error){/* O funcionamento normal da calculadora não depende do armazenamento da sessão. */}
 }
@@ -413,31 +413,26 @@ const consumption = () => $('preset').value === 'custom' ? num('custom') : Numbe
 const escapeHtml = value => String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const comparisonImages = { uber: null, '99': null, bus: null };
 let comparisonMessagesDirty=false;
-// Cada aba da calculadora recebe um identificador próprio. O progresso fica no
-// localStorage associado a esse identificador, que continua disponível quando o
-// Safari abre o WhatsApp e depois restaura/recarrega a calculadora.
-const COMPARISON_SEQUENCE_TAB_KEY='bastos-comparison-sequence-tab-v46';
-const COMPARISON_SEQUENCE_KEY_PREFIX='bastos-comparison-sequence-v46:';
-let comparisonTabId='';
-try{
- comparisonTabId=sessionStorage.getItem(COMPARISON_SEQUENCE_TAB_KEY)||'';
- if(!comparisonTabId){
-  comparisonTabId=(window.crypto&&window.crypto.randomUUID)?window.crypto.randomUUID():('tab-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));
-  sessionStorage.setItem(COMPARISON_SEQUENCE_TAB_KEY,comparisonTabId);
- }
-}catch(error){comparisonTabId='fallback-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);}
-const COMPARISON_SEQUENCE_KEY=COMPARISON_SEQUENCE_KEY_PREFIX+comparisonTabId;
-const COMPARISON_SEQUENCE_FALLBACK_KEY='bastos-comparison-sequence-fallback-v46';
+// Progresso da sequência em uma chave fixa do mesmo domínio.
+// Não vincular a etapa a sessionStorage/identificador de aba: no iPhone, o
+// Safari pode restaurar o site em outro contexto depois de abrir o WhatsApp,
+// fazendo a aba receber um ID novo e voltar indevidamente para a mensagem 1.
+// Uma chave fixa em localStorage mantém a etapa 1 -> 2 -> 3 mesmo após retorno,
+// recarregamento ou restauração da página. A calculadora foi projetada para
+// trabalhar uma sequência ativa por vez neste aparelho.
+const COMPARISON_SEQUENCE_KEY='bastos-comparison-sequence-v47';
+const COMPARISON_SEQUENCE_FALLBACK_KEY='bastos-comparison-sequence-fallback-v47';
 let comparisonSequenceStep=0;
 function readComparisonSequenceStep(){
  try{
   const raw=localStorage.getItem(COMPARISON_SEQUENCE_KEY);
   if(raw!==null){const value=Number(raw);if(Number.isInteger(value)&&value>=0&&value<=3)return value;}
-  return 0;
- }catch(error){
-  try{const value=Number(sessionStorage.getItem(COMPARISON_SEQUENCE_FALLBACK_KEY));if(Number.isInteger(value)&&value>=0&&value<=3)return value;}catch(ignore){}
-  return 0;
- }
+ }catch(error){/* Tenta o armazenamento alternativo logo abaixo. */}
+ try{
+  const value=Number(sessionStorage.getItem(COMPARISON_SEQUENCE_FALLBACK_KEY));
+  if(Number.isInteger(value)&&value>=0&&value<=3)return value;
+ }catch(ignore){}
+ return 0;
 }
 comparisonSequenceStep=readComparisonSequenceStep();
 function suggestedAppCars(){ return Number($('passengers').value||0)>=5 ? 2 : 1; }
@@ -702,7 +697,13 @@ function budgetEditsPending(){
    ||$('budgetServiceDescription').value.trim()!==String(budget.dataset.appliedService||budget.dataset.baseMode||'')
    ||$('budgetAdditionalNote').value.trim()!==String(budget.dataset.appliedNote||'');
 }
+let comparisonLaunchLocked=false;
 function openComparisonInWhatsApp(){
+ if(comparisonLaunchLocked)return;
+ comparisonLaunchLocked=true;
+ const launchButton=$('shareComparison');
+ if(launchButton)launchButton.disabled=true;
+ window.setTimeout(()=>{comparisonLaunchLocked=false;if(launchButton)launchButton.disabled=false;},1200);
  syncComparisonSequenceStep();
  let data;
  try{data=buildComparison();}catch(e){alert(e.message);return;}
